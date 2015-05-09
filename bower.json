@@ -1,0 +1,21 @@
+{
+  "name": "NestedNodeDocument",
+  "version": "0.0.1",
+  "main": "NestedNodeDocument.js",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules/",
+    "bower_components/",
+    "pkg/",
+    "labs/",
+    "labs.labman",
+    "src/",
+    "gruntfile.js",
+    "package.json"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
