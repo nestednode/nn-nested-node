@@ -1,4 +1,4 @@
-import SequenceDirection = require('./SequenceDirection');
+import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 
 
@@ -73,43 +73,38 @@ class NestedNode {
 
     // ** Siblings
 
-    getSibling(direction: SequenceDirection): NestedNode {
+    getSibling(direction: Direction, sameParentOnly = false, preferredLevel?: number) {
+        return sameParentOnly ?
+            this.getImmediateSibling(direction) :
+            this.getCrossSibling(direction, preferredLevel || this.level);
+    }
+
+    private getImmediateSibling(direction: Direction): NestedNode {
         if (! this.hasParent) {
             return null;
         }
-        var selfIndex = this._nested.indexOf(this);
-        if (selfIndex == -1) {
-            throw new Error('anchor item not found in the store');
-        }
-        var targetIndex = selfIndex + (direction === SequenceDirection.Following ? 1 : -1);
+        var selfIndex = this._parent._nested.indexOf(this);
+        var targetIndex = selfIndex + (direction.isForward ? 1 : -1);
         return this._nested[targetIndex];
     }
 
-    getSiblingWide(direction: SequenceDirection, preferredLevel: number): NestedNode {
-        var sibling = this.getSibling(direction);
+    private getCrossSibling(direction: Direction, preferredLevel: number): NestedNode {
+        var sibling = this.getImmediateSibling(direction);
         if (! sibling) {
-            return this.hasParent ? this._parent.getSiblingWide(direction, preferredLevel) : null;
+            return this.hasParent ? this._parent.getCrossSibling(direction, preferredLevel) : null;
         }
-        return sibling.getSiblingWidePhase2(direction, preferredLevel);
+        return sibling.getCrossSiblingPhase2(direction, preferredLevel);
     }
 
-    private getSiblingWidePhase2(direction: SequenceDirection, preferredLevel: number): NestedNode {
+    private getCrossSiblingPhase2(direction: Direction, preferredLevel: number): NestedNode {
         if (this.level === preferredLevel) {
             return this;
         }
-        var nested = direction === SequenceDirection.Following ? this.firstNested : this.lastNested;
+        var nested = direction.isForward ? this.firstNested : this.lastNested;
         if (! nested) {
             return this;
         }
-        return nested.getSiblingWidePhase2(direction, preferredLevel);
-    }
-
-    getPreceding(preferredLevel = this.level) {
-        return this.getSiblingWide(SequenceDirection.Preceding, preferredLevel);
-    }
-
-    getFollowing(preferredLevel = this.level) {
-        return this.getSiblingWide(SequenceDirection.Following, preferredLevel);
+        return nested.getCrossSiblingPhase2(direction, preferredLevel);
     }
 
 
@@ -117,7 +112,7 @@ class NestedNode {
 
     // ** Nested-Related Methods
 
-    appendNested(node: NestedNode, anchorNode?: NestedNode, direction?: SequenceDirection): void {
+    appendNested(node: NestedNode, anchorNode?: NestedNode, direction?: Direction): void {
 
         node.makeParentless();
 
@@ -127,8 +122,7 @@ class NestedNode {
             if (index == -1) {
                 throw new Error('anchor node not exists in nested');
             }
-            //todo
-            if (direction || direction === SequenceDirection.Following) {
+            if (direction === undefined || direction.isForward) {
                 index++;
             }
         }

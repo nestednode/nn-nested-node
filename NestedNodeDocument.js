@@ -18,8 +18,8 @@ define(["require", "exports"], function (require, exports) {
                     this.resetFocusedNode();
                     return;
                 }
-                var ensureNestedUnselected = true;
-                node.select(ensureNestedUnselected);
+                var ensureNestedUnselected;
+                node.select(ensureNestedUnselected = true);
                 this.resetFocusedNode(node);
                 return;
             }
@@ -34,17 +34,10 @@ define(["require", "exports"], function (require, exports) {
         NestedNodeDocument.prototype.focusParentNode = function () {
             this.focusNode(this.focusedNode.parent);
         };
-        NestedNodeDocument.prototype.focusPrecedingNode = function (extendSelection) {
+        NestedNodeDocument.prototype.focusSiblingNode = function (direction, extendSelection) {
             if (extendSelection === void 0) { extendSelection = false; }
-            var nodeBefore = this.focusedNode.getPreceding(this.currentFocusLevel);
-            this.focusSiblingNode(nodeBefore, extendSelection);
-        };
-        NestedNodeDocument.prototype.focusFollowingNode = function (extendSelection) {
-            if (extendSelection === void 0) { extendSelection = false; }
-            var nodeAfter = this.focusedNode.getFollowing(this.currentFocusLevel);
-            this.focusSiblingNode(nodeAfter, extendSelection);
-        };
-        NestedNodeDocument.prototype.focusSiblingNode = function (node, extendSelection) {
+            var sameParentOnly;
+            var node = this.focusedNode.getSibling(direction, sameParentOnly = false, this.currentFocusLevel);
             if (extendSelection && this.focusedNode.selected && node && node.selected) {
                 this.focusedNode.unselect();
                 this.resetFocusedNode(node);

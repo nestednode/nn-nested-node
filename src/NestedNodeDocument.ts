@@ -1,5 +1,6 @@
 import Collection = require('pkg/Collection/Collection');
 import NestedNode = require('./lib/NestedNode');
+import Direction = require('./lib/Direction');
 
 
 class NestedNodeDocument {
@@ -26,8 +27,8 @@ class NestedNodeDocument {
                 this.resetFocusedNode();
                 return;
             }
-            var ensureNestedUnselected = true;
-            node.select(ensureNestedUnselected);
+            var ensureNestedUnselected;
+            node.select(ensureNestedUnselected = true);
             this.resetFocusedNode(node);
             return;
         }
@@ -45,17 +46,9 @@ class NestedNodeDocument {
         this.focusNode(this.focusedNode.parent);
     }
 
-    focusPrecedingNode(extendSelection = false): void {
-        var nodeBefore = this.focusedNode.getPreceding(this.currentFocusLevel);
-        this.focusSiblingNode(nodeBefore, extendSelection);
-    }
-
-    focusFollowingNode(extendSelection = false): void {
-        var nodeAfter = this.focusedNode.getFollowing(this.currentFocusLevel);
-        this.focusSiblingNode(nodeAfter, extendSelection);
-    }
-
-    private focusSiblingNode(node: NestedNode, extendSelection): void {
+    focusSiblingNode(direction: Direction, extendSelection = false): void {
+        var sameParentOnly;
+        var node = this.focusedNode.getSibling(direction, sameParentOnly = false, this.currentFocusLevel);
         if (extendSelection && this.focusedNode.selected && node && node.selected) {
             this.focusedNode.unselect();
             this.resetFocusedNode(node);

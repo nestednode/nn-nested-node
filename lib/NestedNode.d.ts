@@ -1,4 +1,4 @@
-import SequenceDirection = require('./SequenceDirection');
+import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 declare class NestedNode {
     private registry;
@@ -17,12 +17,11 @@ declare class NestedNode {
     eachNested(cb: (node: NestedNode) => void): void;
     eachNestedDeep(cb: (node: NestedNode) => void): void;
     each(cb: (node: NestedNode) => void): void;
-    getSibling(direction: SequenceDirection): NestedNode;
-    getSiblingWide(direction: SequenceDirection, preferredLevel: number): NestedNode;
-    private getSiblingWidePhase2(direction, preferredLevel);
-    getPreceding(preferredLevel?: number): NestedNode;
-    getFollowing(preferredLevel?: number): NestedNode;
-    appendNested(node: NestedNode, anchorNode?: NestedNode, direction?: SequenceDirection): void;
+    getSibling(direction: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode;
+    private getImmediateSibling(direction);
+    private getCrossSibling(direction, preferredLevel);
+    private getCrossSiblingPhase2(direction, preferredLevel);
+    appendNested(node: NestedNode, anchorNode?: NestedNode, direction?: Direction): void;
     removeNested(node: NestedNode): void;
     replaceNested(node: NestedNode, newNode: NestedNode): void;
     attachToParent(parent: NestedNode): void;
