@@ -42,7 +42,8 @@ module.exports = function(grunt) {
         grunt.loadTasks(findup(path.join('node_modules', plugin, 'tasks')));
     });
 
-    grunt.registerTask('compile', ['clean', 'typescript']);
+    grunt.registerTask('compile', ['typescript']);
+    grunt.registerTask('recompile', ['clean', 'compile']);
     grunt.registerTask('default', ['compile', 'watch']);
 
 };
