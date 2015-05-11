@@ -1,6 +1,7 @@
 import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
-declare class NestedNode {
+import NestedNodeData = require('./NestedNodeData');
+declare class NestedNode implements NestedNodeData {
     private registry;
     private _id;
     id: string;
@@ -14,9 +15,9 @@ declare class NestedNode {
     firstNested: NestedNode;
     lastNested: NestedNode;
     nestedCount: number;
-    eachNested(cb: (node: NestedNode) => void): void;
-    eachNestedDeep(cb: (node: NestedNode) => void): void;
-    each(cb: (node: NestedNode) => void): void;
+    forEach(cb: (node: NestedNode) => void, thisArg?: any): void;
+    forEachDeep(cb: (node: NestedNode) => void): void;
+    traverse(cb: (node: NestedNode) => void): void;
     getSibling(direction: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode;
     private getImmediateSibling(direction);
     private getCrossSibling(direction, preferredLevel);

@@ -1,8 +1,9 @@
 import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
+import NestedNodeData = require('./NestedNodeData');
 
 
-class NestedNode {
+class NestedNode implements NestedNodeData {
 
     // * Identity
 
@@ -54,21 +55,20 @@ class NestedNode {
         return this._nested.length;
     }
 
-    eachNested(cb: (node: NestedNode) => void): void {
-        this._nested.forEach(cb);
+    forEach(cb: (node: NestedNode) => void, thisArg?): void {
+        this._nested.forEach(cb, thisArg);
     }
 
-    eachNestedDeep(cb: (node: NestedNode) => void): void {
+    forEachDeep(cb: (node: NestedNode) => void): void {
         this._nested.forEach(node => {
             cb(node);
-            node.eachNestedDeep(cb);
+            node.forEachDeep(cb);
         })
     }
 
-    // eachNestedDeepAndSelf
-    each(cb: (node: NestedNode) => void): void {
+    traverse(cb: (node: NestedNode) => void): void {
         cb(this);
-        this.eachNestedDeep(cb);
+        this.forEachDeep(cb);
     }
 
     // ** Siblings
@@ -195,7 +195,7 @@ class NestedNode {
 
     getSelection(): NestedNode[] {
         var res = [];
-        this.each(node => {
+        this.traverse(node => {
             if (node._selected) {
                 res.push(node);
             }
@@ -213,7 +213,7 @@ class NestedNode {
     constructor(registry: NestedNodeRegistry, ref?: NestedNode) {
         // при создании узел всегда отвязан от родителя, даже если он клонируется
         this.registry = registry;
-        this._id = this.registry.register(this);
+        this._id = this.registry.registerNode(this);
         this._parent = null;
         this._selected = false;
         ref ? this.clone(ref) : this.init();

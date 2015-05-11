@@ -4,11 +4,9 @@ import NestedNode = require('./NestedNode');
 
 interface NestedNodeRegistry {
 
-    //objRegistry: Collection.Map<string, NestedNode>;
+    registerNode(node: NestedNode): string;
 
-    register(node: NestedNode): string;
-
-    unregister(node: NestedNode);
+    unregisterNode(node: NestedNode): void;
 
     getNodeById(id: string): NestedNode;
 }
