@@ -17,13 +17,13 @@ define(["require", "exports", './lib/NodeRelation', './lib/Direction'], function
         NestedNodeDocument.prototype.getNodeById = function (id) {
             return this.nodeRegistry.get(id);
         };
-        // * Action Handlers
-        // ** Focus And Selection
-        NestedNodeDocument.prototype.handleFocusNodeById = function (id, extendSelection) {
+        // * Document Actions
+        // ** Actions With Focused Node
+        NestedNodeDocument.prototype.focusNodeById = function (id, extendSelection) {
             if (extendSelection === void 0) { extendSelection = false; }
             this.focusNode(this.getNodeById(id), extendSelection);
         };
-        NestedNodeDocument.prototype.handleFocusMoveTo = function (targetNodeRelation, extendSelection) {
+        NestedNodeDocument.prototype.focusRelatedNode = function (targetNodeRelation, extendSelection) {
             if (extendSelection === void 0) { extendSelection = false; }
             switch (targetNodeRelation) {
                 case 0 /* Parent */:

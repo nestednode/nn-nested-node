@@ -1,10 +1,10 @@
 import Collection = require('pkg/Collection/Collection');
 import NestedNode = require('./lib/NestedNode');
 import NestedNodeRegistry = require('./lib/NestedNodeRegistry');
-import ActionHandler = require('./lib/ActionHandler');
+import DocumentActions = require('./lib/DocumentActions');
 import NodeRelation = require('./lib/NodeRelation');
 import Direction = require('./lib/Direction');
-declare class NestedNodeDocument implements NestedNodeRegistry, ActionHandler {
+declare class NestedNodeDocument implements NestedNodeRegistry, DocumentActions {
     root: NestedNode;
     private id;
     private nodeRegistry;
@@ -15,8 +15,8 @@ declare class NestedNodeDocument implements NestedNodeRegistry, ActionHandler {
     registerNode(node: NestedNode): string;
     unregisterNode(node: NestedNode): void;
     getNodeById(id: string): NestedNode;
-    handleFocusNodeById(id: string, extendSelection?: boolean): void;
-    handleFocusMoveTo(targetNodeRelation: NodeRelation, extendSelection?: boolean): void;
+    focusNodeById(id: string, extendSelection?: boolean): void;
+    focusRelatedNode(targetNodeRelation: NodeRelation, extendSelection?: boolean): void;
     protected focusNode(node: NestedNode, extendSelection: any): void;
     protected focusNestedNode(): void;
     protected focusParentNode(): void;
