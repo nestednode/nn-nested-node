@@ -8,6 +8,9 @@ class NestedNode implements NestedNodeData {
     // * Identity
 
     private registry: NestedNodeRegistry;
+    // по-идее, хранить ссылку на реестр может быть нужно,
+    // чтобы узел при добавленни дргого мог проверять, к одному ли
+    // id-space они принадлежат
 
     private _id: string;
 

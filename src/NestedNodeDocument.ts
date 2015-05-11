@@ -1,10 +1,12 @@
 import Collection = require('pkg/Collection/Collection');
 import NestedNode = require('./lib/NestedNode');
 import NestedNodeRegistry = require('./lib/NestedNodeRegistry');
+import ActionHandler = require('./lib/ActionHandler');
+import NodeRelation = require('./lib/NodeRelation');
 import Direction = require('./lib/Direction');
 
 
-class NestedNodeDocument implements NestedNodeRegistry {
+class NestedNodeDocument implements NestedNodeRegistry, ActionHandler {
 
     root: NestedNode;
 
@@ -16,6 +18,7 @@ class NestedNodeDocument implements NestedNodeRegistry {
     previouslyFocusedNested: Collection.Map<NestedNode, NestedNode>;
     currentFocusLevel: number;
 
+    // * Node Registry
 
     registerNode(node: NestedNode): string {
         //todo check if node not already registred
@@ -33,7 +36,32 @@ class NestedNodeDocument implements NestedNodeRegistry {
         return this.nodeRegistry.get(id);
     }
 
-    focusNode(node: NestedNode, extendSelection = false): void {
+    // * Action Handlers
+
+    // ** Focus And Selection
+
+    handleFocusNodeById(id: string, extendSelection = false): void {
+        this.focusNode(this.getNodeById(id), extendSelection);
+    }
+
+    handleFocusMoveTo(targetNodeRelation: NodeRelation, extendSelection = false): void {
+        switch (targetNodeRelation) {
+            case NodeRelation.Parent:
+                this.focusParentNode();
+                break;
+            case NodeRelation.Nested:
+                this.focusNestedNode();
+                break;
+            case NodeRelation.PrecedingSibling:
+                this.focusSiblingNode(Direction.getBackward(), extendSelection);
+                break;
+            case NodeRelation.FollowingSibling:
+                this.focusSiblingNode(Direction.getForward(), extendSelection);
+                break;
+        }
+    }
+
+    protected focusNode(node: NestedNode, extendSelection): void {
         if (! node) {
             return;
         }
@@ -58,16 +86,18 @@ class NestedNodeDocument implements NestedNodeRegistry {
         this.makeNodeFocused(node);
     }
 
-    focusNestedNode(): void {
+    protected focusNestedNode(): void {
         var nested = this.previouslyFocusedNested.get(this.focusedNode) || this.focusedNode.firstNested;
-        this.focusNode(nested);
+        var extendSelection;
+        this.focusNode(nested, extendSelection = false); // перемещение фокуса к nested только сужает выделение
     }
 
-    focusParentNode(): void {
-        this.focusNode(this.focusedNode.parent);
+    protected focusParentNode(): void {
+        var extendSelection;
+        this.focusNode(this.focusedNode.parent, extendSelection = false); // перемещение к parent и так его расшриряет
     }
 
-    focusSiblingNode(direction: Direction, extendSelection = false): void {
+    protected focusSiblingNode(direction: Direction, extendSelection): void {
         var sameParentOnly;
         var node = this.focusedNode.getSibling(direction, sameParentOnly = false, this.currentFocusLevel);
         if (extendSelection && this.focusedNode.selected && node && node.selected) {
@@ -89,6 +119,7 @@ class NestedNodeDocument implements NestedNodeRegistry {
         }
     }
 
+    // ** ...
 }
 
 

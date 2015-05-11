@@ -1,8 +1,9 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", './lib/NodeRelation', './lib/Direction'], function (require, exports, NodeRelation, Direction) {
     var NestedNodeDocument = (function () {
         function NestedNodeDocument() {
             this.nodeRegistryCounter = 0;
         }
+        // * Node Registry
         NestedNodeDocument.prototype.registerNode = function (node) {
             //todo check if node not already registred
             var nodeId = this.id + '-' + ++this.nodeRegistryCounter;
@@ -16,8 +17,30 @@ define(["require", "exports"], function (require, exports) {
         NestedNodeDocument.prototype.getNodeById = function (id) {
             return this.nodeRegistry.get(id);
         };
-        NestedNodeDocument.prototype.focusNode = function (node, extendSelection) {
+        // * Action Handlers
+        // ** Focus And Selection
+        NestedNodeDocument.prototype.handleFocusNodeById = function (id, extendSelection) {
             if (extendSelection === void 0) { extendSelection = false; }
+            this.focusNode(this.getNodeById(id), extendSelection);
+        };
+        NestedNodeDocument.prototype.handleFocusMoveTo = function (targetNodeRelation, extendSelection) {
+            if (extendSelection === void 0) { extendSelection = false; }
+            switch (targetNodeRelation) {
+                case 0 /* Parent */:
+                    this.focusParentNode();
+                    break;
+                case 1 /* Nested */:
+                    this.focusNestedNode();
+                    break;
+                case 2 /* PrecedingSibling */:
+                    this.focusSiblingNode(Direction.getBackward(), extendSelection);
+                    break;
+                case 3 /* FollowingSibling */:
+                    this.focusSiblingNode(Direction.getForward(), extendSelection);
+                    break;
+            }
+        };
+        NestedNodeDocument.prototype.focusNode = function (node, extendSelection) {
             if (!node) {
                 return;
             }
@@ -43,13 +66,14 @@ define(["require", "exports"], function (require, exports) {
         };
         NestedNodeDocument.prototype.focusNestedNode = function () {
             var nested = this.previouslyFocusedNested.get(this.focusedNode) || this.focusedNode.firstNested;
-            this.focusNode(nested);
+            var extendSelection;
+            this.focusNode(nested, extendSelection = false); // перемещение фокуса к nested только сужает выделение
         };
         NestedNodeDocument.prototype.focusParentNode = function () {
-            this.focusNode(this.focusedNode.parent);
+            var extendSelection;
+            this.focusNode(this.focusedNode.parent, extendSelection = false); // перемещение к parent и так его расшриряет
         };
         NestedNodeDocument.prototype.focusSiblingNode = function (direction, extendSelection) {
-            if (extendSelection === void 0) { extendSelection = false; }
             var sameParentOnly;
             var node = this.focusedNode.getSibling(direction, sameParentOnly = false, this.currentFocusLevel);
             if (extendSelection && this.focusedNode.selected && node && node.selected) {
