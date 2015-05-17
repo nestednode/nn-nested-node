@@ -2,6 +2,7 @@ import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import NestedNodeData = require('./NestedNodeData');
 declare class NestedNode implements NestedNodeData {
+    text: string;
     private registry;
     private _id;
     id: string;
@@ -15,6 +16,7 @@ declare class NestedNode implements NestedNodeData {
     firstNested: NestedNode;
     lastNested: NestedNode;
     nestedCount: number;
+    map<T>(cb: (node: NestedNode) => T, thisArg?: any): T[];
     forEach(cb: (node: NestedNode) => void, thisArg?: any): void;
     forEachDeep(cb: (node: NestedNode) => void): void;
     traverse(cb: (node: NestedNode) => void): void;
