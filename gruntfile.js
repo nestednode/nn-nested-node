@@ -1,19 +1,13 @@
-var path = require('path');
-var findup = require('findup-sync');
-var matchdep = require('matchdep');
-
-
 module.exports = function(grunt) {
 
-    var pkg = grunt.file.readJSON('bower.json');
-    var mainFileName = pkg.main.slice(0, -3); //cut .js ext
+    require('loadup-grunt-tasks')(grunt);
 
     grunt.initConfig({
 
         typescript: {
             default: {
-                src: 'src/' + mainFileName + '.ts',
-                dest: __dirname, // dont use './'
+                src: 'src/NestedNodeDocument.ts',
+                dest: 'lib/',
                 options: {
                     module: 'amd',
                     target: 'es5',
@@ -26,7 +20,9 @@ module.exports = function(grunt) {
             }
         },
 
-        clean: ['lib/', mainFileName + '.js', mainFileName + '.d.ts'],
+        clean: [
+            'lib/'
+        ],
 
         watch: {
             ts: {
@@ -35,11 +31,6 @@ module.exports = function(grunt) {
             }
         }
 
-    });
-
-    matchdep.filterDev('grunt-*').forEach(function(plugin) {
-//        grunt.loadNpmTasks(plugin); // no tree lookup
-        grunt.loadTasks(findup(path.join('node_modules', plugin, 'tasks')));
     });
 
     grunt.registerTask('compile', ['clean', 'typescript']);

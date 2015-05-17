@@ -1,9 +1,9 @@
 import Collection = require('pkg/Collection/Collection');
-import NestedNode = require('./lib/NestedNode');
-import NestedNodeRegistry = require('./lib/NestedNodeRegistry');
-import DocumentActions = require('./lib/DocumentActions');
-import NodeRelation = require('./lib/NodeRelation');
-import Direction = require('./lib/Direction');
+import NestedNode = require('./NestedNode');
+import NestedNodeRegistry = require('./NestedNodeRegistry');
+import DocumentActions = require('./DocumentActions');
+import NodeRelation = require('./NodeRelation');
+import Direction = require('./Direction');
 
 
 class NestedNodeDocument implements NestedNodeRegistry, DocumentActions {

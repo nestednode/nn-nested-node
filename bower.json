@@ -15,7 +15,8 @@
     "package.json"
   ],
   "dependencies": {
-    "Collection": "../Collection"
+    "Collection": "../Collection",
+    "React": "../React"
   },
   "devDependencies": {}
 }

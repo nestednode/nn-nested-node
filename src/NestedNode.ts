@@ -5,6 +5,9 @@ import NestedNodeData = require('./NestedNodeData');
 
 class NestedNode implements NestedNodeData {
 
+    // * Data
+    text: string;
+
     // * Identity
 
     private registry: NestedNodeRegistry;
@@ -56,6 +59,10 @@ class NestedNode implements NestedNodeData {
 
     get nestedCount(): number {
         return this._nested.length;
+    }
+
+    map<T>(cb: (node: NestedNode) => T, thisArg?): T[] {
+        return this._nested.map(cb, thisArg);
     }
 
     forEach(cb: (node: NestedNode) => void, thisArg?): void {
