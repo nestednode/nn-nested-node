@@ -1,19 +1,16 @@
 import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
-import NestedNodeData = require('./NestedNodeData');
+import NestedData = require('./NestedData');
 
 
-class NestedNode implements NestedNodeData {
-
-    // * Data
-    text: string;
+class NestedNode<D extends NestedData<any>> {
 
     // * Identity
 
-    private registry: NestedNodeRegistry;
-    // по-идее, хранить ссылку на реестр может быть нужно,
-    // чтобы узел при добавленни дргого мог проверять, к одному ли
-    // id-space они принадлежат
+    private registry: NestedNodeRegistry<any>;
+    // по-идее, хранить ссылку на реестр может быть полезно,
+    // чтобы узел при добавленни другого мог проверять,
+    // к одному ли id-space они принадлежат
 
     private _id: string;
 
@@ -23,9 +20,9 @@ class NestedNode implements NestedNodeData {
 
     // * Tree Structure
 
-    private _parent: NestedNode;
+    private _parent: NestedNode<D>;
 
-    get parent(): NestedNode {
+    get parent(): NestedNode<D> {
         return this._parent;
     }
 
@@ -33,7 +30,7 @@ class NestedNode implements NestedNodeData {
         return !!this._parent
     }
 
-    get root(): NestedNode {
+    get root(): NestedNode<D> {
         return this._parent ? this._parent.root : this;
     }
 
@@ -43,17 +40,17 @@ class NestedNode implements NestedNodeData {
 
     // ** Nested
 
-    private _nested: NestedNode[];
+    private _nested: NestedNode<D>[];
 
-    nested(index: number): NestedNode {
+    nested(index: number): NestedNode<D> {
         return this._nested[index];
     }
 
-    get firstNested(): NestedNode {
+    get firstNested(): NestedNode<D> {
         return this._nested[0];
     }
 
-    get lastNested(): NestedNode {
+    get lastNested(): NestedNode<D> {
         return this._nested[this._nested.length - 1];
     }
 
@@ -61,24 +58,25 @@ class NestedNode implements NestedNodeData {
         return this._nested.length;
     }
 
-    map<T>(cb: (node: NestedNode) => T, thisArg?): T[] {
+
+    mapNested<T>(cb: (node: NestedNode<D>) => T, thisArg?): T[] {
         return this._nested.map(cb, thisArg);
     }
 
-    forEach(cb: (node: NestedNode) => void, thisArg?): void {
+    forEachNested(cb: (node: NestedNode<D>) => void, thisArg?): void {
         this._nested.forEach(cb, thisArg);
     }
 
-    forEachDeep(cb: (node: NestedNode) => void): void {
+    forEachNestedDeep(cb: (node: NestedNode<D>) => void): void {
         this._nested.forEach(node => {
             cb(node);
-            node.forEachDeep(cb);
+            node.forEachNestedDeep(cb);
         })
     }
 
-    traverse(cb: (node: NestedNode) => void): void {
+    traverse(cb: (node: NestedNode<D>) => void): void {
         cb(this);
-        this.forEachDeep(cb);
+        this.forEachNestedDeep(cb);
     }
 
     // ** Siblings
@@ -89,7 +87,7 @@ class NestedNode implements NestedNodeData {
             this.getCrossSibling(direction, preferredLevel || this.level);
     }
 
-    private getImmediateSibling(direction: Direction): NestedNode {
+    private getImmediateSibling(direction: Direction): NestedNode<D> {
         if (! this.hasParent) {
             return null;
         }
@@ -98,7 +96,7 @@ class NestedNode implements NestedNodeData {
         return this._nested[targetIndex];
     }
 
-    private getCrossSibling(direction: Direction, preferredLevel: number): NestedNode {
+    private getCrossSibling(direction: Direction, preferredLevel: number): NestedNode<D> {
         var sibling = this.getImmediateSibling(direction);
         if (! sibling) {
             return this.hasParent ? this._parent.getCrossSibling(direction, preferredLevel) : null;
@@ -106,7 +104,7 @@ class NestedNode implements NestedNodeData {
         return sibling.getCrossSiblingPhase2(direction, preferredLevel);
     }
 
-    private getCrossSiblingPhase2(direction: Direction, preferredLevel: number): NestedNode {
+    private getCrossSiblingPhase2(direction: Direction, preferredLevel: number): NestedNode<D> {
         if (this.level === preferredLevel) {
             return this;
         }
@@ -118,14 +116,25 @@ class NestedNode implements NestedNodeData {
     }
 
 
+    // ** Data
+
+    data: D;
+
+    forEachNestedData(cb: (data: D, id) => void, thisArg?) {
+        this._nested.forEach(node => cb(node.data, node._id), thisArg);
+    }
+
+    mapNestedData<T>(cb: (data: D, id) => T, thisArg?): T[] {
+        return this._nested.map(node => cb(node.data, node._id), thisArg);
+    }
+
+
     // * Tree Structure Manipulation
 
     // ** Nested-Related Methods
 
-    appendNested(node: NestedNode, anchorNode?: NestedNode, direction?: Direction): void {
-
+    appendNested(node: NestedNode<D>, anchorNode?: NestedNode<D>, direction?: Direction): void {
         node.makeParentless();
-
         var index = this._nested.length;
         if (anchorNode) {
             index = this._nested.indexOf(anchorNode);
@@ -137,11 +146,10 @@ class NestedNode implements NestedNodeData {
             }
         }
         this._nested.splice(index, 0, node);
-
         node._parent = this;
     }
 
-    removeNested(node: NestedNode): void {
+    removeNested(node: NestedNode<D>): void {
         var index = this._nested.indexOf(node);
         if (index == -1) {
             throw new Error('no such node in nested');
@@ -150,7 +158,7 @@ class NestedNode implements NestedNodeData {
         node._parent = null;
     }
 
-    replaceNested(node: NestedNode, newNode: NestedNode): void {
+    replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void {
         newNode.makeParentless();
         var index = this._nested.indexOf(node);
         if (index === -1) {
@@ -162,7 +170,7 @@ class NestedNode implements NestedNodeData {
 
     // ** Self-Related Methods
 
-    attachToParent(parent: NestedNode): void {
+    attachToParent(parent: NestedNode<D>): void {
         parent.appendNested(this);
     }
 
@@ -172,7 +180,7 @@ class NestedNode implements NestedNodeData {
         }
     }
 
-    substituteFor(newNode: NestedNode): void {
+    substituteFor(newNode: NestedNode<D>): void {
         if (!this.hasParent) {
             throw new Error('cannot make substitution on parentless node')
         }
@@ -203,7 +211,7 @@ class NestedNode implements NestedNodeData {
         this.getSelection().forEach(node => { node._selected = false })
     }
 
-    getSelection(): NestedNode[] {
+    getSelection(): NestedNode<D>[] {
         var res = [];
         this.traverse(node => {
             if (node._selected) {
@@ -216,36 +224,21 @@ class NestedNode implements NestedNodeData {
 
     // * Constructing
 
-    // наследники должны проводить инициализацию объекта в не в конструкторе, а в методах init и clone,
-    // не забывая вызывать при этoм соответствующие методы базового класса
-
-    //sealed
-    constructor(registry: NestedNodeRegistry, ref?: NestedNode) {
-        // при создании узел всегда отвязан от родителя, даже если он клонируется
-        this.registry = registry;
-        this._id = this.registry.registerNode(this);
+    constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D) {
+        this._id = registry.registerNode(this, data.id);
         this._parent = null;
         this._selected = false;
-        ref ? this.clone(ref) : this.init();
-    }
-
-    protected init()  {
-        this._nested = [];
-    }
-
-    protected clone(ref: NestedNode) {
-        this._nested = ref._nested.map(node => {
-            var copy = node.getCopy();
-            copy._parent = this;
-            return copy;
-        });
-    }
-
-    getCopy(): NestedNode {
-        //var copy = new this.constructor(this) // compilation fail
-        //=> Cannot use 'new' with an expression whose type lacks a call or construct signature
-        //http://stackoverflow.com/questions/14826973/a-reference-to-the-constructor-function
-        return new ((obj => obj.constructor)(this))(this.registry, this);
+        this._nested = data.nested ? data.nested.map((nestedData: D) => {
+            var nested = new NestedNode<D>(registry, nestedData, dataDuplicator);
+            nested._parent = this;
+            return nested;
+        }) : [];
+        this.data = dataDuplicator(data);
+        this.data.owner = this;
+        this.data.nested = {
+            map: this.mapNestedData.bind(this),
+            forEach: this.forEachNestedData.bind(this)
+        };
     }
 
 }

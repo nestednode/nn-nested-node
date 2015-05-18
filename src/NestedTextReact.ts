@@ -1,4 +1,4 @@
-import NestedNodeData = require('./NestedNodeData');
+import NestedText = require('./NestedText');
 import DocumentActions = require('./DocumentActions');
 import React = require('pkg/React/React');
 import dom = React.DOM;
@@ -8,15 +8,15 @@ declare var require;
 require(['pkg/require-css/css!../styles/NestedNodeStyle']);
 
 
-export interface NestedNodeProps { nodeData: NestedNodeData; }
+export interface NestedTextProps { nodeData: NestedText; }
 export interface DocumentContext { documentActions?: DocumentActions; }
-export interface DocumentProps extends NestedNodeProps, DocumentContext {}
+export interface DocumentProps extends NestedTextProps, DocumentContext {}
 
-export var NestedNodeElem = React.createFactory<NestedNodeProps>(NestedNodeComp);
-export var NestedNodeDocumentElem = React.createFactory<DocumentProps>(DocumentComp);
+export var NestedTextElem = React.createFactory<NestedTextProps>(NestedTextComp);
+export var NestedTextDocumentElem = React.createFactory<DocumentProps>(NestedTextDocumentComp);
 
 
-class NestedNodeComp extends React.Component<NestedNodeProps, any> {
+class NestedTextComp extends React.Component<NestedTextProps, any> {
 
     context: DocumentContext;
 
@@ -26,14 +26,16 @@ class NestedNodeComp extends React.Component<NestedNodeProps, any> {
             dom['div']({className: 'nn_node', key: data.id},
                 dom['div'](
                     {
-                        className: ('nn_text' + data.selected ? ' selected' : ''),
+                        className: 'nn_text' + (data.owner && data.owner.selected ? ' selected' : ''),
                         onClick: this.handleClick.bind(this)
                     },
                     data.text
                 ),
                 dom['div'](
                     {className: 'nn_nested'},
-                    data.map(nestedData => NestedNodeElem({nodeData: nestedData}))
+                    data.nested ?
+                        data.nested.map(nestedData => NestedTextElem({ nodeData: nestedData })) :
+                        false
                 )
             )
         )
@@ -46,7 +48,7 @@ class NestedNodeComp extends React.Component<NestedNodeProps, any> {
 }
 
 
-class DocumentComp extends React.Component<DocumentProps, any> {
+class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
 
     getChildContext(): DocumentContext {
         return { documentActions: this.props.documentActions };
@@ -56,7 +58,7 @@ class DocumentComp extends React.Component<DocumentProps, any> {
         return (
             dom['div'](
                 { className: 'nn_ctx' },
-                NestedNodeElem({ nodeData: this.props.nodeData })
+                NestedTextElem({ nodeData: this.props.nodeData })
             )
         )
     }

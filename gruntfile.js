@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 
         typescript: {
             default: {
-                src: 'src/NestedNodeDocument.ts',
+                src: 'src/NestedTextEditor.ts',
                 dest: 'lib/',
                 options: {
                     module: 'amd',

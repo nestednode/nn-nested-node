@@ -2,13 +2,13 @@ import Collection = require('pkg/Collection/Collection');
 import NestedNode = require('./NestedNode');
 
 
-interface NestedNodeRegistry {
+interface NestedNodeRegistry<D> {
 
-    registerNode(node: NestedNode): string;
+    registerNode(node: NestedNode<D>, suggestedId?: string): string;
 
-    unregisterNode(node: NestedNode): void;
+    unregisterNode(node: NestedNode<D>): void;
 
-    getNodeById(id: string): NestedNode;
+    getNodeById(id: string): NestedNode<D>;
 }
 
 
