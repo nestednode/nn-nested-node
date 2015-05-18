@@ -16,7 +16,8 @@
   ],
   "dependencies": {
     "Collection": "../Collection",
-    "React": "../React"
+    "React": "../React",
+    "require-css": "~0.1.8"
   },
   "devDependencies": {}
 }

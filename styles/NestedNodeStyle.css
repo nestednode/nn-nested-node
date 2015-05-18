@@ -1,0 +1,28 @@
+.nn_ctx {
+    font-size: 16px;
+    line-height: 7px;
+    font-family: 'Lucida Grande', sans-serif;
+    margin: 1px;
+}
+.nn_node {
+}
+.nn_text {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 19px;
+    padding: 0 3px;
+}
+.nn_text.selected {
+    border: solid 1px #4178d2;
+    padding: 0 2px;
+    margin: -1px 0;
+    position: relative;
+    z-index: 0;
+}
+.nn_nested {
+    display: inline-block;
+    vertical-align: middle;
+    border-left: dotted 1px #000000;
+    margin-left: 5px;
+    padding-left: 5px;
+}
