@@ -120,11 +120,11 @@ class NestedNode<D extends NestedData<any>> {
 
     data: D;
 
-    forEachNestedData(cb: (data: D, id) => void, thisArg?) {
+    forEachNestedData(cb: (data: D, key) => void, thisArg?) {
         this._nested.forEach(node => cb(node.data, node._id), thisArg);
     }
 
-    mapNestedData<T>(cb: (data: D, id) => T, thisArg?): T[] {
+    mapNestedData<T>(cb: (data: D, key) => T, thisArg?): T[] {
         return this._nested.map(node => cb(node.data, node._id), thisArg);
     }
 
@@ -225,7 +225,8 @@ class NestedNode<D extends NestedData<any>> {
     // * Constructing
 
     constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D) {
-        this._id = registry.registerNode(this, data.id);
+        //this._id = registry.registerNode(this, data.id);
+        this._id = registry.registerNode(this);
         this._parent = null;
         this._selected = false;
         this._nested = data.nested ? data.nested.map((nestedData: D) => {

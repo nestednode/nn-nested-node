@@ -18,6 +18,12 @@ class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
 
+    constructor() {
+        this.id = 'doc';
+        this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
+        this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
+    }
+
     // * Node Registry
 
     registerNode(node: NestedNode<D>): string {
@@ -41,6 +47,7 @@ class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
     // ** Actions With Focused Node
 
     focusNodeById(id: string, extendSelection = false): void {
+        console.log('focusNodeById handled!', id);
         this.focusNode(this.getNodeById(id), extendSelection);
     }
 

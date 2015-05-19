@@ -12,6 +12,7 @@ declare class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentAc
     focusedNode: NestedNode<D>;
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
+    constructor();
     registerNode(node: NestedNode<D>): string;
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;

@@ -24,8 +24,8 @@ declare class NestedNode<D extends NestedData<any>> {
     private getCrossSibling(direction, preferredLevel);
     private getCrossSiblingPhase2(direction, preferredLevel);
     data: D;
-    forEachNestedData(cb: (data: D, id) => void, thisArg?: any): void;
-    mapNestedData<T>(cb: (data: D, id) => T, thisArg?: any): T[];
+    forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
+    mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
     appendNested(node: NestedNode<D>, anchorNode?: NestedNode<D>, direction?: Direction): void;
     removeNested(node: NestedNode<D>): void;
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
