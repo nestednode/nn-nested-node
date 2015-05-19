@@ -17,6 +17,7 @@
   "dependencies": {
     "Collection": "../Collection",
     "React": "../React",
+    "EventEmitter": "../EventEmitter",
     "require-css": "~0.1.8"
   },
   "devDependencies": {}

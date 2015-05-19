@@ -1,10 +1,11 @@
 import Collection = require('pkg/Collection/Collection');
+import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
 import NodeRelation = require('./NodeRelation');
 import Direction = require('./Direction');
-declare class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
+declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
     root: NestedNode<D>;
     private id;
     private nodeRegistry;

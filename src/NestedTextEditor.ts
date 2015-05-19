@@ -8,12 +8,18 @@ var docData = { text: 'hello world!', nested: [
     { text: '1'},
     { text: 'поехали!'}
 ] };
+
+
 var doc = new NestedTextDocument(docData);
+doc.addListener('change', render);
+
+render();
 
 
-var docElem = NestedTextReact.NestedTextDocumentElem({
-    nodeData: doc.root.data,
-    documentActions: doc
-});
-
-React.render(docElem, document.body);
+function render() {
+    var docElem = NestedTextReact.NestedTextDocumentElem({
+        nodeData: doc.root.data,
+        documentActions: doc
+    });
+    React.render(docElem, document.body);
+}

@@ -1,4 +1,5 @@
 import Collection = require('pkg/Collection/Collection');
+import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
@@ -6,7 +7,7 @@ import NodeRelation = require('./NodeRelation');
 import Direction = require('./Direction');
 
 
-class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
+class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
 
     root: NestedNode<D>;
 
@@ -19,9 +20,11 @@ class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
     currentFocusLevel: number;
 
     constructor() {
-        this.id = 'doc';
+        super();
+        this.id = 'doc'; //todo something
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
+        this.addListener('focusChange', () => this.emit('change'));
     }
 
     // * Node Registry
@@ -47,8 +50,8 @@ class NestedNodeDocument<D> implements NestedNodeRegistry<D>, DocumentActions {
     // ** Actions With Focused Node
 
     focusNodeById(id: string, extendSelection = false): void {
-        console.log('focusNodeById handled!', id);
         this.focusNode(this.getNodeById(id), extendSelection);
+        this.emit('focusChange', this.focusedNode.id); //todo передавать selection целиком
     }
 
     focusRelatedNode(targetNodeRelation: NodeRelation, extendSelection = false): void {
