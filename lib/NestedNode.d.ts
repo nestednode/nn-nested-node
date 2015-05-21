@@ -20,6 +20,7 @@ declare class NestedNode<D extends NestedData<any>> {
     forEachNestedDeep(cb: (node: NestedNode<D>) => void): void;
     traverse(cb: (node: NestedNode<D>) => void): void;
     getSibling(direction: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode<D>;
+    getDirectionToSibling(node: NestedNode<D>): Direction;
     private getImmediateSibling(direction);
     private getCrossSibling(direction, preferredLevel);
     private getCrossSiblingPhase2(direction, preferredLevel);
@@ -38,6 +39,7 @@ declare class NestedNode<D extends NestedData<any>> {
     unselect(): void;
     unselectDeep(): void;
     getSelection(): NestedNode<D>[];
+    getSelectionRegionBoundary(direction: Direction): NestedNode<D>;
     constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D);
 }
 export = NestedNode;

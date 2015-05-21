@@ -1,5 +1,9 @@
 import NestedText = require('./NestedText');
 import DocumentActions = require('./DocumentActions');
+import SelectionMode = require('./SelectionMode');
+import Collection = require('pkg/Collection/Collection');
+
+
 import React = require('pkg/React/React');
 import dom = React.DOM;
 
@@ -11,16 +15,9 @@ require(['pkg/require-css/css!../styles/NestedNodeStyle']);
 // * Props and Context
 
 export interface NestedTextProps {
-    key?;
     nodeData: NestedText;
 }
 
-// объекты этого класса служат:
-// - результатом для функции getChildContext (при передаче реального аргумента в конструктор),
-// - значением для почему-то обязательных реактовских деклараций contextTypes и childContextTypes
-// сам класс в роли интерфейса используется:
-// - для указания типа поля context
-// - в декларации DocumentProps
 export class DocumentContext { constructor(
     public documentActions: DocumentActions = React.PropTypes.any
 ){} }
@@ -33,17 +30,6 @@ export interface DocumentProps extends NestedTextProps, DocumentContext {
 
 // * Components
 
-// оказывается, класс в генерируемом коде объявляется как
-// var NestedTextComp = ...
-// а не как
-// function NestedTextComp ...
-// поэтому в данном месте еще нельзя ссылаться на нижеописанные классы,
-// хотя компилятор ни о чем таком не предупреждает:
-
-//export var NestedTextElem = React.createFactory<NestedTextProps>(NestedTextComp);
-//export var NestedTextDocumentElem = React.createFactory<DocumentProps>(NestedTextDocumentComp);
-
-
 export var NestedTextElem: React.ReactElementFactory<NestedTextProps>;
 
 class NestedTextComp extends React.Component<NestedTextProps, any> {
@@ -55,11 +41,12 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
 
     render() {
         var data = this.props.nodeData;
+        var owner = data.owner;
         return (
-            dom['div']({ className: 'nn_node', key: data.owner.id },
+            dom['div']({ className: 'nn_node' },
                 dom['div'](
                     {
-                        className: 'nn_text' + (data.owner && data.owner.selected ? ' selected' : ''),
+                        className: 'nn_text' + (owner && owner.selected ? ' selected' : ''),
                         onClick: this.handleClick.bind(this)
                     },
                     data.text
@@ -74,10 +61,13 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
         )
     }
 
-    handleClick() {
+    handleClick(e) {
         var actions = this.context.documentActions;
         var owner = this.props.nodeData.owner;
-        actions && owner && actions.focusNodeById(owner.id);
+        var selectionMode =
+            e.metaKey ? SelectionMode.Toggle :
+                e.shiftKey ? SelectionMode.Shift : SelectionMode.Reset;
+        actions && owner && actions.focusNodeById(owner.id, selectionMode);
     }
 }
 
@@ -90,6 +80,13 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
     // без этой декларации getChildContext() бросит исключение
     static childContextTypes = new DocumentContext();
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            focused: false
+        };
+    }
+
     getChildContext() {
         return new DocumentContext(this.props.documentActions);
     }
@@ -97,10 +94,71 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
     render() {
         return (
             dom['div'](
-                { className: 'nn_ctx' },
+                {
+                    tabIndex: 1,
+                    className: 'nn_ctx' + (this.state.focused ? ' focused' : ''),
+                    onKeyDown: this.handleKeyDown.bind(this),
+                    onFocus: this.handleFocus.bind(this),
+                    onBlur: this.handleBlur.bind(this)
+                },
                 NestedTextElem({ nodeData: this.props.nodeData })
             )
         )
+    }
+
+    componentDidMount() {
+        //var domNode = React.findDOMNode(this);
+        //domNode.addEventListener('keydown', this.handleKeyDown.bind(this));
+    }
+
+    //todo unmount
+
+    handleKeyDown(e) {
+        var actions = this.props.documentActions;
+
+        if (! actions) {
+            return;
+        }
+
+        var keyCode = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 }; //todo something
+        var code = e.keyCode;
+
+        switch (true) {
+            case code == keyCode.LEFT && e.shiftKey:
+                break;
+            case code == keyCode.LEFT:
+                actions.focusParentNode();
+                break;
+
+            case code == keyCode.RIGHT && e.shiftKey:
+                break;
+            case code == keyCode.RIGHT:
+                actions.focusNestedNode();
+                break;
+
+            case code == keyCode.UP && e.shiftKey:
+                actions.focusPrevNode(SelectionMode.Shift);
+                break;
+            case code == keyCode.UP:
+                actions.focusPrevNode(SelectionMode.Reset);
+                break;
+
+            case code == keyCode.DOWN && e.shiftKey:
+                actions.focusNextNode(SelectionMode.Shift);
+                break;
+            case code == keyCode.DOWN:
+                actions.focusNextNode(SelectionMode.Reset);
+                break;
+        }
+
+    }
+
+    handleFocus(e) {
+        this.setState({ focused: true });
+    }
+
+    handleBlur(e) {
+        this.setState({ focused: false });
     }
 }
 

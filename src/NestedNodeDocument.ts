@@ -3,8 +3,9 @@ import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
-import NodeRelation = require('./NodeRelation');
 import Direction = require('./Direction');
+import SelectionMode = require('./SelectionMode');
+
 
 
 class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
@@ -49,83 +50,156 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     // ** Actions With Focused Node
 
-    focusNodeById(id: string, extendSelection = false): void {
-        this.focusNode(this.getNodeById(id), extendSelection);
-        this.emit('focusChange', this.focusedNode.id); //todo передавать selection целиком
+    focusNodeById(id: string, selectionMode: SelectionMode): void {
+        var node = this.getNodeById(id);
+        if (! node) {
+            console.warn('No node found with id: ' + id);
+            return;
+        }
+        var updateFocusLevel;
+        this.focusNode(node, selectionMode, updateFocusLevel=true);
     }
 
-    focusRelatedNode(targetNodeRelation: NodeRelation, extendSelection = false): void {
-        switch (targetNodeRelation) {
-            case NodeRelation.Parent:
-                this.focusParentNode();
-                break;
-            case NodeRelation.Nested:
-                this.focusNestedNode();
-                break;
-            case NodeRelation.PrecedingSibling:
-                this.focusSiblingNode(Direction.getBackward(), extendSelection);
-                break;
-            case NodeRelation.FollowingSibling:
-                this.focusSiblingNode(Direction.getForward(), extendSelection);
-                break;
+    focusParentNode(): void {
+        var updateFocusLevel;
+        this.focusNode(this.focusedNode.parent, SelectionMode.Reset, updateFocusLevel=true);
+    }
+
+    focusNestedNode(): void {
+        var nested = this.previouslyFocusedNested.get(this.focusedNode) || this.focusedNode.firstNested;
+        var updateFocusLevel;
+        this.focusNode(nested, SelectionMode.Reset, updateFocusLevel=true);
+    }
+
+    focusPrevNode(selectionMode: SelectionMode): void {
+        this.focusSiblingNode(Direction.getBackward(), selectionMode);
+    }
+
+    focusNextNode(selectionMode: SelectionMode): void {
+        this.focusSiblingNode(Direction.getForward(), selectionMode);
+    }
+
+    focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
+
+        if ([SelectionMode.Reset, SelectionMode.Shift].indexOf(selectionMode) == -1) {
+            throw new Error('Unsupported SelectionMode for this operation :' + selectionMode);
+        }
+        var sibling;
+        var sameParentOnly;
+        var updateFocusLevel;
+
+        if (selectionMode == SelectionMode.Shift) {
+            sibling = this.focusedNode.getSibling(direction, sameParentOnly=true);
+            this.focusNode(sibling, SelectionMode.Shift, updateFocusLevel=true);
+        } else {
+            sibling = this.focusedNode.getSibling(direction, sameParentOnly=false, this.currentFocusLevel);
+            this.focusNode(sibling, SelectionMode.Reset, updateFocusLevel=false);
         }
     }
 
-    protected focusNode(node: NestedNode<D>, extendSelection = false): void {
+    protected focusNode(node: NestedNode<D>, selectionMode: SelectionMode = SelectionMode.Reset, updateFocusLevel = true): void {
         if (! node) {
             return;
         }
-        if (extendSelection) {
-            if (node.selected) {
-                if (this.root.getSelection().length === 1) {
-                    // нельзя снять выделение у единственного выбранного узла
-                    // в finder, однако, в таком случае выбирается родительский
-                    return;
-                }
-                node.unselect();
-                this.makeNodeFocused();
-                return;
-            }
-            var ensureNestedUnselected;
-            node.select(ensureNestedUnselected = true);
-            this.makeNodeFocused(node);
-            return;
-        }
+        var nodeToFocus = (() => { switch (selectionMode) {
+            case SelectionMode.Reset: return this.resetSelectionToNode(node);
+            case SelectionMode.Toggle: return this.toggleSelectionWithNode(node);
+            case SelectionMode.Shift: return this.shiftSelectionToNode(node);
+            default: throw new Error('Unknown SelectionMode: ' + selectionMode);
+        }})();
+
+        this.setFocusedNode(nodeToFocus, updateFocusLevel);
+        this.emit('focusChange', this.focusedNode.id);
+    }
+
+    private resetSelectionToNode(node: NestedNode<D>): NestedNode<D> {
         this.root.unselectDeep();
-        node.select();
-        this.makeNodeFocused(node);
+        var ensureNestedUnselected;
+        node.select(ensureNestedUnselected = false);
+        return node;
     }
 
-    protected focusNestedNode(): void {
-        var nested = this.previouslyFocusedNested.get(this.focusedNode) || this.focusedNode.firstNested;
-        var extendSelection;
-        this.focusNode(nested, extendSelection = false); // перемещение фокуса к nested всегда только сужает выделение
-    }
-
-    protected focusParentNode(): void {
-        var extendSelection;
-        this.focusNode(this.focusedNode.parent, extendSelection = false); // перемещение к parent и так его расшриряет
-    }
-
-    protected focusSiblingNode(direction: Direction, extendSelection): void {
-        var sameParentOnly;
-        var node = this.focusedNode.getSibling(direction, sameParentOnly = false, this.currentFocusLevel);
-        if (extendSelection && this.focusedNode.selected && node && node.selected) {
-            this.focusedNode.unselect();
-            this.makeNodeFocused(node);
-            return;
+    private toggleSelectionWithNode(node: NestedNode<D>): NestedNode<D> {
+        var parentSelected = false;
+        var parent = node.parent;
+        while (parent && !parentSelected) {
+            if (parent.selected) {
+                parentSelected = true;
+            }
+            parent = parent.parent;
         }
-        this.focusNode(node, extendSelection);
-    }
+        if (parentSelected) {
+            return node;
+        }
 
-    private makeNodeFocused(node?: NestedNode<D>) {
-        if (!node) {
+        var preceding = node.getSibling(Direction.getBackward());
+        var following = node.getSibling(Direction.getForward());
+        if (node.selected) {
             var selection = this.root.getSelection();
-            node = selection[selection.length - 1]
+            if (selection.length === 1) {
+                // нельзя снять выделение у единственного выбранного узла
+                // в finder, однако, в таком случае выбирается родительский,
+                //
+                return node;
+            }
+            node.unselect();
+            if (preceding && preceding.selected) {
+                return preceding;
+            }
+            if (following && following.selected) {
+                return following;
+            }
+            return selection[selection.indexOf(node) - 1] || selection[1];
         }
+        node.select();
+        if (! (preceding && preceding.selected)) {
+            return node;
+        }
+        return node.getSelectionRegionBoundary(Direction.getForward());
+    }
+
+    private shiftSelectionToNode(targetNode: NestedNode<D>): NestedNode<D> {
+
+        var directionToStart = Direction.getBackward();
+        var preceding = this.focusedNode.getSibling(directionToStart);
+        if (! (preceding && preceding.selected)) {
+            directionToStart = Direction.getForward();
+        }
+        var startNode = this.focusedNode.getSelectionRegionBoundary(directionToStart);
+        var targetIsStart = targetNode === startNode;
+        var directionToTarget = startNode.getDirectionToSibling(targetNode);
+
+        if (!directionToTarget && !targetIsStart) {
+            return this.focusedNode;
+        }
+
+        var nodeToUnselect = this.focusedNode;
+        while (nodeToUnselect !== startNode) {
+            nodeToUnselect.unselect();
+            nodeToUnselect = nodeToUnselect.getSibling(directionToStart);
+        }
+
+        if (targetIsStart) {
+            return startNode;
+        }
+
+        var nodeToSelect = startNode;
+        while ((nodeToSelect = nodeToSelect.getSibling(directionToTarget)) !== targetNode) {
+            nodeToSelect.select();
+        }
+        targetNode.select();
+
+        // если следующий за targetNode тоже выбранный, значит регион слился с другим, и нужно вернуть границу общего региона
+        return targetNode.getSelectionRegionBoundary(directionToTarget);
+    }
+
+    private setFocusedNode(node: NestedNode<D>, updateFocusLevel: boolean): void {
         this.focusedNode = node;
         if (node.hasParent) {
             this.previouslyFocusedNested.set(node.parent, node);
+        }
+        if (updateFocusLevel) {
+            this.currentFocusLevel = this.focusedNode.level;
         }
     }
 

@@ -81,10 +81,22 @@ class NestedNode<D extends NestedData<any>> {
 
     // ** Siblings
 
-    getSibling(direction: Direction, sameParentOnly = false, preferredLevel?: number) {
+    getSibling(direction: Direction, sameParentOnly = true, preferredLevel?: number) {
         return sameParentOnly ?
             this.getImmediateSibling(direction) :
             this.getCrossSibling(direction, preferredLevel || this.level);
+    }
+
+    getDirectionToSibling(node: NestedNode<D>): Direction {
+        if (this === node) {
+            return null;
+        }
+        if (this.hasParent && this._parent !== node._parent) {
+            return null;
+        }
+        var selfIndex = this._parent._nested.indexOf(this);
+        var targetIndex = this._parent._nested.indexOf(node);
+        return targetIndex > selfIndex ? Direction.getForward() : Direction.getBackward();
     }
 
     private getImmediateSibling(direction: Direction): NestedNode<D> {
@@ -93,7 +105,7 @@ class NestedNode<D extends NestedData<any>> {
         }
         var selfIndex = this._parent._nested.indexOf(this);
         var targetIndex = selfIndex + (direction.isForward ? 1 : -1);
-        return this._nested[targetIndex];
+        return this._parent._nested[targetIndex];
     }
 
     private getCrossSibling(direction: Direction, preferredLevel: number): NestedNode<D> {
@@ -196,7 +208,7 @@ class NestedNode<D extends NestedData<any>> {
         return this._selected;
     }
 
-    select(ensureNestedUnselected = false): void {
+    select(ensureNestedUnselected = true): void {
         if (ensureNestedUnselected) {
             this.unselectDeep();
         }
@@ -219,6 +231,16 @@ class NestedNode<D extends NestedData<any>> {
             }
         });
         return res;
+    }
+
+    getSelectionRegionBoundary(direction: Direction): NestedNode<D> {
+        var result;
+        var next = this;
+        while (next && next.selected) {
+            result = next;
+            next = next.getImmediateSibling(direction);
+        }
+        return result;
     }
 
 

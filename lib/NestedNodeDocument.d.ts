@@ -3,8 +3,8 @@ import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
-import NodeRelation = require('./NodeRelation');
 import Direction = require('./Direction');
+import SelectionMode = require('./SelectionMode');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
     root: NestedNode<D>;
     private id;
@@ -17,12 +17,16 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     registerNode(node: NestedNode<D>): string;
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;
-    focusNodeById(id: string, extendSelection?: boolean): void;
-    focusRelatedNode(targetNodeRelation: NodeRelation, extendSelection?: boolean): void;
-    protected focusNode(node: NestedNode<D>, extendSelection?: boolean): void;
-    protected focusNestedNode(): void;
-    protected focusParentNode(): void;
-    protected focusSiblingNode(direction: Direction, extendSelection: any): void;
-    private makeNodeFocused(node?);
+    focusNodeById(id: string, selectionMode: SelectionMode): void;
+    focusParentNode(): void;
+    focusNestedNode(): void;
+    focusPrevNode(selectionMode: SelectionMode): void;
+    focusNextNode(selectionMode: SelectionMode): void;
+    focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
+    protected focusNode(node: NestedNode<D>, selectionMode?: SelectionMode, updateFocusLevel?: boolean): void;
+    private resetSelectionToNode(node);
+    private toggleSelectionWithNode(node);
+    private shiftSelectionToNode(targetNode);
+    private setFocusedNode(node, updateFocusLevel);
 }
 export = NestedNodeDocument;
