@@ -5,5 +5,7 @@ interface DocumentActions {
     focusNestedNode(): void;
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
+    insertNewNode(): void;
+    removeNode(): void;
 }
 export = DocumentActions;

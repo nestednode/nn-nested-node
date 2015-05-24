@@ -120,7 +120,11 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
             return;
         }
 
-        var keyCode = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 }; //todo something
+        //todo something
+        var keyCode = {
+            LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
+            TAB: 9, RETURN: 13, DELETE: 46
+        };
         var code = e.keyCode;
 
         switch (true) {
@@ -148,6 +152,15 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                 break;
             case code == keyCode.DOWN:
                 actions.focusNextNode(SelectionMode.Reset);
+                break;
+
+            case code == keyCode.TAB:
+                actions.insertNewNode();
+                e.preventDefault();
+                break;
+
+            case code == keyCode.DELETE:
+                actions.removeNode();
                 break;
         }
 

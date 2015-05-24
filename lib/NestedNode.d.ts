@@ -1,8 +1,7 @@
 import Direction = require('./Direction');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import NestedData = require('./NestedData');
-declare class NestedNode<D extends NestedData<any>> {
-    private registry;
+declare class NestedNode<D extends NestedData<{}>> {
     private _id;
     id: string;
     private _parent;
@@ -19,7 +18,7 @@ declare class NestedNode<D extends NestedData<any>> {
     forEachNested(cb: (node: NestedNode<D>) => void, thisArg?: any): void;
     forEachNestedDeep(cb: (node: NestedNode<D>) => void): void;
     traverse(cb: (node: NestedNode<D>) => void): void;
-    getSibling(direction: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode<D>;
+    getSibling(direction?: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode<D>;
     getDirectionToSibling(node: NestedNode<D>): Direction;
     private getImmediateSibling(direction);
     private getCrossSibling(direction, preferredLevel);
@@ -27,19 +26,23 @@ declare class NestedNode<D extends NestedData<any>> {
     data: D;
     forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
     mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
-    appendNested(node: NestedNode<D>, anchorNode?: NestedNode<D>, direction?: Direction): void;
-    removeNested(node: NestedNode<D>): void;
+    appendNested(node: NestedNode<D>, nodeBefore?: NestedNode<D>): NestedNode<D>;
+    removeNested(node: NestedNode<D>): NestedNode<D>;
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
-    attachToParent(parent: NestedNode<D>): void;
-    makeParentless(): void;
+    attachToParent(parent: NestedNode<D>): NestedNode<D>;
+    makeParentless(): NestedNode<D>;
     substituteFor(newNode: NestedNode<D>): void;
     private _selected;
     selected: boolean;
-    select(ensureNestedUnselected?: boolean): void;
-    unselect(): void;
-    unselectDeep(): void;
+    select(): NestedNode<D>;
+    unselect(): NestedNode<D>;
+    unselectDeep(): NestedNode<D>;
     getSelection(): NestedNode<D>[];
     getSelectionRegionBoundary(direction: Direction): NestedNode<D>;
     constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D);
+}
+declare module NestedNode {
+    interface AnyNestedNode extends NestedNode<any> {
+    }
 }
 export = NestedNode;

@@ -6,11 +6,17 @@ import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 
+import Command = require('./Command/Command');
+import AppendCommand = require('./Command/AppendCommand');
+import RemoveCommand = require('./Command/RemoveCommand');
 
 
 class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
 
-    root: NestedNode<D>;
+    protected root: NestedNode<D>;
+    get content() {
+        return this.root.data;
+    }
 
     private id: string;
     private nodeRegistry: Collection.Map<string, NestedNode<D>>;
@@ -20,13 +26,31 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
 
-    constructor() {
+    constructor(data: D) {
         super();
         this.id = 'doc'; //todo something
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
+
+        this.root = new NestedNode<D>(this, data, this.nodeDataDuplicator);
+        this.focusNode(this.root);
+
         this.addListener('focusChange', () => this.emit('change'));
+        this.addListener('contentChange', () => this.emit('change'));
     }
+
+
+    // * Abstract Node Data methods
+
+    protected getBlankNodeData(): D {
+        throw new Error('abstract method');
+    }
+
+    // это должна быть чистая функция, ссылка на нее она передается без привязки к контексту
+    protected nodeDataDuplicator(data: D): D {
+        throw new Error('abstract method');
+    }
+
 
     // * Node Registry
 
@@ -45,6 +69,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     getNodeById(id: string): NestedNode<D> {
         return this.nodeRegistry.get(id);
     }
+
 
     // * Document Actions
 
@@ -79,7 +104,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.focusSiblingNode(Direction.getForward(), selectionMode);
     }
 
-    focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
+    protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
 
         if ([SelectionMode.Reset, SelectionMode.Shift].indexOf(selectionMode) == -1) {
             throw new Error('Unsupported SelectionMode for this operation :' + selectionMode);
@@ -112,10 +137,17 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.emit('focusChange', this.focusedNode.id);
     }
 
+    // todo вынести эти методы, аналогично командам
+    // для них не предусмотрен undo, значит они могут быть просто статическими методами
+    // типа SelectionActions.toggleSelectionWithNode(args) -> focused node
+    // this.root можно заменить на node.root,
+    // this.focused.node нужно передать только в shiftSelectionToNode
+    // а getSelectionRegionBoundary будет private методом в этом пакете,
+    // нечего ему вообще делать в NestedNode
+
     private resetSelectionToNode(node: NestedNode<D>): NestedNode<D> {
         this.root.unselectDeep();
-        var ensureNestedUnselected;
-        node.select(ensureNestedUnselected = false);
+        node.select();
         return node;
     }
 
@@ -151,7 +183,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
             }
             return selection[selection.indexOf(node) - 1] || selection[1];
         }
-        node.select();
+        node.unselectDeep().select();
         if (! (preceding && preceding.selected)) {
             return node;
         }
@@ -185,9 +217,9 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
         var nodeToSelect = startNode;
         while ((nodeToSelect = nodeToSelect.getSibling(directionToTarget)) !== targetNode) {
-            nodeToSelect.select();
+            nodeToSelect.unselectDeep().select();
         }
-        targetNode.select();
+        targetNode.unselectDeep().select();
 
         // если следующий за targetNode тоже выбранный, значит регион слился с другим, и нужно вернуть границу общего региона
         return targetNode.getSelectionRegionBoundary(directionToTarget);
@@ -203,7 +235,23 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         }
     }
 
-    // ** ...
+    // ** Modification Actions
+
+    insertNewNode(): void {
+        var newNode = new NestedNode(this, this.getBlankNodeData(), this.nodeDataDuplicator);
+        this.executeCommand(new AppendCommand([newNode], this.focusedNode));
+    }
+
+    removeNode(): void {
+        this.executeCommand(new RemoveCommand(this.root.getSelection()));
+    }
+
+    private executeCommand(cmd: Command) {
+        this.root.unselectDeep();
+        this.setFocusedNode(cmd.execute(), true);
+        this.emit('contentChange', this.content);
+    }
+
 }
 
 

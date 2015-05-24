@@ -3,11 +3,11 @@ import NestedNodeRegistry = require('./NestedNodeRegistry');
 import NestedData = require('./NestedData');
 
 
-class NestedNode<D extends NestedData<any>> {
+class NestedNode<D extends NestedData<{}>> {
 
     // * Identity
 
-    private registry: NestedNodeRegistry<any>;
+    //private registry: NestedNodeRegistry<NestedNode<D>>;
     // по-идее, хранить ссылку на реестр может быть полезно,
     // чтобы узел при добавленни другого мог проверять,
     // к одному ли id-space они принадлежат
@@ -17,6 +17,7 @@ class NestedNode<D extends NestedData<any>> {
     get id(): string {
         return this._id;
     }
+
 
     // * Tree Structure
 
@@ -81,7 +82,7 @@ class NestedNode<D extends NestedData<any>> {
 
     // ** Siblings
 
-    getSibling(direction: Direction, sameParentOnly = true, preferredLevel?: number) {
+    getSibling(direction = Direction.getForward(), sameParentOnly = true, preferredLevel?: number) {
         return sameParentOnly ?
             this.getImmediateSibling(direction) :
             this.getCrossSibling(direction, preferredLevel || this.level);
@@ -101,7 +102,7 @@ class NestedNode<D extends NestedData<any>> {
 
     private getImmediateSibling(direction: Direction): NestedNode<D> {
         if (! this.hasParent) {
-            return null;
+            throw new Error('cannot get sibling on parentless node');
         }
         var selfIndex = this._parent._nested.indexOf(this);
         var targetIndex = selfIndex + (direction.isForward ? 1 : -1);
@@ -128,7 +129,7 @@ class NestedNode<D extends NestedData<any>> {
     }
 
 
-    // ** Data
+    // * Data
 
     data: D;
 
@@ -145,33 +146,37 @@ class NestedNode<D extends NestedData<any>> {
 
     // ** Nested-Related Methods
 
-    appendNested(node: NestedNode<D>, anchorNode?: NestedNode<D>, direction?: Direction): void {
-        node.makeParentless();
+    // если указан nodeBefore, то добавляет узел перед ним, если нет, то добавляет в конец
+    appendNested(node: NestedNode<D>, nodeBefore?: NestedNode<D>): NestedNode<D> {
+        if (node.hasParent) {
+            throw new Error('cannot append node attached to another parent')
+        }
         var index = this._nested.length;
-        if (anchorNode) {
-            index = this._nested.indexOf(anchorNode);
+        if (nodeBefore) {
+            index = this._nested.indexOf(nodeBefore);
             if (index == -1) {
                 throw new Error('anchor node not exists in nested');
-            }
-            if (direction === undefined || direction.isForward) {
-                index++;
             }
         }
         this._nested.splice(index, 0, node);
         node._parent = this;
+        return node;
     }
 
-    removeNested(node: NestedNode<D>): void {
+    removeNested(node: NestedNode<D>): NestedNode<D> {
         var index = this._nested.indexOf(node);
         if (index == -1) {
             throw new Error('no such node in nested');
         }
         this._nested.splice(index, 1);
         node._parent = null;
+        return node;
     }
 
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void {
-        newNode.makeParentless();
+        if (newNode.hasParent) {
+            throw new Error('cannot place node attached to another parent');
+        }
         var index = this._nested.indexOf(node);
         if (index === -1) {
             throw new Error('node to replace not exists in nested');
@@ -182,14 +187,15 @@ class NestedNode<D extends NestedData<any>> {
 
     // ** Self-Related Methods
 
-    attachToParent(parent: NestedNode<D>): void {
-        parent.appendNested(this);
+    attachToParent(parent: NestedNode<D>): NestedNode<D> {
+        return parent.appendNested(this);
     }
 
-    makeParentless(): void {
-        if (this.hasParent) {
-            this._parent.removeNested(this);
+    makeParentless(): NestedNode<D> {
+        if (! this.hasParent) {
+            throw new Error('node is already parentless');
         }
+        return this._parent.removeNested(this);
     }
 
     substituteFor(newNode: NestedNode<D>): void {
@@ -208,19 +214,19 @@ class NestedNode<D extends NestedData<any>> {
         return this._selected;
     }
 
-    select(ensureNestedUnselected = true): void {
-        if (ensureNestedUnselected) {
-            this.unselectDeep();
-        }
+    select(): NestedNode<D> {
         this._selected = true;
+        return this;
     }
 
-    unselect(): void {
+    unselect(): NestedNode<D> {
         this._selected = false;
+        return this;
     }
 
-    unselectDeep(): void {
-        this.getSelection().forEach(node => { node._selected = false })
+    unselectDeep(): NestedNode<D> {
+        this.getSelection().forEach(node => { node._selected = false });
+        return this;
     }
 
     getSelection(): NestedNode<D>[] {
@@ -264,6 +270,11 @@ class NestedNode<D extends NestedData<any>> {
         };
     }
 
+}
+
+
+module NestedNode {
+    export interface AnyNestedNode extends NestedNode<any> {}
 }
 
 

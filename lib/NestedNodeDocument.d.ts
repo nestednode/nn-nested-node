@@ -6,14 +6,17 @@ import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
-    root: NestedNode<D>;
+    protected root: NestedNode<D>;
+    content: D;
     private id;
     private nodeRegistry;
     private nodeRegistryCounter;
     focusedNode: NestedNode<D>;
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
-    constructor();
+    constructor(data: D);
+    protected getBlankNodeData(): D;
+    protected nodeDataDuplicator(data: D): D;
     registerNode(node: NestedNode<D>): string;
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;
@@ -22,11 +25,14 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     focusNestedNode(): void;
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
-    focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
+    protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
     protected focusNode(node: NestedNode<D>, selectionMode?: SelectionMode, updateFocusLevel?: boolean): void;
     private resetSelectionToNode(node);
     private toggleSelectionWithNode(node);
     private shiftSelectionToNode(targetNode);
     private setFocusedNode(node, updateFocusLevel);
+    insertNewNode(): void;
+    removeNode(): void;
+    private executeCommand(cmd);
 }
 export = NestedNodeDocument;

@@ -5,10 +5,12 @@ import NestedText = require('./NestedText');
 
 class NestedTextDocument extends NestedNodeDocument<NestedText> {
 
-    constructor(data: NestedText) {
-        super();
-        this.root = new NestedNode<NestedText>(this, data, d => ({ text: d.text }));
-        this.focusNode(this.root);
+    getBlankNodeData(): NestedText {
+        return { text: '' };
+    }
+
+    nodeDataDuplicator(data: NestedText): NestedText {
+        return { text: data.text };
     }
 
 }
