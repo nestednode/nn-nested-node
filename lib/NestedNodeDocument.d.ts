@@ -11,6 +11,7 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     private id;
     private nodeRegistry;
     private nodeRegistryCounter;
+    private history;
     focusedNode: NestedNode<D>;
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
@@ -27,9 +28,12 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     focusNextNode(selectionMode: SelectionMode): void;
     protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
     protected focusNode(node: NestedNode<D>, selectionMode?: SelectionMode, updateFocusLevel?: boolean): void;
-    private setFocusedNode(node, updateFocusLevel);
+    private setFocusedNode(node, updateFocusLevel?);
     insertNewNode(): void;
     removeNode(): void;
     private executeCommand(cmd);
+    undo(): void;
+    redo(): void;
+    private stepHistory(direction);
 }
 export = NestedNodeDocument;

@@ -7,5 +7,7 @@ interface DocumentActions {
     focusNextNode(selectionMode: SelectionMode): void;
     insertNewNode(): void;
     removeNode(): void;
+    undo(): void;
+    redo(): void;
 }
 export = DocumentActions;

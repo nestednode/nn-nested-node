@@ -6,9 +6,8 @@ import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 import SelectionHelper = require('./SelectionHelper');
-
-
 import Command = require('./Command/Command');
+import CommandHistory = require('./Command/CommandHistory');
 import AppendCommand = require('./Command/AppendCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
 
@@ -24,6 +23,8 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     private nodeRegistry: Collection.Map<string, NestedNode<D>>;
     private nodeRegistryCounter = 0;
 
+    private history: CommandHistory;
+
     focusedNode: NestedNode<D>;
     previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
     currentFocusLevel: number;
@@ -32,13 +33,13 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         super();
         this.id = 'doc'; //todo something
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
+        this.history = new CommandHistory();
         this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
 
         this.root = new NestedNode<D>(this, data, this.nodeDataDuplicator);
         this.focusNode(this.root);
 
         this.addListener('focusChange', () => this.emit('change'));
-        this.addListener('contentChange', () => this.emit('change'));
     }
 
 
@@ -83,19 +84,16 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
             console.warn('No node found with id: ' + id);
             return;
         }
-        var updateFocusLevel;
-        this.focusNode(node, selectionMode, updateFocusLevel=true);
+        this.focusNode(node, selectionMode);
     }
 
     focusParentNode(): void {
-        var updateFocusLevel;
-        this.focusNode(this.focusedNode.parent, SelectionMode.Reset, updateFocusLevel=true);
+        this.focusNode(this.focusedNode.parent, SelectionMode.Reset);
     }
 
     focusNestedNode(): void {
         var nested = this.previouslyFocusedNested.get(this.focusedNode) || this.focusedNode.firstNested;
-        var updateFocusLevel;
-        this.focusNode(nested, SelectionMode.Reset, updateFocusLevel=true);
+        this.focusNode(nested, SelectionMode.Reset);
     }
 
     focusPrevNode(selectionMode: SelectionMode): void {
@@ -139,7 +137,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.emit('focusChange', this.focusedNode.id);
     }
 
-    private setFocusedNode(node: NestedNode<D>, updateFocusLevel: boolean): void {
+    private setFocusedNode(node: NestedNode<D>, updateFocusLevel = true): void {
         this.focusedNode = node;
         if (node.hasParent) {
             this.previouslyFocusedNested.set(node.parent, node);
@@ -162,8 +160,29 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     private executeCommand(cmd: Command) {
         this.root.unselectDeep();
-        this.setFocusedNode(cmd.execute(), true);
-        this.emit('contentChange', this.content);
+        var nextFocusedNode = cmd.execute();
+        this.history.push(cmd);
+        this.setFocusedNode(nextFocusedNode);
+        this.emit('change', this.content);
+    }
+
+    // *** Undo / Redo Actions
+
+    undo(): void {
+        this.stepHistory(Direction.getBackward())
+    }
+
+    redo(): void {
+        this.stepHistory(Direction.getForward());
+    }
+
+    private stepHistory(direction: Direction): void {
+        if (! this.history.canStepTo(direction)) {
+            return;
+        }
+        this.root.unselectDeep();
+        this.setFocusedNode(this.history.stepTo(direction));
+        this.emit('change', this.content);
     }
 
 }

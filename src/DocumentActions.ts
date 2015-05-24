@@ -11,6 +11,9 @@ interface DocumentActions {
 
     insertNewNode(): void;
     removeNode(): void;
+
+    undo(): void;
+    redo(): void;
 }
 
 

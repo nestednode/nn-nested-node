@@ -123,45 +123,59 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
         //todo something
         var keyCode = {
             LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
-            TAB: 9, RETURN: 13, DELETE: 46
+            TAB: 9, RETURN: 13, DELETE: 46,
+            Y: 89, Z: 90
         };
         var code = e.keyCode;
 
-        switch (true) {
+        var eventHandled = (() => { switch (true) {
+
             case code == keyCode.LEFT && e.shiftKey:
-                break;
+                return false;
             case code == keyCode.LEFT:
                 actions.focusParentNode();
-                break;
+                return true;
 
             case code == keyCode.RIGHT && e.shiftKey:
-                break;
+                return false;
             case code == keyCode.RIGHT:
                 actions.focusNestedNode();
-                break;
+                return true;
 
             case code == keyCode.UP && e.shiftKey:
                 actions.focusPrevNode(SelectionMode.Shift);
-                break;
+                return true;
             case code == keyCode.UP:
                 actions.focusPrevNode(SelectionMode.Reset);
-                break;
+                return true;
 
             case code == keyCode.DOWN && e.shiftKey:
                 actions.focusNextNode(SelectionMode.Shift);
-                break;
+                return true;
             case code == keyCode.DOWN:
                 actions.focusNextNode(SelectionMode.Reset);
-                break;
+                return true;
 
             case code == keyCode.TAB:
                 actions.insertNewNode();
-                e.preventDefault();
-                break;
+                return true;
 
             case code == keyCode.DELETE:
                 actions.removeNode();
-                break;
+                return true;
+
+            case code == keyCode.Z && e.metaKey:
+                actions.undo();
+                return true;
+
+            case code == keyCode.Y && e.metaKey:
+                actions.redo();
+                return true;
+
+        }})();
+
+        if (eventHandled) {
+            e.preventDefault();
         }
 
     }

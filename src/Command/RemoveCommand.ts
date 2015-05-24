@@ -35,7 +35,7 @@ class RemoveCommand implements Command {
         var lastIndex = this.targets.length - 1;
         var item;
         // в обратном порядке, чтобы уже точно был прикреплен nodeBefore
-        for (var i = lastIndex; i > 0; i--) {
+        for (var i = lastIndex; i >= 0; i--) {
             item = this.targets[i];
             item.target.appendNested(item.node, item.nodeBefore).select();
         }
