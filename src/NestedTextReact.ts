@@ -160,6 +160,14 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                 actions.insertNewNode();
                 return true;
 
+            case code == keyCode.RETURN && e.shiftKey:
+                actions.appendNewNodeBefore();
+                return true;
+
+            case code == keyCode.RETURN:
+                actions.appendNewNodeAfter();
+                return true;
+
             case code == keyCode.DELETE:
                 actions.removeNode();
                 return true;

@@ -10,6 +10,8 @@ interface DocumentActions {
     focusNextNode(selectionMode: SelectionMode): void;
 
     insertNewNode(): void;
+    appendNewNodeBefore(): void;
+    appendNewNodeAfter(): void;
     removeNode(): void;
 
     undo(): void;

@@ -54,6 +54,9 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         throw new Error('abstract method');
     }
 
+    private createBlankNode(): NestedNode<D> {
+        return new NestedNode(this, this.getBlankNodeData(), this.nodeDataDuplicator);
+    }
 
     // * Node Registry
 
@@ -150,8 +153,22 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     // ** Modification Actions
 
     insertNewNode(): void {
-        var newNode = new NestedNode(this, this.getBlankNodeData(), this.nodeDataDuplicator);
-        this.executeCommand(new AppendCommand([newNode], this.focusedNode));
+        this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode));
+    }
+
+    appendNewNodeBefore(): void {
+        this.appendNewNode(Direction.getBackward());
+    }
+
+    appendNewNodeAfter(): void {
+        this.appendNewNode(Direction.getForward());
+    }
+
+    private appendNewNode(direction: Direction): void {
+        if (! this.focusedNode.hasParent) {
+            return;
+        }
+        this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode.parent, this.focusedNode, direction));
     }
 
     removeNode(): void {
