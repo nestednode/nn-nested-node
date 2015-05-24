@@ -239,16 +239,6 @@ class NestedNode<D extends NestedData<{}>> {
         return res;
     }
 
-    getSelectionRegionBoundary(direction: Direction): NestedNode<D> {
-        var result;
-        var next = this;
-        while (next && next.selected) {
-            result = next;
-            next = next.getImmediateSibling(direction);
-        }
-        return result;
-    }
-
 
     // * Constructing
 

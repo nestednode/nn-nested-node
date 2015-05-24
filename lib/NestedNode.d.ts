@@ -38,7 +38,6 @@ declare class NestedNode<D extends NestedData<{}>> {
     unselect(): NestedNode<D>;
     unselectDeep(): NestedNode<D>;
     getSelection(): NestedNode<D>[];
-    getSelectionRegionBoundary(direction: Direction): NestedNode<D>;
     constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D);
 }
 declare module NestedNode {

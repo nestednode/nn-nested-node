@@ -27,9 +27,6 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     focusNextNode(selectionMode: SelectionMode): void;
     protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
     protected focusNode(node: NestedNode<D>, selectionMode?: SelectionMode, updateFocusLevel?: boolean): void;
-    private resetSelectionToNode(node);
-    private toggleSelectionWithNode(node);
-    private shiftSelectionToNode(targetNode);
     private setFocusedNode(node, updateFocusLevel);
     insertNewNode(): void;
     removeNode(): void;

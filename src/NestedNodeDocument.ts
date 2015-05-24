@@ -5,6 +5,8 @@ import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
+import SelectionHelper = require('./SelectionHelper');
+
 
 import Command = require('./Command/Command');
 import AppendCommand = require('./Command/AppendCommand');
@@ -127,102 +129,14 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
             return;
         }
         var nodeToFocus = (() => { switch (selectionMode) {
-            case SelectionMode.Reset: return this.resetSelectionToNode(node);
-            case SelectionMode.Toggle: return this.toggleSelectionWithNode(node);
-            case SelectionMode.Shift: return this.shiftSelectionToNode(node);
+            case SelectionMode.Reset: return SelectionHelper.resetSelectionToNode(node);
+            case SelectionMode.Toggle: return SelectionHelper.toggleSelectionWithNode(node);
+            case SelectionMode.Shift: return SelectionHelper.shiftSelectionToNode(this.focusedNode, node);
             default: throw new Error('Unknown SelectionMode: ' + selectionMode);
         }})();
 
         this.setFocusedNode(nodeToFocus, updateFocusLevel);
         this.emit('focusChange', this.focusedNode.id);
-    }
-
-    // todo вынести эти методы, аналогично командам
-    // для них не предусмотрен undo, значит они могут быть просто статическими методами
-    // типа SelectionActions.toggleSelectionWithNode(args) -> focused node
-    // this.root можно заменить на node.root,
-    // this.focused.node нужно передать только в shiftSelectionToNode
-    // а getSelectionRegionBoundary будет private методом в этом пакете,
-    // нечего ему вообще делать в NestedNode
-
-    private resetSelectionToNode(node: NestedNode<D>): NestedNode<D> {
-        this.root.unselectDeep();
-        node.select();
-        return node;
-    }
-
-    private toggleSelectionWithNode(node: NestedNode<D>): NestedNode<D> {
-        var parentSelected = false;
-        var parent = node.parent;
-        while (parent && !parentSelected) {
-            if (parent.selected) {
-                parentSelected = true;
-            }
-            parent = parent.parent;
-        }
-        if (parentSelected) {
-            return node;
-        }
-
-        var preceding = node.getSibling(Direction.getBackward());
-        var following = node.getSibling(Direction.getForward());
-        if (node.selected) {
-            var selection = this.root.getSelection();
-            if (selection.length === 1) {
-                // нельзя снять выделение у единственного выбранного узла
-                // в finder, однако, в таком случае выбирается родительский,
-                //
-                return node;
-            }
-            node.unselect();
-            if (preceding && preceding.selected) {
-                return preceding;
-            }
-            if (following && following.selected) {
-                return following;
-            }
-            return selection[selection.indexOf(node) - 1] || selection[1];
-        }
-        node.unselectDeep().select();
-        if (! (preceding && preceding.selected)) {
-            return node;
-        }
-        return node.getSelectionRegionBoundary(Direction.getForward());
-    }
-
-    private shiftSelectionToNode(targetNode: NestedNode<D>): NestedNode<D> {
-
-        var directionToStart = Direction.getBackward();
-        var preceding = this.focusedNode.getSibling(directionToStart);
-        if (! (preceding && preceding.selected)) {
-            directionToStart = Direction.getForward();
-        }
-        var startNode = this.focusedNode.getSelectionRegionBoundary(directionToStart);
-        var targetIsStart = targetNode === startNode;
-        var directionToTarget = startNode.getDirectionToSibling(targetNode);
-
-        if (!directionToTarget && !targetIsStart) {
-            return this.focusedNode;
-        }
-
-        var nodeToUnselect = this.focusedNode;
-        while (nodeToUnselect !== startNode) {
-            nodeToUnselect.unselect();
-            nodeToUnselect = nodeToUnselect.getSibling(directionToStart);
-        }
-
-        if (targetIsStart) {
-            return startNode;
-        }
-
-        var nodeToSelect = startNode;
-        while ((nodeToSelect = nodeToSelect.getSibling(directionToTarget)) !== targetNode) {
-            nodeToSelect.unselectDeep().select();
-        }
-        targetNode.unselectDeep().select();
-
-        // если следующий за targetNode тоже выбранный, значит регион слился с другим, и нужно вернуть границу общего региона
-        return targetNode.getSelectionRegionBoundary(directionToTarget);
     }
 
     private setFocusedNode(node: NestedNode<D>, updateFocusLevel: boolean): void {
