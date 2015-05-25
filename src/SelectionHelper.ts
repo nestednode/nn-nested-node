@@ -10,31 +10,22 @@ export function resetSelectionToNode(node: NestedNode<any>): NestedNode<any> {
     return node;
 }
 
-//todo или задокументировать тут все, или сделать api у NestedNode более приспособленным,
-// или ввести отдельную абстракцию, а то как-то слишком много кода из ничего
 
 export function toggleSelectionWithNode(node: NestedNode<any>): NestedNode<any> {
-    var parentSelected = false;
-    var parent = node.parent;
-    while (parent && !parentSelected) {
-        if (parent.selected) {
-            parentSelected = true;
-        }
-        parent = parent.parent;
-    }
-    if (parentSelected) {
+
+    if (isAncestorSelected(node)) {
         return node;
     }
-
-    //fixme учитывать, что node может быть корневым, тогда getSibling бросит исключение вернет
-    var preceding = node.getSibling(Direction.getBackward());
-    var following = node.getSibling(Direction.getForward());
+    var preceding;
+    var following;
+    if (node.hasParent) {
+        preceding = node.getSibling(Direction.getBackward());
+        following = node.getSibling(Direction.getForward());
+    }
     if (node.selected) {
         var selection = node.root.getSelection();
         if (selection.length === 1) {
             // нельзя снять выделение у единственного выбранного узла
-            // в finder, однако, в таком случае выбирается родительский,
-            //
             return node;
         }
         node.unselect();
@@ -50,24 +41,18 @@ export function toggleSelectionWithNode(node: NestedNode<any>): NestedNode<any> 
     if (! (preceding && preceding.selected)) {
         return node;
     }
-    return getSelectionRegionBoundary(node, Direction.getForward());
+    return getSelectionBoundary(node, Direction.getForward());
 }
 
 
 export function shiftSelectionToNode(focusedNode: NestedNode<any>, targetNode: NestedNode<any>): NestedNode<any> {
 
-    var directionToStart = Direction.getBackward();
-    var preceding = focusedNode.getSibling(directionToStart);
-    if (! (preceding && preceding.selected)) {
-        directionToStart = Direction.getForward();
-    }
-    var startNode = getSelectionRegionBoundary(focusedNode, directionToStart);
-    var targetIsStart = targetNode === startNode;
-    var directionToTarget = startNode.getDirectionToSibling(targetNode);
-
-    if (!directionToTarget && !targetIsStart) {
+    if (!focusedNode.hasParent || focusedNode.parent !== targetNode.parent) {
         return focusedNode;
     }
+
+    var directionToStart = getDirectionToOppositeSelectionBoundary(focusedNode);
+    var startNode = getSelectionBoundary(focusedNode, directionToStart);
 
     var nodeToUnselect = focusedNode;
     while (nodeToUnselect !== startNode) {
@@ -75,27 +60,42 @@ export function shiftSelectionToNode(focusedNode: NestedNode<any>, targetNode: N
         nodeToUnselect = nodeToUnselect.getSibling(directionToStart);
     }
 
-    if (targetIsStart) {
+    if (targetNode === startNode) {
         return startNode;
     }
-
+    var directionToTarget = startNode.getDirectionToSibling(targetNode);
     var nodeToSelect = startNode;
-    while ((nodeToSelect = nodeToSelect.getSibling(directionToTarget)) !== targetNode) {
+    do {
+        nodeToSelect = nodeToSelect.getSibling(directionToTarget);
         nodeToSelect.unselectDeep().select();
-    }
-    targetNode.unselectDeep().select();
+    } while (nodeToSelect !== targetNode);
 
-    // если следующий за targetNode тоже выбранный, значит регион слился с другим, и нужно вернуть границу общего региона
-    return getSelectionRegionBoundary(targetNode, directionToTarget);
+    // не исключено, что следующий за targetNode тоже выбранный,
+    // т.е. регион сливается с другим, и нужно вернуть границу общего региона
+    return getSelectionBoundary(targetNode, directionToTarget);
 }
 
 
-function getSelectionRegionBoundary(startNode: NestedNode<any>, direction: Direction): NestedNode<any> {
+function isAncestorSelected(node) {
+    while (node.hasParent) {
+        node = node.parent;
+        if (node.selected) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function getDirectionToOppositeSelectionBoundary(boundaryNode: NestedNode<any>): Direction {
+    var following = boundaryNode.getSibling();
+    return following && following.selected ? Direction.getForward() : Direction.getBackward();
+}
+
+function getSelectionBoundary(node: NestedNode<any>, direction: Direction): NestedNode<any> {
     var result;
-    var next = startNode;
-    while (next && next.selected) {
-        result = next;
-        next = next.getSibling(direction);
+    while (node && node.selected) {
+        result = node;
+        node = node.getSibling(direction);
     }
     return result;
 }

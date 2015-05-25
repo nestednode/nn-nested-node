@@ -107,10 +107,13 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.focusSiblingNode(Direction.getForward(), selectionMode);
     }
 
-    protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
+    private focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
 
         if ([SelectionMode.Reset, SelectionMode.Shift].indexOf(selectionMode) == -1) {
             throw new Error('Unsupported SelectionMode for this operation :' + selectionMode);
+        }
+        if (! this.focusedNode.hasParent) {
+            return;
         }
         var sibling;
         var sameParentOnly;
@@ -125,7 +128,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         }
     }
 
-    protected focusNode(node: NestedNode<D>, selectionMode: SelectionMode = SelectionMode.Reset, updateFocusLevel = true): void {
+    private focusNode(node: NestedNode<D>, selectionMode: SelectionMode = SelectionMode.Reset, updateFocusLevel = true): void {
         if (! node) {
             return;
         }
@@ -168,10 +171,15 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         if (! this.focusedNode.hasParent) {
             return;
         }
-        this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode.parent, this.focusedNode, direction));
+        var cmd = new AppendCommand([this.createBlankNode()], this.focusedNode.parent, this.focusedNode, direction);
+        this.executeCommand(cmd);
     }
 
     removeNode(): void {
+        if (! this.focusedNode.hasParent) {
+            //todo replace root command
+            return;
+        }
         this.executeCommand(new RemoveCommand(this.root.getSelection()));
     }
 

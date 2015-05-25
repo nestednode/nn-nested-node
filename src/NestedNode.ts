@@ -83,6 +83,9 @@ class NestedNode<D extends NestedData<{}>> {
     // ** Siblings
 
     getSibling(direction = Direction.getForward(), sameParentOnly = true, preferredLevel?: number) {
+        if (! this.hasParent) {
+            throw new Error('cannot get sibling on parentless node');
+        }
         return sameParentOnly ?
             this.getImmediateSibling(direction) :
             this.getCrossSibling(direction, preferredLevel || this.level);
@@ -92,8 +95,8 @@ class NestedNode<D extends NestedData<{}>> {
         if (this === node) {
             return null;
         }
-        if (this.hasParent && this._parent !== node._parent) {
-            return null;
+        if (!this._parent || this._parent !== node._parent) {
+            throw new Error('passed node must have the same parent');
         }
         var selfIndex = this._parent._nested.indexOf(this);
         var targetIndex = this._parent._nested.indexOf(node);
@@ -102,7 +105,7 @@ class NestedNode<D extends NestedData<{}>> {
 
     private getImmediateSibling(direction: Direction): NestedNode<D> {
         if (! this.hasParent) {
-            throw new Error('cannot get sibling on parentless node');
+            return null;
         }
         var selfIndex = this._parent._nested.indexOf(this);
         var targetIndex = selfIndex + (direction.isForward ? 1 : -1);

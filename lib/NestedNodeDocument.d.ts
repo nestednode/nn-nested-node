@@ -3,7 +3,6 @@ import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
-import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
     protected root: NestedNode<D>;
@@ -18,6 +17,7 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     constructor(data: D);
     protected getBlankNodeData(): D;
     protected nodeDataDuplicator(data: D): D;
+    private createBlankNode();
     registerNode(node: NestedNode<D>): string;
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;
@@ -26,10 +26,13 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     focusNestedNode(): void;
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
-    protected focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void;
-    protected focusNode(node: NestedNode<D>, selectionMode?: SelectionMode, updateFocusLevel?: boolean): void;
+    private focusSiblingNode(direction, selectionMode);
+    private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
     insertNewNode(): void;
+    appendNewNodeBefore(): void;
+    appendNewNodeAfter(): void;
+    private appendNewNode(direction);
     removeNode(): void;
     private executeCommand(cmd);
     undo(): void;
