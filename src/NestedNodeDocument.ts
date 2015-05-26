@@ -10,39 +10,24 @@ import Command = require('./Command/Command');
 import CommandHistory = require('./Command/CommandHistory');
 import AppendCommand = require('./Command/AppendCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
+import ReplaceRootCommand = require('./Command/ReplaceRootCommand');
 import RearrangeCommand = require('./Command/RearrangeCommand');
 
 
 class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
 
     protected root: NestedNode<D>;
-    get content() {
+
+    get data() {
         return this.root.data;
     }
 
-    private id: string;
-    private nodeRegistry: Collection.Map<string, NestedNode<D>>;
-    private nodeRegistryCounter = 0;
-
-    private history: CommandHistory;
-
-    focusedNode: NestedNode<D>;
-    previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
-    currentFocusLevel: number;
-
-    constructor(data: D) {
-        super();
-        this.id = 'doc'; //todo something
-        this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
-        this.history = new CommandHistory();
-        this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
-
-        this.root = new NestedNode<D>(this, data, this.nodeDataDuplicator);
-        this.focusNode(this.root);
-
-        this.addListener('focusChange', () => this.emit('change'));
+    //internal
+    replaceRoot(newRoot: NestedNode<D>): NestedNode<D> {
+        var oldRoot = this.root;
+        this.root = newRoot;
+        return oldRoot;
     }
-
 
     // * Abstract Node Data methods
 
@@ -60,6 +45,10 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     // * Node Registry
+
+    private id: string;
+    private nodeRegistry: Collection.Map<string, NestedNode<D>>;
+    private nodeRegistryCounter = 0;
 
     registerNode(node: NestedNode<D>): string {
         //todo check if node not already registred
@@ -81,6 +70,10 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     // * Document Actions
 
     // ** Actions With Focused Node
+
+    private focusedNode: NestedNode<D>;
+    private previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
+    private currentFocusLevel: number;
 
     focusNodeById(id: string, selectionMode: SelectionMode): void {
         var node = this.getNodeById(id);
@@ -154,7 +147,10 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         }
     }
 
+
     // ** Modification Actions
+
+    private history: CommandHistory;
 
     insertNewNode(): void {
         this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode));
@@ -178,7 +174,10 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     removeNode(): void {
         if (! this.focusedNode.hasParent) {
-            //todo replace root command
+            // можно было бы просто не давать перевести фокус на root,
+            // тогда бы и не потребовались специальные операции над корневым,
+            // но пока что хочу, чтобы в интерфейсе root присутствовал явно и был только один
+            this.executeCommand(new ReplaceRootCommand(this, this.createBlankNode()));
             return;
         }
         this.executeCommand(new RemoveCommand(this.root.getSelection()));
@@ -216,7 +215,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         var nextFocusedNode = cmd.execute();
         this.history.push(cmd);
         this.setFocusedNode(nextFocusedNode);
-        this.emit('change', this.content);
+        this.emit('change', this.data);
     }
 
     // *** Undo / Redo Actions
@@ -235,8 +234,25 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         }
         this.root.unselectDeep();
         this.setFocusedNode(this.history.stepTo(direction));
-        this.emit('change', this.content);
+        this.emit('change', this.data);
     }
+
+
+    // * Constructing
+
+    constructor(data: D) {
+        super();
+        this.id = 'doc'; //todo something
+        this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
+        this.history = new CommandHistory();
+        this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
+
+        this.root = new NestedNode<D>(this, data, this.nodeDataDuplicator);
+        this.focusNode(this.root);
+
+        this.addListener('focusChange', () => this.emit('change'));
+    }
+
 
 }
 

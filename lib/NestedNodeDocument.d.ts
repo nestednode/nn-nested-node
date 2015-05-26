@@ -1,4 +1,3 @@
-import Collection = require('pkg/Collection/Collection');
 import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
@@ -6,21 +5,20 @@ import DocumentActions = require('./DocumentActions');
 import SelectionMode = require('./SelectionMode');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
     protected root: NestedNode<D>;
-    content: D;
-    private id;
-    private nodeRegistry;
-    private nodeRegistryCounter;
-    private history;
-    focusedNode: NestedNode<D>;
-    previouslyFocusedNested: Collection.Map<NestedNode<D>, NestedNode<D>>;
-    currentFocusLevel: number;
-    constructor(data: D);
+    data: D;
+    replaceRoot(newRoot: NestedNode<D>): NestedNode<D>;
     protected getBlankNodeData(): D;
     protected nodeDataDuplicator(data: D): D;
     private createBlankNode();
+    private id;
+    private nodeRegistry;
+    private nodeRegistryCounter;
     registerNode(node: NestedNode<D>): string;
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;
+    private focusedNode;
+    private previouslyFocusedNested;
+    private currentFocusLevel;
     focusNodeById(id: string, selectionMode: SelectionMode): void;
     focusParentNode(): void;
     focusNestedNode(): void;
@@ -29,6 +27,7 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     private focusSiblingNode(direction, selectionMode);
     private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
+    private history;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
@@ -41,5 +40,6 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     undo(): void;
     redo(): void;
     private stepHistory(direction);
+    constructor(data: D);
 }
 export = NestedNodeDocument;

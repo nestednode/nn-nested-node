@@ -29,7 +29,7 @@ render();
 
 function render() {
     var docElem = NestedTextReact.NestedTextDocumentElem({
-        nodeData: doc.content,
+        nodeData: doc.data,
         documentActions: doc
     });
     React.render(docElem, document.body);
