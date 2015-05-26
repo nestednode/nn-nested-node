@@ -6,11 +6,11 @@ import Direction = require('../Direction');
 
 class RemoveCommand implements Command {
 
-    private targets: { target: N; node: N; nodeBefore: N }[];
+    private targets: { parentNode: N; node: N; nodeBefore: N }[];
 
-    constructor(nodeset: N[]) {
-        this.targets = nodeset.map(node => ({
-            target: node.parent,
+    constructor(nodesToRemove: N[]) {
+        this.targets = nodesToRemove.map(node => ({
+            parentNode: node.parent,
             node: node,
             nodeBefore: node.getSibling()
         }));
@@ -37,7 +37,7 @@ class RemoveCommand implements Command {
         // в обратном порядке, чтобы уже точно был прикреплен nodeBefore
         for (var i = lastIndex; i >= 0; i--) {
             item = this.targets[i];
-            item.target.appendNested(item.node, item.nodeBefore).select();
+            item.parentNode.appendNested(item.node, item.nodeBefore).select();
         }
         return this.targets[lastIndex].node;
     }

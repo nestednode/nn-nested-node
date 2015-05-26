@@ -142,6 +142,9 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                 actions.focusNestedNode();
                 return true;
 
+            case code == keyCode.UP && e.altKey:
+                actions.moveNodeBackward();
+                return true;
             case code == keyCode.UP && e.shiftKey:
                 actions.focusPrevNode(SelectionMode.Shift);
                 return true;
@@ -149,6 +152,9 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                 actions.focusPrevNode(SelectionMode.Reset);
                 return true;
 
+            case code == keyCode.DOWN && e.altKey:
+                actions.moveNodeForward();
+                return true;
             case code == keyCode.DOWN && e.shiftKey:
                 actions.focusNextNode(SelectionMode.Shift);
                 return true;

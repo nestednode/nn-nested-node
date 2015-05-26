@@ -34,6 +34,9 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     appendNewNodeAfter(): void;
     private appendNewNode(direction);
     removeNode(): void;
+    moveNodeForward(): void;
+    moveNodeBackward(): void;
+    private rearrangeNode(direction);
     private executeCommand(cmd);
     undo(): void;
     redo(): void;

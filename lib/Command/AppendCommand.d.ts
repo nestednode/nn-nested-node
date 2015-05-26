@@ -3,11 +3,11 @@ import NestedNode = require('../NestedNode');
 import N = NestedNode.AnyNestedNode;
 import Direction = require('../Direction');
 declare class AppendCommand implements Command {
-    private nodeset;
-    private target;
+    private nodesToAppend;
+    private parentNode;
     private anchorNode;
     private nodeBefore;
-    constructor(nodeset: N[], target: N, anchorNode?: N, direction?: Direction);
+    constructor(nodesToAppend: N[], parentNode: N, anchorNode?: N, direction?: Direction);
     execute(): N;
     undo(): N;
 }

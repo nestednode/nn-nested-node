@@ -10,6 +10,7 @@ import Command = require('./Command/Command');
 import CommandHistory = require('./Command/CommandHistory');
 import AppendCommand = require('./Command/AppendCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
+import RearrangeCommand = require('./Command/RearrangeCommand');
 
 
 class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
@@ -181,6 +182,33 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
             return;
         }
         this.executeCommand(new RemoveCommand(this.root.getSelection()));
+    }
+
+    moveNodeForward(): void {
+        this.rearrangeNode(Direction.getForward());
+    }
+
+    moveNodeBackward(): void {
+        this.rearrangeNode(Direction.getBackward());
+    }
+
+    private rearrangeNode(direction: Direction): void {
+        if (! this.focusedNode.hasParent) {
+            return;
+        }
+        var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
+        // вместо сдвига каждого узла в selection,
+        // приводим это действие к перестановке через selection соседствующего узла;
+        // вообще, это уже внутреннее дело команды, как ей там действовать,
+        // и я бы перенес это код туда,
+        // но тогда интерфейс команд должен быть дополнен методом canExecute,
+        // который бы проверял наличие nodeToRearrange
+        var boundaryIndex = direction.isForward ? selection.length - 1 : 0;
+        var nodeToRearrange = selection[boundaryIndex].getSibling(direction);
+        if (! nodeToRearrange) {
+            return;
+        }
+        this.executeCommand(new RearrangeCommand(nodeToRearrange, selection, direction));
     }
 
     private executeCommand(cmd: Command) {

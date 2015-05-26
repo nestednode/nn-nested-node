@@ -9,8 +9,8 @@ class AppendCommand implements Command {
     private nodeBefore: N;
 
     constructor(
-        private nodeset: N[],
-        private target: N,
+        private nodesToAppend: N[],
+        private parentNode: N,
         private anchorNode?: N,
         direction?: Direction
     ) {
@@ -21,13 +21,13 @@ class AppendCommand implements Command {
     }
 
     execute(): N {
-        this.nodeset.forEach(node => this.target.appendNested(node, this.nodeBefore).select());
-        return this.nodeset.slice(-1)[0];
+        this.nodesToAppend.forEach(node => this.parentNode.appendNested(node, this.nodeBefore).select());
+        return this.nodesToAppend.slice(-1)[0];
     }
 
     undo(): N {
-        this.nodeset.forEach(node => this.target.removeNested(node));
-        return (this.anchorNode || this.target).select();
+        this.nodesToAppend.forEach(node => this.parentNode.removeNested(node));
+        return (this.anchorNode || this.parentNode).select();
     }
 
 }

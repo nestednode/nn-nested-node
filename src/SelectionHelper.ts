@@ -76,6 +76,18 @@ export function shiftSelectionToNode(focusedNode: NestedNode<any>, targetNode: N
 }
 
 
+export function getSelectionNearNode(node) {
+    var direction = getDirectionToOppositeSelectionBoundary(node);
+    var selection = [];
+    while (node && node.selected) {
+        // selection должен быть в порядке обхода дерева
+        direction.isForward ? selection.push(node) : selection.unshift(node);
+        node = node.getSibling(direction);
+    }
+    return selection;
+}
+
+
 function isAncestorSelected(node) {
     while (node.hasParent) {
         node = node.parent;

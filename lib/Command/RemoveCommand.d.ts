@@ -3,7 +3,7 @@ import NestedNode = require('../NestedNode');
 import N = NestedNode.AnyNestedNode;
 declare class RemoveCommand implements Command {
     private targets;
-    constructor(nodeset: N[]);
+    constructor(nodesToRemove: N[]);
     execute(): N;
     undo(): N;
 }

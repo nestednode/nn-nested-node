@@ -13,6 +13,8 @@ interface DocumentActions {
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
     removeNode(): void;
+    moveNodeForward(): void;
+    moveNodeBackward(): void;
 
     undo(): void;
     redo(): void;
