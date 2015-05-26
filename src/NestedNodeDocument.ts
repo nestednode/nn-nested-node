@@ -165,10 +165,16 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     private appendNewNode(direction: Direction): void {
-        if (! this.focusedNode.hasParent) {
-            return;
+        var parentNode;
+        var anchorNode;
+        if (this.focusedNode.hasParent) {
+            parentNode = this.focusedNode.parent;
+            anchorNode = this.focusedNode;
+        } else {
+            parentNode = this.focusedNode;
+            anchorNode = direction.isForward ? this.focusedNode.lastNested : this.focusedNode.firstNested;
         }
-        var cmd = new AppendCommand([this.createBlankNode()], this.focusedNode.parent, this.focusedNode, direction);
+        var cmd = new AppendCommand([this.createBlankNode()], parentNode, anchorNode, direction);
         this.executeCommand(cmd);
     }
 
