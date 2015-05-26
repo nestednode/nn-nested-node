@@ -149,14 +149,14 @@ class NestedNode<D extends NestedData<{}>> {
 
     // ** Nested-Related Methods
 
-    // если указан nodeBefore, то добавляет узел перед ним, если нет, то добавляет в конец
-    appendNested(node: NestedNode<D>, nodeBefore?: NestedNode<D>): NestedNode<D> {
+    // если указан aheadNode, то добавляет узел перед ним, если нет, то добавляет в конец
+    appendNested(node: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D> {
         if (node.hasParent) {
             throw new Error('cannot append node attached to another parent')
         }
         var index = this._nested.length;
-        if (nodeBefore) {
-            index = this._nested.indexOf(nodeBefore);
+        if (aheadNode) {
+            index = this._nested.indexOf(aheadNode);
             if (index == -1) {
                 throw new Error('anchor node not exists in nested');
             }

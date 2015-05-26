@@ -24,8 +24,8 @@ class RearrangeCommand implements Command {
         var parent = this.nodeToRearrange.parent;
         this.nodeToRearrange.makeParentless();
         var lastIndex = this.selection.length - 1;
-        var nodeBefore = direction.isForward ? this.selection[0] : this.selection[lastIndex].getSibling();
-        parent.appendNested(this.nodeToRearrange, nodeBefore);
+        var aheadNode = direction.isForward ? this.selection[0] : this.selection[lastIndex].getSibling();
+        parent.appendNested(this.nodeToRearrange, aheadNode);
         this.selection.forEach(node => node.select());
         return this.selection[lastIndex];
     }

@@ -6,7 +6,7 @@ declare class AppendCommand implements Command {
     private nodesToAppend;
     private parentNode;
     private anchorNode;
-    private nodeBefore;
+    private aheadNode;
     constructor(nodesToAppend: N[], parentNode: N, anchorNode?: N, direction?: Direction);
     execute(): N;
     undo(): N;

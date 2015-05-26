@@ -9,6 +9,7 @@ import SelectionHelper = require('./SelectionHelper');
 import Command = require('./Command/Command');
 import CommandHistory = require('./Command/CommandHistory');
 import AppendCommand = require('./Command/AppendCommand');
+import EnvelopeCommand = require('./Command/EnvelopeCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
 import ReplaceRootCommand = require('./Command/ReplaceRootCommand');
 import RearrangeCommand = require('./Command/RearrangeCommand');
@@ -178,11 +179,22 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.executeCommand(cmd);
     }
 
+    envelopeNode(): void {
+        if (! this.focusedNode.hasParent) {
+            //todo
+            return;
+        }
+        var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
+        this.executeCommand(new EnvelopeCommand(selection, this.createBlankNode()));
+    }
+
     removeNode(): void {
         if (! this.focusedNode.hasParent) {
-            // можно было бы просто не давать перевести фокус на root,
-            // тогда бы и не потребовались специальные операции над корневым,
-            // но пока что хочу, чтобы в интерфейсе root присутствовал явно и был только один
+            // можно было бы просто не давать перевести фокус на root, т.е. скрывать его из view,
+            // и тогда бы не потребовались специальные операции над корневым,
+            // но пока что хочу, чтобы в интерфейсе root присутствовал явно и был только один;
+            // а раз так, то можно не только скрывть root, но и не допускать создания больше одного top-level узла,
+            // это выглядит как совсем хак, зато не придется создавать отдельные команды для работы корневым
             this.executeCommand(new ReplaceRootCommand(this, this.createBlankNode()));
             return;
         }

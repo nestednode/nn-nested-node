@@ -6,7 +6,7 @@ import Direction = require('../Direction');
 
 class AppendCommand implements Command {
 
-    private nodeBefore: N;
+    private aheadNode: N;
 
     constructor(
         private nodesToAppend: N[],
@@ -14,14 +14,14 @@ class AppendCommand implements Command {
         private anchorNode?: N,
         direction?: Direction
     ) {
-        this.nodeBefore = anchorNode;
+        this.aheadNode = anchorNode;
         if (anchorNode && direction && direction.isForward) {
-            this.nodeBefore = anchorNode.getSibling();
+            this.aheadNode = anchorNode.getSibling();
         }
     }
 
     execute(): N {
-        this.nodesToAppend.forEach(node => this.parentNode.appendNested(node, this.nodeBefore).select());
+        this.nodesToAppend.forEach(node => this.parentNode.appendNested(node, this.aheadNode).select());
         return this.nodesToAppend.slice(-1)[0];
     }
 

@@ -12,6 +12,7 @@ interface DocumentActions {
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
+    envelopeNode(): void;
     removeNode(): void;
     moveNodeForward(): void;
     moveNodeBackward(): void;

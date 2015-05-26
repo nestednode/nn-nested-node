@@ -162,6 +162,9 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                 actions.focusNextNode(SelectionMode.Reset);
                 return true;
 
+            case code == keyCode.TAB && e.shiftKey:
+                actions.envelopeNode();
+                return true;
             case code == keyCode.TAB:
                 actions.insertNewNode();
                 return true;

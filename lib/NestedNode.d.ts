@@ -26,7 +26,7 @@ declare class NestedNode<D extends NestedData<{}>> {
     data: D;
     forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
     mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
-    appendNested(node: NestedNode<D>, nodeBefore?: NestedNode<D>): NestedNode<D>;
+    appendNested(node: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
     removeNested(node: NestedNode<D>): NestedNode<D>;
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
     attachToParent(parent: NestedNode<D>): NestedNode<D>;
