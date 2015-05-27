@@ -16,12 +16,8 @@ export function toggleSelectionWithNode(node: NestedNode<any>): NestedNode<any> 
     if (isAncestorSelected(node)) {
         return node;
     }
-    var preceding;
-    var following;
-    if (node.hasParent) {
-        preceding = node.getSibling(Direction.getBackward());
-        following = node.getSibling(Direction.getForward());
-    }
+    var preceding = node.getSibling(Direction.getBackward());
+    var following = node.getSibling(Direction.getForward());
     if (node.selected) {
         var selection = node.root.getSelection();
         if (selection.length === 1) {
@@ -47,7 +43,7 @@ export function toggleSelectionWithNode(node: NestedNode<any>): NestedNode<any> 
 
 export function shiftSelectionToNode(focusedNode: NestedNode<any>, targetNode: NestedNode<any>): NestedNode<any> {
 
-    if (!focusedNode.hasParent || focusedNode.parent !== targetNode.parent) {
+    if (focusedNode.parent !== targetNode.parent) {
         return focusedNode;
     }
 

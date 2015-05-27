@@ -9,6 +9,8 @@ declare class NestedNode<D extends NestedData<{}>> {
     hasParent: boolean;
     root: NestedNode<D>;
     level: number;
+    isTopLevel: boolean;
+    isRoot: boolean;
     private _nested;
     nested(index: number): NestedNode<D>;
     firstNested: NestedNode<D>;

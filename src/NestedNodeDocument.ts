@@ -11,7 +11,6 @@ import CommandHistory = require('./Command/CommandHistory');
 import AppendCommand = require('./Command/AppendCommand');
 import EnvelopeCommand = require('./Command/EnvelopeCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
-import ReplaceRootCommand = require('./Command/ReplaceRootCommand');
 import RearrangeCommand = require('./Command/RearrangeCommand');
 
 
@@ -19,8 +18,8 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     protected root: NestedNode<D>;
 
-    get data() {
-        return this.root.data;
+    get data(): D {
+        return this.root.firstNested.data;
     }
 
     //internal
@@ -53,7 +52,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     registerNode(node: NestedNode<D>): string {
         //todo check if node not already registred
-        var nodeId = this.id + '-' + ++this.nodeRegistryCounter;
+        var nodeId = this.id + '-' + this.nodeRegistryCounter++;
         this.nodeRegistry.set(nodeId, node);
         return nodeId;
     }
@@ -86,6 +85,9 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     focusParentNode(): void {
+        if (this.focusedNode.isTopLevel) {
+            return;
+        }
         this.focusNode(this.focusedNode.parent, SelectionMode.Reset);
     }
 
@@ -106,9 +108,6 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
         if ([SelectionMode.Reset, SelectionMode.Shift].indexOf(selectionMode) == -1) {
             throw new Error('Unsupported SelectionMode for this operation :' + selectionMode);
-        }
-        if (! this.focusedNode.hasParent) {
-            return;
         }
         var sibling;
         var sameParentOnly;
@@ -139,10 +138,11 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     private setFocusedNode(node: NestedNode<D>, updateFocusLevel = true): void {
-        this.focusedNode = node;
-        if (node.hasParent) {
-            this.previouslyFocusedNested.set(node.parent, node);
+        if (node.isRoot) {
+            throw new Error('root node not allowed to be focused');
         }
+        this.focusedNode = node;
+        this.previouslyFocusedNested.set(node.parent, node);
         if (updateFocusLevel) {
             this.currentFocusLevel = this.focusedNode.level;
         }
@@ -166,12 +166,11 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     private appendNewNode(direction: Direction): void {
-        var parentNode;
-        var anchorNode;
-        if (this.focusedNode.hasParent) {
-            parentNode = this.focusedNode.parent;
-            anchorNode = this.focusedNode;
-        } else {
+        var parentNode = this.focusedNode.parent;
+        var anchorNode = this.focusedNode;
+        if (this.focusedNode.isTopLevel) {
+            //fixme так теряется реальный anchor node при undo,
+            // но пока лучше уж так обработать этот action, чем вообще никак
             parentNode = this.focusedNode;
             anchorNode = direction.isForward ? this.focusedNode.lastNested : this.focusedNode.firstNested;
         }
@@ -180,22 +179,30 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     envelopeNode(): void {
-        if (! this.focusedNode.hasParent) {
-            //todo
-            return;
-        }
         var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
         this.executeCommand(new EnvelopeCommand(selection, this.createBlankNode()));
     }
 
     removeNode(): void {
-        if (! this.focusedNode.hasParent) {
+        if (this.focusedNode.isTopLevel) {
+            //todo
             // можно было бы просто не давать перевести фокус на root, т.е. скрывать его из view,
             // и тогда бы не потребовались специальные операции над корневым,
             // но пока что хочу, чтобы в интерфейсе root присутствовал явно и был только один;
             // а раз так, то можно не только скрывть root, но и не допускать создания больше одного top-level узла,
             // это выглядит как совсем хак, зато не придется создавать отдельные команды для работы корневым
-            this.executeCommand(new ReplaceRootCommand(this, this.createBlankNode()));
+            // на самом деле, все равно придется, например, то же удаление top-level не может быть обработано
+            // одной только RemoveCommand, нужно будет после еще вызвать AppendCommand
+            // другое дело, что можно будет прямо тут создать composite command, в которую поместить
+            // подряд две эти команды, напрмер:
+            //if (this.focusedNode.isTopLevel) {
+            //    var cmd = new CompositeCommand([
+            //        new RemoveCommand([this.focusedNode]),
+            //        new AppendCommand([this.createBlankNode()], this.focusedNode.parent)
+            //    ]);
+
+            //}
+            //this.executeCommand(new ReplaceRootCommand(this, this.createBlankNode()));
             return;
         }
         this.executeCommand(new RemoveCommand(this.root.getSelection()));
@@ -210,16 +217,13 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     private rearrangeNode(direction: Direction): void {
-        if (! this.focusedNode.hasParent) {
-            return;
-        }
         var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
         // вместо сдвига каждого узла в selection,
         // приводим это действие к перестановке через selection соседствующего узла;
         // вообще, это уже внутреннее дело команды, как ей там действовать,
         // и я бы перенес это код туда,
         // но тогда интерфейс команд должен быть дополнен методом canExecute,
-        // который бы проверял наличие nodeToRearrange
+        // но сейчас мне проще прямо здесь еще ДО создания команды проверить наличие nodeToRearrange
         var boundaryIndex = direction.isForward ? selection.length - 1 : 0;
         var nodeToRearrange = selection[boundaryIndex].getSibling(direction);
         if (! nodeToRearrange) {
@@ -265,8 +269,9 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.history = new CommandHistory();
         this.previouslyFocusedNested = new Collection.Map<NestedNode<D>, NestedNode<D>>();
 
-        this.root = new NestedNode<D>(this, data, this.nodeDataDuplicator);
-        this.focusNode(this.root);
+        this.root = new NestedNode<any>(this, {}, d => d);
+        var topNode = new NestedNode<D>(this, data, this.nodeDataDuplicator);
+        this.setFocusedNode(topNode.attachToParent(this.root).select());
 
         this.addListener('focusChange', () => this.emit('change'));
     }

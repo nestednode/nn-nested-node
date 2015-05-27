@@ -39,6 +39,14 @@ class NestedNode<D extends NestedData<{}>> {
         return this.hasParent ? (1 + this._parent.level) : 0
     }
 
+    get isTopLevel(): boolean {
+        return this.hasParent && !this.parent.hasParent;
+    }
+
+    get isRoot(): boolean {
+        return !this.hasParent;
+    }
+
     // ** Nested
 
     private _nested: NestedNode<D>[];
