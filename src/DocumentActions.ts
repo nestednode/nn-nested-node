@@ -9,6 +9,11 @@ interface DocumentActions {
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
 
+    // не совсем точны названия, многие действия могут манипулировать и множеством узлов
+    // можно заменить node на selected, или вообще убрать node, но тогда
+    // нужно завернуть это к какой-нибудь action. namespace,
+    // иначе совсем не очевидно, что делает, например, document.remove()
+    // или оставить как есть
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;

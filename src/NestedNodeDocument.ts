@@ -15,7 +15,6 @@ import EnvelopeCommand = require('./Command/EnvelopeCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
 import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
-import PreserveFocusCommand = require('./Command/PreserveFocusCommand');
 
 
 class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
@@ -29,20 +28,34 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         return this.root.firstNested.data;
     }
 
+
     // * Abstract Node Data methods
 
-    protected getBlankNodeData(): D {
+    protected /*abstract*/ getBlankNodeData(): D {
+        throw new Error('abstract method');
+    }
+
+    protected /*abstract*/ isNodeDataBlank(data: D): boolean {
         throw new Error('abstract method');
     }
 
     // это должна быть чистая функция, ссылка на нее она передается без привязки к контексту
-    protected nodeFieldDuplicator(data: D): D {
+    protected /*abstract*/ nodeFieldDuplicator(data: D): D {
         throw new Error('abstract method');
     }
 
-    private createBlankNode(): NestedNode<D> {
-        return new NestedNode(this, this.getBlankNodeData(), this.nodeFieldDuplicator);
+    private createNode(data?: D): NestedNode<D> {
+        data = data || this.getBlankNodeData();
+        return new NestedNode<D>(this, data, this.nodeFieldDuplicator);
     }
+
+    private isBlankNode(node: NestedNode<D>): boolean {
+        if (node.nestedCount != 0) {
+            return false;
+        }
+        return this.isNodeDataBlank(node.data);
+    }
+
 
     // * Node Registry
 
@@ -162,7 +175,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     // ** Modification Actions
 
     insertNewNode(): void {
-        this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode));
+        this.executeCommand(new AppendCommand([this.createNode()], this.focusedNode));
     }
 
     appendNewNodeBefore(): void {
@@ -175,21 +188,17 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     private appendNewNode(direction: Direction): void {
         var parentNode;
-        var anchorNode;
         var command: Command;
-        var nodesToAppend = [this.createBlankNode()];
+        var nodesToAppend = [this.createNode()];
 
         if (this.focusedNode.isTopLevel) {
             // topLevel-узел может быть только один, поэтому добавляем внутрь него, а не рядом
             parentNode = this.focusedNode;
-            anchorNode = direction.isForward ? this.focusedNode.lastNested : this.focusedNode.firstNested;
-            command = new CompositeCommand([
-                new PreserveFocusCommand(this.focusedNode), // при undo фокус гарантированно вернется к topLevel
-                new AppendCommand(nodesToAppend, parentNode, anchorNode, direction)
-            ]);
+            var aheadNode = direction.isBackward ? this.focusedNode.firstNested : null;
+            command = new AppendCommand(nodesToAppend, parentNode, aheadNode);
         } else {
             parentNode = this.focusedNode.parent;
-            anchorNode = this.focusedNode;
+            var anchorNode = this.focusedNode;
             command = new AppendCommand(nodesToAppend, parentNode, anchorNode, direction);
         }
         this.executeCommand(command);
@@ -197,7 +206,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     envelopeNode(): void {
         var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
-        this.executeCommand(new EnvelopeCommand(selection, this.createBlankNode()));
+        this.executeCommand(new EnvelopeCommand(selection, this.createNode()));
     }
 
     removeNode(): void {
@@ -205,11 +214,14 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         var removeCommand = new RemoveCommand(this.root.getSelection());
 
         if (this.focusedNode.isTopLevel) {
-            // нельзя остаться вообще без topLevel-узла, поэтому сразу создаем на его месте новый
-            //todo если узел и так уже blank (т.е. data = blankNodeData), не засорять history пустыми удалениями
+            // нельзя остаться вообще без topLevel-узла, поэтому просто заменяем его пустым
+            if (this.isBlankNode(this.focusedNode)) {
+                //но если узел и так уже blank, не засоряем history лишними операциями
+                return;
+            }
             command = new CompositeCommand([
                 removeCommand,
-                new AppendCommand([this.createBlankNode()], this.root)
+                new AppendCommand([this.createNode()], this.root)
             ]);
         } else {
             command = removeCommand;
@@ -248,14 +260,27 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     pasteFromClipboard(): void {
-        var data = this.clipboard.get();
-        if (! data) {
+        var nodesData = this.clipboard.get();
+        if (! nodesData) {
             return;
         }
-        // todo createNode() factory
-        var nodesToPaste = data.map(d => new NestedNode(this, d, this.nodeFieldDuplicator));
-        // todo
-        this.executeCommand(new AppendCommand(nodesToPaste, this.focusedNode));
+        var nodesToPaste = nodesData.map(data => this.createNode(data));
+        var command;
+        var parentNode;
+
+        if (this.isBlankNode(this.focusedNode)) {
+            // при вставке в пустой узел, просто заменяем его содержимым
+            parentNode = this.focusedNode.parent;
+            var aheadNode = this.focusedNode.getSibling();
+            command = new CompositeCommand([
+                new RemoveCommand([this.focusedNode]),
+                new AppendCommand(nodesToPaste, parentNode, aheadNode)
+            ]);
+        } else {
+            parentNode = this.focusedNode;
+            command = new AppendCommand(nodesToPaste, parentNode);
+        }
+        this.executeCommand(command);
     }
 
     // *** Undo / Redo Actions
@@ -300,8 +325,8 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.previouslyFocusedMap = new Collection.Map<NestedNode<D>, NestedNode<D>>();
 
         this.root = new NestedNode<any>(this, {}, d => d);
-        var topNode = new NestedNode<D>(this, data, this.nodeFieldDuplicator);
-        this.setFocusedNode(topNode.appendToParent(this.root).select());
+        var topNode = this.createNode(data).appendToParent(this.root).select();
+        this.setFocusedNode(topNode);
 
         this.clipboard = clipboardProvider || new LocalClipboardProvider<D[]>();
 

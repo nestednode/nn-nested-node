@@ -8,8 +8,10 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     protected root: NestedNode<any>;
     data: D;
     protected getBlankNodeData(): D;
+    protected isNodeDataBlank(data: D): boolean;
     protected nodeFieldDuplicator(data: D): D;
-    private createBlankNode();
+    private createNode(data?);
+    private isBlankNode(node);
     private id;
     private nodeRegistry;
     private nodeRegistryCounter;

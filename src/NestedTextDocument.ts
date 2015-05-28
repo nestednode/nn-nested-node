@@ -9,6 +9,10 @@ class NestedTextDocument extends NestedNodeDocument<NestedText> {
         return { text: '' };
     }
 
+    isNodeDataBlank(data: NestedText): boolean {
+        return data.text == '';
+    }
+
     nodeFieldDuplicator(data: NestedText): NestedText {
         return { text: data.text };
     }
