@@ -9,7 +9,7 @@ class NestedTextDocument extends NestedNodeDocument<NestedText> {
         return { text: '' };
     }
 
-    nodeDataDuplicator(data: NestedText): NestedText {
+    nodeFieldDuplicator(data: NestedText): NestedText {
         return { text: data.text };
     }
 

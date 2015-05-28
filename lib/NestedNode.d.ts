@@ -24,9 +24,6 @@ declare class NestedNode<D extends NestedData<{}>> {
     private getImmediateSibling(direction);
     private getCrossSibling(direction, preferredLevel);
     private getCrossSiblingPhase2(direction, preferredLevel);
-    data: D;
-    forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
-    mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
     appendNested(node: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
     removeNested(node: NestedNode<D>): NestedNode<D>;
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
@@ -40,7 +37,11 @@ declare class NestedNode<D extends NestedData<{}>> {
     unselect(): NestedNode<D>;
     unselectDeep(): NestedNode<D>;
     getSelection(): NestedNode<D>[];
-    constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D);
+    data: D;
+    forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
+    mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
+    cloneData(fieldDuplicator: (src: D) => D): D;
+    constructor(registry: NestedNodeRegistry<any>, data: D, fieldDuplicator: (src: D) => D);
 }
 declare module NestedNode {
     interface AnyNestedNode extends NestedNode<any> {

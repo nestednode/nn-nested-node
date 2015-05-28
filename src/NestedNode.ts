@@ -136,19 +136,6 @@ class NestedNode<D extends NestedData<{}>> {
     }
 
 
-    // * Data
-
-    data: D;
-
-    forEachNestedData(cb: (data: D, key) => void, thisArg?) {
-        this._nested.forEach(node => cb(node.data, node._id), thisArg);
-    }
-
-    mapNestedData<T>(cb: (data: D, key) => T, thisArg?): T[] {
-        return this._nested.map(node => cb(node.data, node._id), thisArg);
-    }
-
-
     // * Tree Structure Manipulation
 
     // ** Nested-Related Methods
@@ -254,20 +241,38 @@ class NestedNode<D extends NestedData<{}>> {
         return res;
     }
 
+    // * Data
+
+    data: D;
+
+    forEachNestedData(cb: (data: D, key) => void, thisArg?) {
+        this._nested.forEach(node => cb(node.data, node._id), thisArg);
+    }
+
+    mapNestedData<T>(cb: (data: D, key) => T, thisArg?): T[] {
+        return this._nested.map(node => cb(node.data, node._id), thisArg);
+    }
+
+    cloneData(fieldDuplicator: (src: D) => D): D {
+        var result = fieldDuplicator(this.data);
+        result.nested = this.mapNested(nestedNode => nestedNode.cloneData(fieldDuplicator));
+        return result;
+    }
 
     // * Constructing
 
-    constructor(registry: NestedNodeRegistry<any>, data: D, dataDuplicator: (src: D) => D) {
+    constructor(registry: NestedNodeRegistry<any>, data: D, fieldDuplicator: (src: D) => D) {
         //this._id = registry.registerNode(this, data.id);
         this._id = registry.registerNode(this);
         this._parent = null;
         this._selected = false;
-        this._nested = data.nested ? data.nested.map((nestedData: D) => {
-            var nested = new NestedNode<D>(registry, nestedData, dataDuplicator);
+        this._nested = data.nested ? data.nested.map(nestedData => {
+            //var nested = new NestedNode<D>(registry, nestedData, fieldDuplicator); //ide says: D is not D
+            var nested = new NestedNode<any>(registry, nestedData, fieldDuplicator);
             nested._parent = this;
             return nested;
         }) : [];
-        this.data = dataDuplicator(data);
+        this.data = fieldDuplicator(data);
         this.data.owner = this;
         this.data.nested = {
             map: this.mapNestedData.bind(this),

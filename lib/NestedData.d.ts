@@ -3,9 +3,12 @@ interface NestedData<D> {
         id: string;
         selected: boolean;
     };
-    nested?: {
-        map<T>(cb: (data: D, key) => T, thisArg?): T[];
-        forEach(cb: (data: D, key) => void, thisArg?): void;
-    };
+    nested?: NestedData.Nested<D>;
+}
+declare module NestedData {
+    interface Nested<D> {
+        map<T>(cb: (data: D, key) => T, thisArg?: any): T[];
+        forEach(cb: (data: D, key) => void, thisArg?: any): void;
+    }
 }
 export = NestedData;

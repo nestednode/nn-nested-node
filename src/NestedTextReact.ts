@@ -124,12 +124,15 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
         var keyCode = {
             LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
             TAB: 9, RETURN: 13, DELETE: 46,
-            Y: 89, Z: 90
+            X: 88, C: 67, V: 86,
+            Z: 90, Y: 89
         };
         var code = e.keyCode;
 
         var eventHandled = (() => { switch (true) {
 
+            // todo нужна функция, которая бы проверяла, что нажат исключительно указанный модификатор
+            // а то это лажа какая-то
             case code == keyCode.LEFT && e.altKey:
             case code == keyCode.LEFT && e.shiftKey:
                 return false;
@@ -181,6 +184,18 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
 
             case code == keyCode.DELETE:
                 actions.removeNode();
+                return true;
+
+            case code == keyCode.C && e.metaKey:
+                actions.copyToClipboard();
+                return true;
+
+            case code == keyCode.X && e.metaKey:
+                actions.cutToClipboard();
+                return true;
+
+            case code == keyCode.V && e.metaKey:
+                actions.pasteFromClipboard();
                 return true;
 
             case code == keyCode.Z && e.metaKey:

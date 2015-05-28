@@ -12,6 +12,9 @@ interface DocumentActions {
     removeNode(): void;
     moveNodeForward(): void;
     moveNodeBackward(): void;
+    copyToClipboard(): void;
+    cutToClipboard(): void;
+    pasteFromClipboard(): void;
     undo(): void;
     redo(): void;
 }

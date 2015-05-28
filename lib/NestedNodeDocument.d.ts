@@ -3,11 +3,12 @@ import NestedNode = require('./NestedNode');
 import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
 import SelectionMode = require('./SelectionMode');
+import ClipboardProvider = require('./ClipboardProvider');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
     protected root: NestedNode<any>;
     data: D;
     protected getBlankNodeData(): D;
-    protected nodeDataDuplicator(data: D): D;
+    protected nodeFieldDuplicator(data: D): D;
     private createBlankNode();
     private id;
     private nodeRegistry;
@@ -27,7 +28,6 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     private focusSiblingNode(direction, selectionMode);
     private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
-    private history;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
@@ -37,10 +37,15 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     moveNodeForward(): void;
     moveNodeBackward(): void;
     private rearrangeNode(direction);
+    private clipboard;
+    copyToClipboard(): void;
+    cutToClipboard(): void;
+    pasteFromClipboard(): void;
+    private history;
     private executeCommand(cmd);
     undo(): void;
     redo(): void;
     private stepHistory(direction);
-    constructor(data: D);
+    constructor(data: D, clipboardProvider?: ClipboardProvider<D[]>);
 }
 export = NestedNodeDocument;

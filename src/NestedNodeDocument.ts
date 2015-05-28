@@ -6,8 +6,9 @@ import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 import SelectionHelper = require('./SelectionHelper');
-import CommandHistory = require('./Command/CommandHistory');
+import ClipboardProvider = require('./ClipboardProvider');
 
+import CommandHistory = require('./Command/CommandHistory');
 import Command = require('./Command/Command');
 import AppendCommand = require('./Command/AppendCommand');
 import EnvelopeCommand = require('./Command/EnvelopeCommand');
@@ -35,12 +36,12 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     // это должна быть чистая функция, ссылка на нее она передается без привязки к контексту
-    protected nodeDataDuplicator(data: D): D {
+    protected nodeFieldDuplicator(data: D): D {
         throw new Error('abstract method');
     }
 
     private createBlankNode(): NestedNode<D> {
-        return new NestedNode(this, this.getBlankNodeData(), this.nodeDataDuplicator);
+        return new NestedNode(this, this.getBlankNodeData(), this.nodeFieldDuplicator);
     }
 
     // * Node Registry
@@ -160,8 +161,6 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     // ** Modification Actions
 
-    private history: CommandHistory;
-
     insertNewNode(): void {
         this.executeCommand(new AppendCommand([this.createBlankNode()], this.focusedNode));
     }
@@ -234,6 +233,35 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.executeCommand(new RearrangeCommand(nodesToRearrange, direction));
     }
 
+    // *** Copy / Paste Actions
+
+    private clipboard: ClipboardProvider<D[]>;
+
+    copyToClipboard(): void {
+        var data = this.root.getSelection().map(node => node.cloneData(this.nodeFieldDuplicator));
+        this.clipboard.set(data);
+    }
+
+    cutToClipboard(): void {
+        this.copyToClipboard();
+        this.removeNode();
+    }
+
+    pasteFromClipboard(): void {
+        var data = this.clipboard.get();
+        if (! data) {
+            return;
+        }
+        // todo createNode() factory
+        var nodesToPaste = data.map(d => new NestedNode(this, d, this.nodeFieldDuplicator));
+        // todo
+        this.executeCommand(new AppendCommand(nodesToPaste, this.focusedNode));
+    }
+
+    // *** Undo / Redo Actions
+
+    private history: CommandHistory;
+
     private executeCommand(cmd: Command) {
         this.root.unselectDeep();
         var nextFocusedNode = cmd.execute();
@@ -241,8 +269,6 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.setFocusedNode(nextFocusedNode);
         this.emit('change', this.data);
     }
-
-    // *** Undo / Redo Actions
 
     undo(): void {
         this.stepHistory(Direction.getBackward())
@@ -265,20 +291,33 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     // * Constructing
 
-    constructor(data: D) {
+    constructor(data: D, clipboardProvider?: ClipboardProvider<D[]>) {
         super();
+
         this.id = 'doc'; //todo something
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.history = new CommandHistory();
         this.previouslyFocusedMap = new Collection.Map<NestedNode<D>, NestedNode<D>>();
 
         this.root = new NestedNode<any>(this, {}, d => d);
-        var topNode = new NestedNode<D>(this, data, this.nodeDataDuplicator);
+        var topNode = new NestedNode<D>(this, data, this.nodeFieldDuplicator);
         this.setFocusedNode(topNode.appendToParent(this.root).select());
+
+        this.clipboard = clipboardProvider || new LocalClipboardProvider<D[]>();
 
         this.addListener('focusChange', () => this.emit('change'));
     }
 
+}
+
+
+class LocalClipboardProvider<T> implements ClipboardProvider<T> {
+
+    private clipboardData: T;
+
+    get(): T { return this.clipboardData; }
+
+    set(data: T) {this.clipboardData = data }
 
 }
 
