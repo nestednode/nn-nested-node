@@ -21,12 +21,12 @@ class AppendCommand implements Command {
     }
 
     execute(): N {
-        this.nodesToAppend.forEach(node => this.parentNode.appendNested(node, this.aheadNode).select());
+        this.nodesToAppend.forEach(node => node.appendToParent(this.parentNode, this.aheadNode).select());
         return this.nodesToAppend.slice(-1)[0];
     }
 
     undo(): N {
-        this.nodesToAppend.forEach(node => this.parentNode.removeNested(node));
+        this.nodesToAppend.forEach(node => node.removeFormParent());
         return (this.anchorNode || this.parentNode).select();
     }
 

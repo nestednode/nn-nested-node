@@ -4,9 +4,8 @@ import NestedNodeRegistry = require('./NestedNodeRegistry');
 import DocumentActions = require('./DocumentActions');
 import SelectionMode = require('./SelectionMode');
 declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
-    protected root: NestedNode<D>;
+    protected root: NestedNode<any>;
     data: D;
-    replaceRoot(newRoot: NestedNode<D>): NestedNode<D>;
     protected getBlankNodeData(): D;
     protected nodeDataDuplicator(data: D): D;
     private createBlankNode();
@@ -17,11 +16,12 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     unregisterNode(node: NestedNode<D>): void;
     getNodeById(id: string): NestedNode<D>;
     private focusedNode;
-    private previouslyFocusedNested;
+    private previouslyFocusedMap;
     private currentFocusLevel;
     focusNodeById(id: string, selectionMode: SelectionMode): void;
     focusParentNode(): void;
     focusNestedNode(): void;
+    private getPreviouslyFocusedNested(parentNode);
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
     private focusSiblingNode(direction, selectionMode);

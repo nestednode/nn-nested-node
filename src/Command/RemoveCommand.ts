@@ -20,13 +20,12 @@ class RemoveCommand implements Command {
         var lastIndex = this.targets.length - 1;
         var node;
         var relatedNode;
-        // использую for для единого стиля с undo
         for (var i = 0; i <= lastIndex; i++) {
             node = this.targets[i].node;
             if (i == lastIndex) {
                 relatedNode = node.getSibling() || node.getSibling(Direction.getBackward()) || node.parent;
             }
-            node.makeParentless();
+            node.removeFormParent();
         }
         return relatedNode.select();
     }

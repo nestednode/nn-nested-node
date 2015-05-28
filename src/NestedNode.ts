@@ -43,10 +43,6 @@ class NestedNode<D extends NestedData<{}>> {
         return this.hasParent && !this.parent.hasParent;
     }
 
-    get isRoot(): boolean {
-        return !this.hasParent;
-    }
-
     // ** Nested
 
     private _nested: NestedNode<D>[];
@@ -198,15 +194,23 @@ class NestedNode<D extends NestedData<{}>> {
 
     // ** Self-Related Methods
 
-    attachToParent(parent: NestedNode<D>): NestedNode<D> {
-        return parent.appendNested(this);
+    appendToParent(parent: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D> {
+        return parent.appendNested(this, aheadNode);
     }
 
-    makeParentless(): NestedNode<D> {
+    removeFormParent(): NestedNode<D> {
         if (! this.hasParent) {
             throw new Error('node is already parentless');
         }
         return this._parent.removeNested(this);
+    }
+
+    arrangeBefore(node: NestedNode<D>): NestedNode<D> {
+        if (! this.hasParent) {
+            throw new Error('cannot arrange parentless node');
+        }
+        var parent = this._parent;
+        return this.removeFormParent().appendToParent(parent, node);
     }
 
     substituteFor(newNode: NestedNode<D>): void {

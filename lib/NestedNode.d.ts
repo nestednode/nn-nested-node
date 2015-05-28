@@ -10,7 +10,6 @@ declare class NestedNode<D extends NestedData<{}>> {
     root: NestedNode<D>;
     level: number;
     isTopLevel: boolean;
-    isRoot: boolean;
     private _nested;
     nested(index: number): NestedNode<D>;
     firstNested: NestedNode<D>;
@@ -31,8 +30,9 @@ declare class NestedNode<D extends NestedData<{}>> {
     appendNested(node: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
     removeNested(node: NestedNode<D>): NestedNode<D>;
     replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
-    attachToParent(parent: NestedNode<D>): NestedNode<D>;
-    makeParentless(): NestedNode<D>;
+    appendToParent(parent: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
+    removeFormParent(): NestedNode<D>;
+    arrangeBefore(node: NestedNode<D>): NestedNode<D>;
     substituteFor(newNode: NestedNode<D>): void;
     private _selected;
     selected: boolean;

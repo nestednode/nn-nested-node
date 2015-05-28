@@ -130,12 +130,14 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
 
         var eventHandled = (() => { switch (true) {
 
+            case code == keyCode.LEFT && e.altKey:
             case code == keyCode.LEFT && e.shiftKey:
                 return false;
             case code == keyCode.LEFT:
                 actions.focusParentNode();
                 return true;
 
+            case code == keyCode.RIGHT && e.altKey:
             case code == keyCode.RIGHT && e.shiftKey:
                 return false;
             case code == keyCode.RIGHT:
