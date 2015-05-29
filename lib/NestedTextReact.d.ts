@@ -1,8 +1,9 @@
-import NestedText = require('./NestedText');
+import NestedNodeProps = require('./NestedNodeProps');
+import TextData = require('./TextData');
 import DocumentActions = require('./DocumentActions');
 import React = require('pkg/React/React');
 export interface NestedTextProps {
-    nodeData: NestedText;
+    node: NestedNodeProps<TextData>;
 }
 export declare class DocumentContext {
     documentActions: DocumentActions;

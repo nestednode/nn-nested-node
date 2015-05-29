@@ -1,7 +1,7 @@
-import NestedText = require('./NestedText');
+import NestedNodeProps = require('./NestedNodeProps');
+import TextData = require('./TextData');
 import DocumentActions = require('./DocumentActions');
 import SelectionMode = require('./SelectionMode');
-import Collection = require('pkg/Collection/Collection');
 
 
 import React = require('pkg/React/React');
@@ -15,7 +15,7 @@ require(['pkg/require-css/css!../styles/NestedNodeStyle']);
 // * Props and Context
 
 export interface NestedTextProps {
-    nodeData: NestedText;
+    node: NestedNodeProps<TextData>;
 }
 
 export class DocumentContext { constructor(
@@ -40,21 +40,20 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
     context: DocumentContext;
 
     render() {
-        var data = this.props.nodeData;
-        var owner = data.owner;
+        var node = this.props.node;
         return (
             dom['div']({ className: 'nn_node' },
                 dom['div'](
                     {
-                        className: 'nn_text' + (owner && owner.selected ? ' selected' : ''),
+                        className: 'nn_text' + (node.selected ? ' selected' : ''),
                         onClick: this.handleClick.bind(this)
                     },
-                    data.text
+                    node.data.text + (node.editing ? '*' : '')
                 ),
                 dom['div'](
                     {className: 'nn_nested'},
-                    data.nested ?
-                        data.nested.map((nestedData, key) => NestedTextElem({ nodeData: nestedData, key: key })) :
+                    node.nested ?
+                        node.nested.map(nestedNode => NestedTextElem({ node: nestedNode, key: nestedNode.id })) :
                         false
                 )
             )
@@ -63,11 +62,10 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
 
     handleClick(e) {
         var actions = this.context.documentActions;
-        var owner = this.props.nodeData.owner;
         var selectionMode =
             e.metaKey ? SelectionMode.Toggle :
                 e.shiftKey ? SelectionMode.Shift : SelectionMode.Reset;
-        actions && owner && actions.focusNodeById(owner.id, selectionMode);
+        actions && actions.focusNodeById(this.props.node.id, selectionMode);
     }
 }
 
@@ -101,17 +99,10 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                     onFocus: this.handleFocus.bind(this),
                     onBlur: this.handleBlur.bind(this)
                 },
-                NestedTextElem({ nodeData: this.props.nodeData })
+                NestedTextElem({ node: this.props.node })
             )
         )
     }
-
-    componentDidMount() {
-        //var domNode = React.findDOMNode(this);
-        //domNode.addEventListener('keydown', this.handleKeyDown.bind(this));
-    }
-
-    //todo unmount
 
     handleKeyDown(e) {
         var actions = this.props.documentActions;

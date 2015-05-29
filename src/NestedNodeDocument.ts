@@ -1,7 +1,8 @@
 import Collection = require('pkg/Collection/Collection');
 import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
-import NestedNodeRegistry = require('./NestedNodeRegistry');
+import NestedNodeProps = require('./NestedNodeProps');
+import ObjectRegistry = require('./ObjectRegistry');
 import DocumentActions = require('./DocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
@@ -17,15 +18,15 @@ import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
 
 
-class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
+class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, DocumentActions {
 
     // root - это прокси-узел, удобен для того,
     // чтобы исключить передачу в команды parentless-узлов
     protected root: NestedNode<any>;
 
     // фактический узел документа, таким образом, не root, а его первый (и единственный) nested
-    get data(): D {
-        return this.root.firstNested.data;
+    get content(): NestedNodeProps<D> {
+        return this.root.firstNested;
     }
 
 
@@ -35,25 +36,27 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         throw new Error('abstract method');
     }
 
-    protected /*abstract*/ isNodeDataBlank(data: D): boolean {
+    protected /*abstract*/ nodeDataDuplicator(data: D): D {
         throw new Error('abstract method');
     }
 
-    // это должна быть чистая функция, ссылка на нее она передается без привязки к контексту
-    protected /*abstract*/ nodeFieldDuplicator(data: D): D {
+    protected /*abstract*/ nodeDataEqualityChecker(data1: D, data2: D): boolean {
         throw new Error('abstract method');
     }
 
-    private createNode(data?: D): NestedNode<D> {
-        data = data || this.getBlankNodeData();
-        return new NestedNode<D>(this, data, this.nodeFieldDuplicator);
+
+    // *
+
+    private createNode(props?: NestedNodeProps<D>): NestedNode<D> {
+        props = props || { data: this.getBlankNodeData() };
+        return new NestedNode<D>(this, props, this.nodeDataDuplicator);
     }
 
     private isBlankNode(node: NestedNode<D>): boolean {
         if (node.nestedCount != 0) {
             return false;
         }
-        return this.isNodeDataBlank(node.data);
+        return this.nodeDataEqualityChecker(node.data, this.getBlankNodeData());
     }
 
 
@@ -63,19 +66,19 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     private nodeRegistry: Collection.Map<string, NestedNode<D>>;
     private nodeRegistryCounter = 0;
 
-    registerNode(node: NestedNode<D>): string {
+    registerItem(node: NestedNode<D>): string {
         //todo check if node not already registred
         var nodeId = this.id + '-' + this.nodeRegistryCounter++;
         this.nodeRegistry.set(nodeId, node);
         return nodeId;
     }
 
-    unregisterNode(node: NestedNode<D>): void {
+    unregisterItem(node: NestedNode<D>): void {
         this.nodeRegistry.delete(node.id);
         //todo cleanup previouslyFocusedMap
     }
 
-    getNodeById(id: string): NestedNode<D> {
+    getItemById(id: string): NestedNode<D> {
         return this.nodeRegistry.get(id);
     }
 
@@ -84,12 +87,12 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     // ** Actions With Focused Node
 
-    private focusedNode: NestedNode<D>;
+    protected focusedNode: NestedNode<D>;
     private previouslyFocusedMap: Collection.Map<NestedNode<D>, NestedNode<D>>;
     private currentFocusLevel: number;
 
     focusNodeById(id: string, selectionMode: SelectionMode): void {
-        var node = this.getNodeById(id);
+        var node = this.getItemById(id);
         if (! node) {
             console.warn('No node found with id: ' + id);
             return;
@@ -171,8 +174,33 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         }
     }
 
+    // ** Data Edit Actions
 
-    // ** Modification Actions
+    private nodeDataSnapshot: D;
+
+    enterEditMode(): void {
+        if (this.focusedNode.editing) {
+            return;
+        }
+        this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
+        this.focusedNode.editOn();
+    }
+
+    exitEditMode(): void {
+        if (! this.focusedNode.editing) {
+            return;
+        }
+        this.focusedNode.editOff();
+        var dataEqual = this.nodeDataEqualityChecker(this.nodeDataSnapshot, this.focusedNode.data);
+        if (dataEqual) {
+            return;
+        }
+        // теперь без owner и nested внутри node.data, объект можно менять целиком
+        //new UpdateDataCommand()
+    }
+
+
+    // ** Structure Modification Actions
 
     insertNewNode(): void {
         this.executeCommand(new AppendCommand([this.createNode()], this.focusedNode));
@@ -247,11 +275,12 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 
     // *** Copy / Paste Actions
 
-    private clipboard: ClipboardProvider<D[]>;
+    //private clipboard: ClipboardProvider<NestedNodeProps<D>[]>; // слишком сложно для моей ide
+    private clipboard: ClipboardProvider<NestedNodeProps<any>[]>;
 
     copyToClipboard(): void {
-        var data = this.root.getSelection().map(node => node.cloneData(this.nodeFieldDuplicator));
-        this.clipboard.set(data);
+        var nodesProps = this.root.getSelection().map(node => node.cloneProps(this.nodeDataDuplicator));
+        this.clipboard.set(nodesProps);
     }
 
     cutToClipboard(): void {
@@ -260,11 +289,11 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
     }
 
     pasteFromClipboard(): void {
-        var nodesData = this.clipboard.get();
-        if (! nodesData) {
+        var nodesProps = this.clipboard.get();
+        if (! nodesProps) {
             return;
         }
-        var nodesToPaste = nodesData.map(data => this.createNode(data));
+        var nodesToPaste = nodesProps.map(props => this.createNode(props));
         var command;
         var parentNode;
 
@@ -292,7 +321,7 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         var nextFocusedNode = cmd.execute();
         this.history.push(cmd);
         this.setFocusedNode(nextFocusedNode);
-        this.emit('change', this.data);
+        this.emit('change', this.content);
     }
 
     undo(): void {
@@ -310,13 +339,13 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.root.unselectDeep();
         var nodeToFocus = this.history.stepTo(direction);
         this.setFocusedNode(nodeToFocus);
-        this.emit('change', this.data);
+        this.emit('change', this.content);
     }
 
 
     // * Constructing
 
-    constructor(data: D, clipboardProvider?: ClipboardProvider<D[]>) {
+    constructor(content: NestedNodeProps<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>) {
         super();
 
         this.id = 'doc'; //todo something
@@ -324,11 +353,11 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
         this.history = new CommandHistory();
         this.previouslyFocusedMap = new Collection.Map<NestedNode<D>, NestedNode<D>>();
 
-        this.root = new NestedNode<any>(this, {}, d => d);
-        var topNode = this.createNode(data).appendToParent(this.root).select();
+        this.root = new NestedNode<{}>(this, { data: null }, d => d);
+        var topNode = this.createNode(content).appendToParent(this.root).select();
         this.setFocusedNode(topNode);
 
-        this.clipboard = clipboardProvider || new LocalClipboardProvider<D[]>();
+        this.clipboard = clipboardProvider || new LocalClipboardProvider();
 
         this.addListener('focusChange', () => this.emit('change'));
     }
@@ -336,13 +365,13 @@ class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D
 }
 
 
-class LocalClipboardProvider<T> implements ClipboardProvider<T> {
+class LocalClipboardProvider implements ClipboardProvider<any> {
 
-    private clipboardData: T;
+    private clipboardContent;
 
-    get(): T { return this.clipboardData; }
+    get() { return this.clipboardContent; }
 
-    set(data: T) {this.clipboardData = data }
+    set(content) {this.clipboardContent = content }
 
 }
 

@@ -1,7 +1,7 @@
 import Direction = require('./Direction');
-import NestedNodeRegistry = require('./NestedNodeRegistry');
-import NestedData = require('./NestedData');
-declare class NestedNode<D extends NestedData<{}>> {
+import ObjectRegistry = require('./ObjectRegistry');
+import NestedNodeProps = require('./NestedNodeProps');
+declare class NestedNode<D> implements NestedNodeProps<D> {
     private _id;
     id: string;
     private _parent;
@@ -11,12 +11,10 @@ declare class NestedNode<D extends NestedData<{}>> {
     level: number;
     isTopLevel: boolean;
     private _nested;
-    nested(index: number): NestedNode<D>;
+    nested: NestedNodeProps.Nested<D>;
     firstNested: NestedNode<D>;
     lastNested: NestedNode<D>;
     nestedCount: number;
-    mapNested<T>(cb: (node: NestedNode<D>) => T, thisArg?: any): T[];
-    forEachNested(cb: (node: NestedNode<D>) => void, thisArg?: any): void;
     forEachNestedDeep(cb: (node: NestedNode<D>) => void): void;
     traverse(cb: (node: NestedNode<D>) => void): void;
     getSibling(direction?: Direction, sameParentOnly?: boolean, preferredLevel?: number): NestedNode<D>;
@@ -26,22 +24,22 @@ declare class NestedNode<D extends NestedData<{}>> {
     private getCrossSiblingPhase2(direction, preferredLevel);
     appendNested(node: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
     removeNested(node: NestedNode<D>): NestedNode<D>;
-    replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void;
     appendToParent(parent: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D>;
     removeFormParent(): NestedNode<D>;
     arrangeBefore(node: NestedNode<D>): NestedNode<D>;
-    substituteFor(newNode: NestedNode<D>): void;
     private _selected;
     selected: boolean;
     select(): NestedNode<D>;
     unselect(): NestedNode<D>;
     unselectDeep(): NestedNode<D>;
     getSelection(): NestedNode<D>[];
+    _editing: boolean;
+    editing: boolean;
+    editOn(): NestedNode<D>;
+    editOff(): NestedNode<D>;
     data: D;
-    forEachNestedData(cb: (data: D, key) => void, thisArg?: any): void;
-    mapNestedData<T>(cb: (data: D, key) => T, thisArg?: any): T[];
-    cloneData(fieldDuplicator: (src: D) => D): D;
-    constructor(registry: NestedNodeRegistry<any>, data: D, fieldDuplicator: (src: D) => D);
+    cloneProps(dataDuplicator: (src: D) => D): NestedNodeProps<D>;
+    constructor(registry: ObjectRegistry<any>, props: NestedNodeProps<D>, dataDuplicator: (src: D) => D);
 }
 declare module NestedNode {
     interface AnyNestedNode extends NestedNode<any> {

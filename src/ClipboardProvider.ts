@@ -1,7 +1,7 @@
 interface ClipboardProvider<T> {
 
     get(): T;
-    set(data: T): void;
+    set(content: T): void;
 
 }
 

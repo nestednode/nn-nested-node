@@ -1,24 +1,25 @@
 import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
-import NestedNodeRegistry = require('./NestedNodeRegistry');
+import NestedNodeProps = require('./NestedNodeProps');
+import ObjectRegistry = require('./ObjectRegistry');
 import DocumentActions = require('./DocumentActions');
 import SelectionMode = require('./SelectionMode');
 import ClipboardProvider = require('./ClipboardProvider');
-declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRegistry<D>, DocumentActions {
+declare class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, DocumentActions {
     protected root: NestedNode<any>;
-    data: D;
+    content: NestedNodeProps<D>;
     protected getBlankNodeData(): D;
-    protected isNodeDataBlank(data: D): boolean;
-    protected nodeFieldDuplicator(data: D): D;
-    private createNode(data?);
+    protected nodeDataDuplicator(data: D): D;
+    protected nodeDataEqualityChecker(data1: D, data2: D): boolean;
+    private createNode(props?);
     private isBlankNode(node);
     private id;
     private nodeRegistry;
     private nodeRegistryCounter;
-    registerNode(node: NestedNode<D>): string;
-    unregisterNode(node: NestedNode<D>): void;
-    getNodeById(id: string): NestedNode<D>;
-    private focusedNode;
+    registerItem(node: NestedNode<D>): string;
+    unregisterItem(node: NestedNode<D>): void;
+    getItemById(id: string): NestedNode<D>;
+    protected focusedNode: NestedNode<D>;
     private previouslyFocusedMap;
     private currentFocusLevel;
     focusNodeById(id: string, selectionMode: SelectionMode): void;
@@ -30,6 +31,9 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     private focusSiblingNode(direction, selectionMode);
     private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
+    private nodeDataSnapshot;
+    enterEditMode(): void;
+    exitEditMode(): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
@@ -48,6 +52,6 @@ declare class NestedNodeDocument<D> extends EventEmitter implements NestedNodeRe
     undo(): void;
     redo(): void;
     private stepHistory(direction);
-    constructor(data: D, clipboardProvider?: ClipboardProvider<D[]>);
+    constructor(content: NestedNodeProps<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>);
 }
 export = NestedNodeDocument;

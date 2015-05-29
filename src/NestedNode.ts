@@ -1,9 +1,9 @@
 import Direction = require('./Direction');
-import NestedNodeRegistry = require('./NestedNodeRegistry');
-import NestedData = require('./NestedData');
+import ObjectRegistry = require('./ObjectRegistry');
+import NestedNodeProps = require('./NestedNodeProps');
 
 
-class NestedNode<D extends NestedData<{}>> {
+class NestedNode<D> implements NestedNodeProps<D> {
 
     // * Identity
 
@@ -47,9 +47,7 @@ class NestedNode<D extends NestedData<{}>> {
 
     private _nested: NestedNode<D>[];
 
-    nested(index: number): NestedNode<D> {
-        return this._nested[index];
-    }
+    nested: NestedNodeProps.Nested<D>;
 
     get firstNested(): NestedNode<D> {
         return this._nested[0];
@@ -61,15 +59,6 @@ class NestedNode<D extends NestedData<{}>> {
 
     get nestedCount(): number {
         return this._nested.length;
-    }
-
-
-    mapNested<T>(cb: (node: NestedNode<D>) => T, thisArg?): T[] {
-        return this._nested.map(cb, thisArg);
-    }
-
-    forEachNested(cb: (node: NestedNode<D>) => void, thisArg?): void {
-        this._nested.forEach(cb, thisArg);
     }
 
     forEachNestedDeep(cb: (node: NestedNode<D>) => void): void {
@@ -167,18 +156,6 @@ class NestedNode<D extends NestedData<{}>> {
         return node;
     }
 
-    replaceNested(node: NestedNode<D>, newNode: NestedNode<D>): void {
-        if (newNode.hasParent) {
-            throw new Error('cannot place node attached to another parent');
-        }
-        var index = this._nested.indexOf(node);
-        if (index === -1) {
-            throw new Error('node to replace not exists in nested');
-        }
-        this._nested.splice(index, 1, newNode);
-        node._parent = null;
-    }
-
     // ** Self-Related Methods
 
     appendToParent(parent: NestedNode<D>, aheadNode?: NestedNode<D>): NestedNode<D> {
@@ -198,13 +175,6 @@ class NestedNode<D extends NestedData<{}>> {
         }
         var parent = this._parent;
         return this.removeFormParent().appendToParent(parent, node);
-    }
-
-    substituteFor(newNode: NestedNode<D>): void {
-        if (!this.hasParent) {
-            throw new Error('cannot make substitution on parentless node')
-        }
-        this._parent.replaceNested(this, newNode);
     }
 
 
@@ -233,7 +203,7 @@ class NestedNode<D extends NestedData<{}>> {
 
     getSelection(): NestedNode<D>[] {
         var res = [];
-        this.traverse(node => {
+        this.traverse(node => { // можно оптимизировать, не обязательно обходить дочерних у выбранного
             if (node._selected) {
                 res.push(node);
             }
@@ -241,43 +211,54 @@ class NestedNode<D extends NestedData<{}>> {
         return res;
     }
 
+    // * Edit State
+    // возможно, этого и не нужно, если совмещать editMode у документа и focused у узла
+
+    _editing: boolean;
+
+    get editing(): boolean {
+        return this._editing;
+    }
+
+    editOn(): NestedNode<D> {
+        this._editing = true;
+        return this;
+    }
+
+    editOff(): NestedNode<D> {
+        this._editing = false;
+        return this;
+    }
+
     // * Data
 
     data: D;
 
-    forEachNestedData(cb: (data: D, key) => void, thisArg?) {
-        this._nested.forEach(node => cb(node.data, node._id), thisArg);
-    }
-
-    mapNestedData<T>(cb: (data: D, key) => T, thisArg?): T[] {
-        return this._nested.map(node => cb(node.data, node._id), thisArg);
-    }
-
-    cloneData(fieldDuplicator: (src: D) => D): D {
-        var result = fieldDuplicator(this.data);
-        result.nested = this.mapNested(nestedNode => nestedNode.cloneData(fieldDuplicator));
-        return result;
+    cloneProps(dataDuplicator: (src: D) => D): NestedNodeProps<D> {
+        return {
+            data: dataDuplicator(this.data),
+            nested: this._nested.map(node => node.cloneProps(dataDuplicator))
+        }
     }
 
     // * Constructing
 
-    constructor(registry: NestedNodeRegistry<any>, data: D, fieldDuplicator: (src: D) => D) {
-        //this._id = registry.registerNode(this, data.id);
-        this._id = registry.registerNode(this);
+    constructor(registry: ObjectRegistry<any>, props: NestedNodeProps<D>, dataDuplicator: (src: D) => D) {
+        //this._id = registry.registerNode(this, props.id);
+        this._id = registry.registerItem(this);
         this._parent = null;
         this._selected = false;
-        this._nested = data.nested ? data.nested.map(nestedData => {
-            //var nested = new NestedNode<D>(registry, nestedData, fieldDuplicator); //ide says: D is not D
-            var nested = new NestedNode<any>(registry, nestedData, fieldDuplicator);
+        this._editing = false;
+        this._nested = props.nested ? props.nested.map(nestedProps => {
+            var nested = new NestedNode<D>(registry, nestedProps, dataDuplicator);
             nested._parent = this;
             return nested;
         }) : [];
-        this.data = fieldDuplicator(data);
-        this.data.owner = this;
-        this.data.nested = {
-            map: this.mapNestedData.bind(this),
-            forEach: this.forEachNestedData.bind(this)
+        this.nested = {
+            map: this._nested.map.bind(this._nested),
+            forEach: this._nested.forEach.bind(this._nested)
         };
+        this.data = dataDuplicator(props.data);
     }
 
 }

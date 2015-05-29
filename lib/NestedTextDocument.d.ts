@@ -1,8 +1,8 @@
 import NestedNodeDocument = require('./NestedNodeDocument');
-import NestedText = require('./NestedText');
-declare class NestedTextDocument extends NestedNodeDocument<NestedText> {
-    getBlankNodeData(): NestedText;
-    isNodeDataBlank(data: NestedText): boolean;
-    nodeFieldDuplicator(data: NestedText): NestedText;
+import TextData = require('./TextData');
+declare class NestedTextDocument extends NestedNodeDocument<TextData> {
+    getBlankNodeData(): TextData;
+    nodeDataDuplicator(data: TextData): TextData;
+    nodeDataEqualityChecker(data1: TextData, data2: TextData): boolean;
 }
 export = NestedTextDocument;

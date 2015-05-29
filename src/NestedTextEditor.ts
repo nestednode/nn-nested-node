@@ -2,20 +2,20 @@ import React = require('pkg/React/React');
 import NestedTextReact = require('./NestedTextReact');
 import NestedTextDocument = require('./NestedTextDocument');
 
-var docData = { text: 'hello world!', nested: [
-    { text: 'космос', nested: [
-        { text: '9'},
-        { text: '8'},
-        { text: '7'},
-        { text: '6'},
-        { text: '5'},
-        { text: '4'},
-        { text: '3'},
-        { text: '2'},
-        { text: '1'},
-        { text: 'поехали!'}
+var docData = { data: { text: 'hello world!' }, nested: [
+    { data: { text: 'космос' }, nested: [
+        { data: { text: '9'} },
+        { data: { text: '8'} },
+        { data: { text: '7'} },
+        { data: { text: '6'} },
+        { data: { text: '5'} },
+        { data: { text: '4'} },
+        { data: { text: '3'} },
+        { data: { text: '2'} },
+        { data: { text: '1'} },
+        { data: { text: 'поехали!'} }
     ]},
-    { text: 'foo bar', nested: [
+    { data: { text: 'foo bar'}, nested: [
 
     ]}
 ]};
@@ -29,7 +29,7 @@ render();
 
 function render() {
     var docElem = NestedTextReact.NestedTextDocumentElem({
-        nodeData: doc.data,
+        node: doc.content,
         documentActions: doc
     });
     React.render(docElem, document.body);
