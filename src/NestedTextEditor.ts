@@ -1,6 +1,8 @@
 import React = require('pkg/React/React');
-import NestedTextReact = require('./NestedTextReact');
+import NestedNodeReact = require('./NestedTextReact');
 import NestedTextDocument = require('./NestedTextDocument');
+import TextData = require('./TextData');
+
 
 var docData = { data: { text: 'hello world!' }, nested: [
     { data: { text: 'космос' }, nested: [
@@ -24,13 +26,29 @@ var docData = { data: { text: 'hello world!' }, nested: [
 var doc = new NestedTextDocument(docData);
 doc.addListener('change', render);
 
+
+class NestedTextNodeView extends NestedNodeReact.NodeViewComp<TextData> {
+
+    createElement(props) {
+        return React.createElement(NestedTextNodeView, props);
+    }
+
+    renderData(data) {
+        return data.text + (this.context.editMode ? '*' : '');
+    }
+
+}
+
+
 render();
 
 
 function render() {
-    var docElem = NestedTextReact.NestedTextDocumentElem({
-        node: doc.content,
-        documentActions: doc
+    var docElem = NestedNodeReact.DocumentView<TextData>({
+        node: doc.node,
+        documentActions: doc,
+        editMode: doc.editMode,
+        nodeViewFactory: React.createFactory(NestedTextNodeView)
     });
     React.render(docElem, document.body);
 }

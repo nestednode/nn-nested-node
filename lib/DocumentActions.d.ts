@@ -5,6 +5,8 @@ interface DocumentActions {
     focusNestedNode(): void;
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
+    enterEditMode(): void;
+    exitEditMode(): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;

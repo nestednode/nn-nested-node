@@ -7,7 +7,7 @@ import SelectionMode = require('./SelectionMode');
 import ClipboardProvider = require('./ClipboardProvider');
 declare class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, DocumentActions {
     protected root: NestedNode<any>;
-    content: NestedNodeProps<D>;
+    node: NestedNodeProps<D>;
     protected getBlankNodeData(): D;
     protected nodeDataDuplicator(data: D): D;
     protected nodeDataEqualityChecker(data1: D, data2: D): boolean;
@@ -31,6 +31,8 @@ declare class NestedNodeDocument<D> extends EventEmitter implements ObjectRegist
     private focusSiblingNode(direction, selectionMode);
     private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
+    private _editMode;
+    editMode: boolean;
     private nodeDataSnapshot;
     enterEditMode(): void;
     exitEditMode(): void;

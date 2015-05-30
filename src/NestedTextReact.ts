@@ -14,30 +14,33 @@ require(['pkg/require-css/css!../styles/NestedNodeStyle']);
 
 // * Props and Context
 
-export interface NestedTextProps {
-    node: NestedNodeProps<TextData>;
+export interface NodeViewProps<D> {
+    node: NestedNodeProps<D>;
 }
 
-export class DocumentContext { constructor(
-    public documentActions: DocumentActions = React.PropTypes.any
+export class DocumentViewContext { constructor(
+    public documentActions: DocumentActions = React.PropTypes.any,
+    public editMode: boolean = React.PropTypes.any
 ){} }
 
 
-export interface DocumentProps extends NestedTextProps, DocumentContext {
-
+export interface DocumentViewProps<D> extends NodeViewProps<D>, DocumentViewContext {
+    nodeViewFactory: React.ReactElementFactory<NodeViewProps<D>>
 }
 
 
 // * Components
 
-export var NestedTextElem: React.ReactElementFactory<NestedTextProps>;
+//export var NestedTextNodeViewElem: React.ReactElementFactory<NodeViewProps<TextData>>;
 
-class NestedTextComp extends React.Component<NestedTextProps, any> {
+export class NodeViewComp<D> extends React.Component<NodeViewProps<D>, {}> {
+
+    //static factory = React.createFactory<NodeViewProps<D>>(NodeViewComp);
 
     // без этой декларации this.context будет пустым
-    static contextTypes = new DocumentContext();
+    static contextTypes = new DocumentViewContext();
 
-    context: DocumentContext;
+    context: DocumentViewContext;
 
     render() {
         var node = this.props.node;
@@ -47,20 +50,29 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
                     {
                         className: 'nn_text' + (node.selected ? ' selected' : ''),
                         onClick: this.handleClick.bind(this)
+                        //todo onDblClick -> enterEditMode
                     },
-                    node.data.text + (node.editing ? '*' : '')
+                    this.renderData(node.data)
                 ),
                 dom['div'](
                     {className: 'nn_nested'},
                     node.nested ?
-                        node.nested.map(nestedNode => NestedTextElem({ node: nestedNode, key: nestedNode.id })) :
+                        node.nested.map(nestedNode => this.createElement({ node: nestedNode, key: nestedNode.id })) :
                         false
                 )
             )
         )
     }
 
-    handleClick(e) {
+    protected createElement(props: NodeViewProps<D>): React.ReactElement {
+        throw new Error('abstract method');
+    }
+
+    protected renderData(data: D): /*React.ReactElement*/ any {
+        throw new Error('abstract method');
+    }
+
+    protected handleClick(e) {
         var actions = this.context.documentActions;
         var selectionMode =
             e.metaKey ? SelectionMode.Toggle :
@@ -69,14 +81,14 @@ class NestedTextComp extends React.Component<NestedTextProps, any> {
     }
 }
 
-NestedTextElem = React.createFactory<NestedTextProps>(NestedTextComp);
+//NestedTextNodeViewElem = React.createFactory<NodeViewProps>(NodeViewComp);
 
 
 
-class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
+export class DocumentViewComp<D> extends React.Component<DocumentViewProps<D>, any> {
 
     // без этой декларации getChildContext() бросит исключение
-    static childContextTypes = new DocumentContext();
+    static childContextTypes = new DocumentViewContext();
 
     constructor(props) {
         super(props);
@@ -86,7 +98,7 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
     }
 
     getChildContext() {
-        return new DocumentContext(this.props.documentActions);
+        return new DocumentViewContext(this.props.documentActions, this.props.editMode);
     }
 
     render() {
@@ -99,7 +111,7 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
                     onFocus: this.handleFocus.bind(this),
                     onBlur: this.handleBlur.bind(this)
                 },
-                NestedTextElem({ node: this.props.node })
+                this.props.nodeViewFactory({ node: this.props.node })
             )
         )
     }
@@ -116,11 +128,20 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
             LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
             TAB: 9, RETURN: 13, DELETE: 46,
             X: 88, C: 67, V: 86,
-            Z: 90, Y: 89
+            Z: 90, Y: 89,
+            SPACE: 32, ESCAPE: 27
         };
         var code = e.keyCode;
 
         var eventHandled = (() => { switch (true) {
+
+            case code == keyCode.SPACE:
+                actions.enterEditMode();
+                return true;
+
+            case code == keyCode.ESCAPE:
+                actions.exitEditMode();
+                return true;
 
             // todo нужна функция, которая бы проверяла, что нажат исключительно указанный модификатор
             // а то это лажа какая-то
@@ -214,4 +235,6 @@ class NestedTextDocumentComp extends React.Component<DocumentProps, any> {
     }
 }
 
-export var NestedTextDocumentElem = React.createFactory<DocumentProps>(NestedTextDocumentComp);
+export function DocumentView<D>(props: DocumentViewProps<D>): React.ReactElement {
+    return React.createElement<DocumentViewProps<D>>(DocumentViewComp, props);
+}

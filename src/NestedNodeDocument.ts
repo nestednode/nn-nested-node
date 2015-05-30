@@ -25,7 +25,7 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     protected root: NestedNode<any>;
 
     // фактический узел документа, таким образом, не root, а его первый (и единственный) nested
-    get content(): NestedNodeProps<D> {
+    get node(): NestedNodeProps<D> {
         return this.root.firstNested;
     }
 
@@ -176,27 +176,36 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
 
     // ** Data Edit Actions
 
+    private _editMode: boolean;
+
+    get editMode(): boolean {
+        return !! this._editMode;
+    }
+
     private nodeDataSnapshot: D;
 
     enterEditMode(): void {
-        if (this.focusedNode.editing) {
+        if (this._editMode) {
+            console.warn('already in edit mode');
             return;
         }
+        this._editMode = true;
         this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
-        this.focusedNode.editOn();
+        this.emit('change', this.node);
     }
 
     exitEditMode(): void {
-        if (! this.focusedNode.editing) {
+        if (! this._editMode) {
+            console.warn('already in normal mode');
             return;
         }
-        this.focusedNode.editOff();
+        this._editMode = false;
         var dataEqual = this.nodeDataEqualityChecker(this.nodeDataSnapshot, this.focusedNode.data);
         if (dataEqual) {
+            this.emit('change', this.node); // контент как бы не изменился, изменилось только состояние самого док-та
             return;
         }
-        // теперь без owner и nested внутри node.data, объект можно менять целиком
-        //new UpdateDataCommand()
+        //this.executeCommand(new UpdateDataCommand(...))
     }
 
 
@@ -312,7 +321,7 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
         this.executeCommand(command);
     }
 
-    // *** Undo / Redo Actions
+    // ** Undo / Redo Actions
 
     private history: CommandHistory;
 
@@ -321,7 +330,7 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
         var nextFocusedNode = cmd.execute();
         this.history.push(cmd);
         this.setFocusedNode(nextFocusedNode);
-        this.emit('change', this.content);
+        this.emit('change', this.node);
     }
 
     undo(): void {
@@ -339,7 +348,7 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
         this.root.unselectDeep();
         var nodeToFocus = this.history.stepTo(direction);
         this.setFocusedNode(nodeToFocus);
-        this.emit('change', this.content);
+        this.emit('change', this.node);
     }
 
 
@@ -356,6 +365,8 @@ class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<Neste
         this.root = new NestedNode<{}>(this, { data: null }, d => d);
         var topNode = this.createNode(content).appendToParent(this.root).select();
         this.setFocusedNode(topNode);
+
+        //this._editMode = false;
 
         this.clipboard = clipboardProvider || new LocalClipboardProvider();
 
