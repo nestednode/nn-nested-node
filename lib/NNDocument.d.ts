@@ -2,10 +2,11 @@ import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeProps = require('./NestedNodeProps');
 import ObjectRegistry = require('./ObjectRegistry');
-import DocumentActions = require('./DocumentActions');
+import NNDocumentProps = require('./NNDocumentProps');
+import NNDocumentActions = require('./NNDocumentActions');
 import SelectionMode = require('./SelectionMode');
 import ClipboardProvider = require('./ClipboardProvider');
-declare class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, DocumentActions {
+declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions {
     protected root: NestedNode<any>;
     node: NestedNodeProps<D>;
     protected getBlankNodeData(): D;
@@ -56,4 +57,4 @@ declare class NestedNodeDocument<D> extends EventEmitter implements ObjectRegist
     private stepHistory(direction);
     constructor(content: NestedNodeProps<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>);
 }
-export = NestedNodeDocument;
+export = NNDocument;

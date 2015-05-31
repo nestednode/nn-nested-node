@@ -3,7 +3,8 @@ import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 import NestedNode = require('./NestedNode');
 import NestedNodeProps = require('./NestedNodeProps');
 import ObjectRegistry = require('./ObjectRegistry');
-import DocumentActions = require('./DocumentActions');
+import NNDocumentProps = require('./NNDocumentProps');
+import NNDocumentActions = require('./NNDocumentActions');
 import Direction = require('./Direction');
 import SelectionMode = require('./SelectionMode');
 import SelectionHelper = require('./SelectionHelper');
@@ -18,7 +19,7 @@ import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
 
 
-class NestedNodeDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, DocumentActions {
+class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions {
 
     // root - это прокси-узел, удобен для того,
     // чтобы исключить передачу в команды parentless-узлов
@@ -387,4 +388,4 @@ class LocalClipboardProvider implements ClipboardProvider<any> {
 }
 
 
-export = NestedNodeDocument;
+export = NNDocument;

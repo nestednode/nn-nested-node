@@ -1,94 +1,24 @@
-import NestedNodeProps = require('./NestedNodeProps');
-import TextData = require('./TextData');
-import DocumentActions = require('./DocumentActions');
+import NestedNodeView = require('./NestedNodeView');
+import NNDocumentProps = require('./NNDocumentProps');
 import SelectionMode = require('./SelectionMode');
-
-
 import React = require('pkg/React/React');
 import dom = React.DOM;
 
 
-declare var require;
-require(['pkg/require-css/css!../styles/NestedNodeStyle']);
-
-
-// * Props and Context
-
-export interface NodeViewProps<D> {
-    node: NestedNodeProps<D>;
-}
-
-export class DocumentViewContext { constructor(
-    public documentActions: DocumentActions = React.PropTypes.any,
-    public editMode: boolean = React.PropTypes.any
-){} }
-
-
-export interface DocumentViewProps<D> extends NodeViewProps<D>, DocumentViewContext {
-    nodeViewFactory: React.ReactElementFactory<NodeViewProps<D>>
+export interface Props<D> extends NestedNodeView.Context<D> {
+    nodeViewFactory: React.ReactElementFactory<NestedNodeView.Props<D>>
 }
 
 
-// * Components
-
-//export var NestedTextNodeViewElem: React.ReactElementFactory<NodeViewProps<TextData>>;
-
-export class NodeViewComp<D> extends React.Component<NodeViewProps<D>, {}> {
-
-    //static factory = React.createFactory<NodeViewProps<D>>(NodeViewComp);
-
-    // без этой декларации this.context будет пустым
-    static contextTypes = new DocumentViewContext();
-
-    context: DocumentViewContext;
-
-    render() {
-        var node = this.props.node;
-        return (
-            dom['div']({ className: 'nn_node' },
-                dom['div'](
-                    {
-                        className: 'nn_text' + (node.selected ? ' selected' : ''),
-                        onClick: this.handleClick.bind(this)
-                        //todo onDblClick -> enterEditMode
-                    },
-                    this.renderData(node.data)
-                ),
-                dom['div'](
-                    {className: 'nn_nested'},
-                    node.nested ?
-                        node.nested.map(nestedNode => this.createElement({ node: nestedNode, key: nestedNode.id })) :
-                        false
-                )
-            )
-        )
-    }
-
-    protected createElement(props: NodeViewProps<D>): React.ReactElement {
-        throw new Error('abstract method');
-    }
-
-    protected renderData(data: D): /*React.ReactElement*/ any {
-        throw new Error('abstract method');
-    }
-
-    protected handleClick(e) {
-        var actions = this.context.documentActions;
-        var selectionMode =
-            e.metaKey ? SelectionMode.Toggle :
-                e.shiftKey ? SelectionMode.Shift : SelectionMode.Reset;
-        actions && actions.focusNodeById(this.props.node.id, selectionMode);
-    }
+export interface State {
+    focused: boolean;
 }
 
-//NestedTextNodeViewElem = React.createFactory<NodeViewProps>(NodeViewComp);
 
-
-
-export class DocumentViewComp<D> extends React.Component<DocumentViewProps<D>, any> {
+export class Component<D> extends React.Component<Props<D>, State> {
 
     // без этой декларации getChildContext() бросит исключение
-    static childContextTypes = new DocumentViewContext();
+    static childContextTypes = new NestedNodeView.Context();
 
     constructor(props) {
         super(props);
@@ -98,7 +28,7 @@ export class DocumentViewComp<D> extends React.Component<DocumentViewProps<D>, a
     }
 
     getChildContext() {
-        return new DocumentViewContext(this.props.documentActions, this.props.editMode);
+        return new NestedNodeView.Context<D>(this.props.documentActions, this.props.documentProps);
     }
 
     render() {
@@ -111,7 +41,7 @@ export class DocumentViewComp<D> extends React.Component<DocumentViewProps<D>, a
                     onFocus: this.handleFocus.bind(this),
                     onBlur: this.handleBlur.bind(this)
                 },
-                this.props.nodeViewFactory({ node: this.props.node })
+                this.props.nodeViewFactory({ node: this.props.documentProps.node })
             )
         )
     }
@@ -235,6 +165,7 @@ export class DocumentViewComp<D> extends React.Component<DocumentViewProps<D>, a
     }
 }
 
-export function DocumentView<D>(props: DocumentViewProps<D>): React.ReactElement {
-    return React.createElement<DocumentViewProps<D>>(DocumentViewComp, props);
+
+export function Element<D>(props: Props<D>): React.ReactElement {
+    return React.createElement(Component, props);
 }
