@@ -211,22 +211,19 @@ class NestedNode<D> implements NestedNodeProps<D> {
         return res;
     }
 
-    // * Edit State
-    // возможно, этого и не нужно, если совмещать editMode у документа и focused у узла
+    _focused: boolean;
 
-    _editing: boolean;
-
-    get editing(): boolean {
-        return this._editing;
+    get focused(): boolean {
+        return this._focused;
     }
 
-    editOn(): NestedNode<D> {
-        this._editing = true;
+    focus(): NestedNode<D> {
+        this._focused = true;
         return this;
     }
 
-    editOff(): NestedNode<D> {
-        this._editing = false;
+    unfocus(): NestedNode<D> {
+        this._focused = false;
         return this;
     }
 
@@ -248,7 +245,7 @@ class NestedNode<D> implements NestedNodeProps<D> {
         this._id = registry.registerItem(this);
         this._parent = null;
         this._selected = false;
-        this._editing = false;
+        this._focused = false;
         this._nested = props.nested ? props.nested.map(nestedProps => {
             var nested = new NestedNode<D>(registry, nestedProps, dataDuplicator);
             nested._parent = this;

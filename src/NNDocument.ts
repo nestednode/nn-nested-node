@@ -168,7 +168,8 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         if (! node.hasParent) {
             throw new Error('parentless node not allowed to be focused');
         }
-        this.focusedNode = node;
+        this.focusedNode && this.focusedNode.unfocus();
+        this.focusedNode = node.focus();
         this.previouslyFocusedMap.set(node.parent, node);
         if (updateFocusLevel) {
             this.currentFocusLevel = this.focusedNode.level;

@@ -11,12 +11,16 @@ declare module NestedNodeView {
         documentProps: NNDocumentProps<D>;
         constructor(documentActions?: NNDocumentActions, documentProps?: NNDocumentProps<D>);
     }
+    interface ComponentClass<D> {
+        new (props: Props<D>): Component<D>;
+    }
     class Component<D> extends React.Component<Props<D>, {}> {
         static contextTypes: Context<{}>;
         context: Context<D>;
+        constructor(props: Props<D>);
         render(): React.ReactElement;
-        protected createElement(props: Props<D>): React.ReactElement;
-        protected renderData(data: D): any;
+        protected renderNestedElement(node: NestedNodeProps<D>): React.ReactElement;
+        protected renderData(data: D, editMode: boolean): any;
         protected handleClick(e: any): void;
     }
 }

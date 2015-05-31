@@ -22,12 +22,23 @@ module NestedNodeView {
     ){} }
 
 
+
+    export interface ComponentClass<D> {
+        new (props: Props<D>): Component<D>;
+    }
+
     export class Component<D> extends React.Component<Props<D>, {}> {
 
         // без этой декларации this.context будет пустым
         static contextTypes = new Context();
 
         context: Context<D>;
+
+        constructor(props: Props<D>) {
+            super(props);
+            // если явно не объявить конструктор, то в конструкторе наследника можно словить это
+            // Props<TextData>' is not assignable to parameter of type 'Props<D>'
+        }
 
         render() {
             var node = this.props.node;
@@ -39,23 +50,24 @@ module NestedNodeView {
                             onClick: this.handleClick.bind(this)
                             //todo onDblClick -> enterEditMode
                         },
-                        this.renderData(node.data)
+                        this.renderData(node.data, this.context.documentProps.editMode && node.focused)
                     ),
                     dom['div'](
                         {className: 'nn_nested'},
                         node.nested ?
-                            node.nested.map(nestedNode => this.createElement({ node: nestedNode, key: nestedNode.id })) :
+                            node.nested.map(nestedNode => this.renderNestedElement(nestedNode)) :
                             false
                     )
                 )
             )
         }
 
-        protected createElement(props: Props<D>): React.ReactElement {
-            throw new Error('abstract method');
+        protected renderNestedElement(node: NestedNodeProps<D>): React.ReactElement {
+            var props = { node: node, key: node.id };
+            return React.createElement(<ComponentClass<D>> this['constructor'], props);
         }
 
-        protected renderData(data: D): /*React.ReactElement*/ any {
+        protected renderData(data: D, editMode: boolean): /*React.ReactFragment*/ any {
             throw new Error('abstract method');
         }
 

@@ -33,10 +33,10 @@ declare class NestedNode<D> implements NestedNodeProps<D> {
     unselect(): NestedNode<D>;
     unselectDeep(): NestedNode<D>;
     getSelection(): NestedNode<D>[];
-    _editing: boolean;
-    editing: boolean;
-    editOn(): NestedNode<D>;
-    editOff(): NestedNode<D>;
+    _focused: boolean;
+    focused: boolean;
+    focus(): NestedNode<D>;
+    unfocus(): NestedNode<D>;
     data: D;
     cloneProps(dataDuplicator: (src: D) => D): NestedNodeProps<D>;
     constructor(registry: ObjectRegistry<any>, props: NestedNodeProps<D>, dataDuplicator: (src: D) => D);

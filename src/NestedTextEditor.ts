@@ -31,17 +31,11 @@ class NestedTextDocument extends NNDocument<TextData> {
 
 class NestedTextNodeView extends NestedNodeView.Component<TextData> {
 
-    createElement(props) {
-        return React.createElement(NestedTextNodeView, props);
-    }
-
-    renderData(data) {
-        return data.text + (this.context.documentProps.editMode ? '*' : '');
+    renderData(data, editMode) {
+        return data.text + (editMode ? '*' : '');
     }
 
 }
-
-var nodeViewFactory = React.createFactory<NestedNodeView.Props<TextData>>(NestedTextNodeView);
 
 
 var docData = { data: { text: 'hello world!' }, nested: [
@@ -69,7 +63,7 @@ var render = function() {
     var docElem = NNDocumentView.Element<TextData>({
         documentActions: doc,
         documentProps: doc,
-        nodeViewFactory: nodeViewFactory
+        nestedNodeViewComponent: NestedTextNodeView
     });
     React.render(docElem, document.body);
 };

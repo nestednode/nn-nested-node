@@ -1,7 +1,7 @@
 interface NestedNodeProps<D> {
     id?: string;
     selected?: boolean;
-    editing?: boolean;
+    focused?: boolean;
     data: D;
     nested?: NestedNodeProps.Nested<D>;
 }

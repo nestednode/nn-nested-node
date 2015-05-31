@@ -8,7 +8,7 @@ import dom = React.DOM;
 module NNDocumentView {
 
     export interface Props<D> extends NestedNodeView.Context<D> {
-        nodeViewFactory: React.ReactElementFactory<NestedNodeView.Props<D>>
+        nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
     }
 
 
@@ -22,7 +22,7 @@ module NNDocumentView {
         // без этой декларации getChildContext() бросит исключение
         static childContextTypes = new NestedNodeView.Context();
 
-        constructor(props) {
+        constructor(props: Props<D>) {
             super(props);
             this.state = {
                 focused: false
@@ -43,7 +43,10 @@ module NNDocumentView {
                         onFocus: this.handleFocus.bind(this),
                         onBlur: this.handleBlur.bind(this)
                     },
-                    this.props.nodeViewFactory({ node: this.props.documentProps.node })
+                    React.createElement<NestedNodeView.Props<D>>(
+                        this.props.nestedNodeViewComponent,
+                        { node: this.props.documentProps.node }
+                    )
                 )
             )
         }
