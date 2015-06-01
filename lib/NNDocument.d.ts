@@ -35,9 +35,9 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     private _editMode;
     editMode: boolean;
     private nodeDataSnapshot;
-    enterEditMode(): void;
+    enterEditMode(emitModeChange?: boolean): void;
     updateNodeData(newData: D): void;
-    exitEditMode(): void;
+    exitEditMode(emitModeChange?: boolean): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
