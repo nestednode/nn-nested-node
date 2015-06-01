@@ -148,12 +148,13 @@ module NNDocumentView {
                     actions.pasteFromClipboard();
                     return true;
 
-                case code == keyCode.Z && e.metaKey:
-                    actions.undo();
-                    return true;
-
+                case code == keyCode.Z && e.metaKey && e.shiftKey:
                 case code == keyCode.Y && e.metaKey:
                     actions.redo();
+                    return true;
+
+                case code == keyCode.Z && e.metaKey:
+                    actions.undo();
                     return true;
 
             }})();
