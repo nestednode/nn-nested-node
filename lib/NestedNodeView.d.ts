@@ -7,9 +7,9 @@ declare module NestedNodeView {
         node: NestedNodeProps<D>;
     }
     class Context<D> {
-        documentActions: NNDocumentActions;
+        documentActions: NNDocumentActions<D>;
         documentProps: NNDocumentProps<D>;
-        constructor(documentActions?: NNDocumentActions, documentProps?: NNDocumentProps<D>);
+        constructor(documentActions?: NNDocumentActions<D>, documentProps?: NNDocumentProps<D>);
     }
     interface ComponentClass<D> {
         new (props: Props<D>): Component<D>;

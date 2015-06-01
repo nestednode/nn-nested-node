@@ -54,12 +54,7 @@ module NNDocumentView {
         handleKeyDown(e) {
             var actions = this.props.documentActions;
 
-            if (! actions) {
-                return;
-            }
-
-            //todo something
-            var keyCode = {
+            var keyCode = { //todo something
                 LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
                 TAB: 9, RETURN: 13, DELETE: 46,
                 X: 88, C: 67, V: 86,
@@ -67,15 +62,23 @@ module NNDocumentView {
                 SPACE: 32, ESCAPE: 27
             };
             var code = e.keyCode;
+            var editMode = this.props.documentProps.editMode;
 
             var eventHandled = (() => { switch (true) {
 
-                case code == keyCode.SPACE:
-                    actions.enterEditMode();
+                // * Edit Mode
+
+                case editMode && code == keyCode.ESCAPE:
+                    actions.exitEditMode();
                     return true;
 
-                case code == keyCode.ESCAPE:
-                    actions.exitEditMode();
+                case editMode:
+                    return false;
+
+                // * Normal Mode
+
+                case code == keyCode.SPACE:
+                    actions.enterEditMode();
                     return true;
 
                 // todo нужна функция, которая бы проверяла, что нажат исключительно указанный модификатор

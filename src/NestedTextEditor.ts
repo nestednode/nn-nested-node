@@ -2,6 +2,8 @@ import NNDocument = require('./NNDocument');
 import NNDocumentView = require('./NNDocumentView');
 import NestedNodeView = require('./NestedNodeView');
 import React = require('pkg/React/React');
+import dom = React.DOM;
+
 
 declare var require;
 require(['pkg/require-css/css!../styles/NestedNodeStyle']);
@@ -32,9 +34,23 @@ class NestedTextDocument extends NNDocument<TextData> {
 class NestedTextNodeView extends NestedNodeView.Component<TextData> {
 
     renderData(data, editMode) {
-        return data.text + (editMode ? '*' : '');
+        return editMode ? dom['input']({ value: data.text, onChange: this.handleChange.bind(this) }) : data.text;
     }
 
+    handleChange(e) {
+        this.context.documentActions.updateNodeData({ text: e.target.value });
+    }
+
+}
+
+
+function render(doc: NestedTextDocument) {
+    var docElem = NNDocumentView.Element<TextData>({
+        documentActions: doc,
+        documentProps: doc,
+        nestedNodeViewComponent: NestedTextNodeView
+    });
+    React.render(docElem, document.body);
 }
 
 
@@ -58,15 +74,5 @@ var docData = { data: { text: 'hello world!' }, nested: [
 
 
 var doc = new NestedTextDocument(docData);
-
-var render = function() {
-    var docElem = NNDocumentView.Element<TextData>({
-        documentActions: doc,
-        documentProps: doc,
-        nestedNodeViewComponent: NestedTextNodeView
-    });
-    React.render(docElem, document.body);
-};
-
 doc.addListener('change', render);
-render();
+render(doc);

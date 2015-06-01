@@ -1,7 +1,7 @@
-import NestedNode = require('../NestedNode');
+import NestedNode = require('./NestedNode');
 import N = NestedNode.AnyNestedNode;
-import Command = require('./Command');
-import Direction = require('../Direction');
+import Command = require('./Command/Command');
+import Direction = require('./Direction');
 
 
 // служит как маркер начала истории

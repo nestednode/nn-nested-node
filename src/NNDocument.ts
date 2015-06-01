@@ -10,8 +10,9 @@ import SelectionMode = require('./SelectionMode');
 import SelectionHelper = require('./SelectionHelper');
 import ClipboardProvider = require('./ClipboardProvider');
 
-import CommandHistory = require('./Command/CommandHistory');
+import CommandHistory = require('./CommandHistory');
 import Command = require('./Command/Command');
+import UpdateDataCommand = require('./Command/UpdateDataCommand');
 import AppendCommand = require('./Command/AppendCommand');
 import EnvelopeCommand = require('./Command/EnvelopeCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
@@ -19,7 +20,9 @@ import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
 
 
-class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions {
+class NNDocument<D>
+    extends EventEmitter
+    implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
 
     // root - это прокси-узел, удобен для того,
     // чтобы исключить передачу в команды parentless-узлов
@@ -176,6 +179,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         }
     }
 
+
     // ** Data Edit Actions
 
     private _editMode: boolean;
@@ -193,7 +197,12 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         }
         this._editMode = true;
         this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
-        this.emit('change', this.node);
+        this.emit('change', this);
+    }
+
+    updateNodeData(newData: D): void {
+        this.focusedNode.data = newData;
+        this.emit('change', this);
     }
 
     exitEditMode(): void {
@@ -204,10 +213,10 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         this._editMode = false;
         var dataEqual = this.nodeDataEqualityChecker(this.nodeDataSnapshot, this.focusedNode.data);
         if (dataEqual) {
-            this.emit('change', this.node); // контент как бы не изменился, изменилось только состояние самого док-та
+            this.emit('change', this);
             return;
         }
-        //this.executeCommand(new UpdateDataCommand(...))
+        this.executeCommand(new UpdateDataCommand(this.focusedNode, this.nodeDataSnapshot, this.focusedNode.data));
     }
 
 
@@ -284,6 +293,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         this.executeCommand(new RearrangeCommand(nodesToRearrange, direction));
     }
 
+
     // *** Copy / Paste Actions
 
     //private clipboard: ClipboardProvider<NestedNodeProps<D>[]>; // слишком сложно для моей ide
@@ -323,6 +333,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         this.executeCommand(command);
     }
 
+
     // ** Undo / Redo Actions
 
     private history: CommandHistory;
@@ -332,7 +343,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         var nextFocusedNode = cmd.execute();
         this.history.push(cmd);
         this.setFocusedNode(nextFocusedNode);
-        this.emit('change', this.node);
+        this.emit('change', this);
     }
 
     undo(): void {
@@ -350,7 +361,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
         this.root.unselectDeep();
         var nodeToFocus = this.history.stepTo(direction);
         this.setFocusedNode(nodeToFocus);
-        this.emit('change', this.node);
+        this.emit('change', this);
     }
 
 
@@ -372,7 +383,7 @@ class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>
 
         this.clipboard = clipboardProvider || new LocalClipboardProvider();
 
-        this.addListener('focusChange', () => this.emit('change'));
+        this.addListener('focusChange', () => this.emit('change', this));
     }
 
 }

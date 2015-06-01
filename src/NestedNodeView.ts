@@ -17,7 +17,7 @@ module NestedNodeView {
 
 
     export class Context<D> { constructor(
-        public documentActions: NNDocumentActions = React.PropTypes.any,
+        public documentActions: NNDocumentActions<D> = React.PropTypes.any,
         public documentProps: NNDocumentProps<D> = React.PropTypes.any
     ){} }
 

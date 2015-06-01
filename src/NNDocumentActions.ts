@@ -1,7 +1,7 @@
 import SelectionMode = require('./SelectionMode');
 
 
-interface NNDocumentActions {
+interface NNDocumentActions<D> {
 
     focusNodeById(id: string, selectionMode: SelectionMode): void;
     focusParentNode(): void;
@@ -10,6 +10,7 @@ interface NNDocumentActions {
     focusNextNode(selectionMode: SelectionMode): void;
 
     enterEditMode(): void;
+    updateNodeData(newData: D): void;
     exitEditMode(): void;
 
     // не совсем точны названия, многие действия могут манипулировать и множеством узлов

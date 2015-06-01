@@ -6,7 +6,7 @@ import NNDocumentProps = require('./NNDocumentProps');
 import NNDocumentActions = require('./NNDocumentActions');
 import SelectionMode = require('./SelectionMode');
 import ClipboardProvider = require('./ClipboardProvider');
-declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions {
+declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
     protected root: NestedNode<any>;
     node: NestedNodeProps<D>;
     protected getBlankNodeData(): D;
@@ -36,6 +36,7 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     editMode: boolean;
     private nodeDataSnapshot;
     enterEditMode(): void;
+    updateNodeData(newData: D): void;
     exitEditMode(): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;

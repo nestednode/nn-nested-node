@@ -1,11 +1,12 @@
 import SelectionMode = require('./SelectionMode');
-interface NNDocumentActions {
+interface NNDocumentActions<D> {
     focusNodeById(id: string, selectionMode: SelectionMode): void;
     focusParentNode(): void;
     focusNestedNode(): void;
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
     enterEditMode(): void;
+    updateNodeData(newData: D): void;
     exitEditMode(): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
