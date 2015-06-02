@@ -6,8 +6,8 @@ import React = require('pkg/React/React');
 import dom = React.DOM;
 
 
-// если не обернуть в модуль, любимая ide будет считать что, например,
-// Props из этого модуля, и Props из модуля NNDocumentView - это partial-определения одного общего интерфейса
+// если не обернуть в модуль, ide будет считать, например,
+// что Props из этого модуля, и Props из модуля NNDocumentView - это partial-определения одного общего интерфейса
 
 module NestedNodeView {
 
@@ -24,20 +24,17 @@ module NestedNodeView {
 
 
     export interface ComponentClass<D> {
-        new (props: Props<D>): Component<D>;
+        new (props: Props<D>, context: Context<D>): Component<D>;
     }
 
-    export class Component<D> extends React.Component<Props<D>, {}> {
+    export class Component<D> extends React.Component<Props<D>, {}, Context<D>> {
 
         // без этой декларации this.context будет пустым
         static contextTypes = new Context();
 
-        context: Context<D>;
-
-        constructor(props: Props<D>) {
-            super(props);
-            // если явно не объявить конструктор, то в конструкторе наследника можно словить это
-            // Props<TextData>' is not assignable to parameter of type 'Props<D>'
+        // без явного определения конструктора, вывод типов сглючит (см. generic_constructor_type__bug в лабах)
+        constructor(props: Props<D>, context: Context<D>) {
+            super(props, context);
         }
 
         render() {

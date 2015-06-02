@@ -12,22 +12,10 @@ module NNDocumentView {
     }
 
 
-    export interface State {
-        focused: boolean;
-    }
-
-
-    export class Component<D> extends React.Component<Props<D>, State> {
+    export class Component<D> extends React.Component<Props<D>, {}, {}> {
 
         // без этой декларации getChildContext() бросит исключение
         static childContextTypes = new NestedNodeView.Context();
-
-        constructor(props: Props<D>) {
-            super(props);
-            this.state = {
-                focused: false
-            };
-        }
 
         getChildContext() {
             return new NestedNodeView.Context<D>(this.props.documentActions, this.props.documentProps);
@@ -38,7 +26,7 @@ module NNDocumentView {
                 dom['div'](
                     {
                         tabIndex: 1,
-                        className: 'nn_ctx' + (this.state.focused ? ' focused' : ''),
+                        className: 'nn_ctx',
                         onKeyDown: this.handleKeyDown.bind(this),
                         onFocus: this.handleFocus.bind(this),
                         onBlur: this.handleBlur.bind(this)
@@ -59,7 +47,7 @@ module NNDocumentView {
                 TAB: 9, RETURN: 13, DELETE: 46,
                 X: 88, C: 67, V: 86,
                 Z: 90, Y: 89,
-                SPACE: 32, ESCAPE: 27
+                F2: 113, ESCAPE: 27
             };
             var code = e.keyCode;
             var editMode = this.props.documentProps.editMode;
@@ -68,6 +56,7 @@ module NNDocumentView {
 
                 // * Edit Mode
 
+                case editMode && code == keyCode.RETURN:
                 case editMode && code == keyCode.ESCAPE:
                     actions.exitEditMode();
                     return true;
@@ -77,7 +66,7 @@ module NNDocumentView {
 
                 // * Normal Mode
 
-                case code == keyCode.SPACE:
+                case code == keyCode.F2:
                     actions.enterEditMode();
                     return true;
 
@@ -165,13 +154,36 @@ module NNDocumentView {
 
         }
 
-        handleFocus(e) {
-            this.setState({ focused: true });
+
+        private documentFocused = false;
+
+        componentDidMount() {
+            React.findDOMNode(this).focus();
         }
 
-        handleBlur(e) {
-            this.setState({ focused: false });
+        componentDidUpdate(props, state, context) {
+            this.restoreFocus();
         }
+
+        handleFocus() {
+            var domNode = React.findDOMNode(this);
+            domNode.classList.add('focused');
+            this.documentFocused = true;
+        }
+
+        handleBlur() {
+            var domNode = React.findDOMNode(this);
+            domNode.classList.remove('focused');
+            this.documentFocused = false;
+        }
+
+        private restoreFocus() {
+            // нужно вернуть фокус документу после выхода из режима редактирования
+            if (! (this.props.documentProps.editMode || this.documentFocused)) {
+                React.findDOMNode(this).focus();
+            }
+        }
+
     }
 
 

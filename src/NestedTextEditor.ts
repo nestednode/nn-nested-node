@@ -31,14 +31,60 @@ class NestedTextDocument extends NNDocument<TextData> {
 }
 
 
+interface TextInputComponentProps {
+    onChange: (newValue: string) => void;
+    value: string;
+}
+
+class TextInputComponent extends React.Component<TextInputComponentProps, {}, {}> {
+
+    constructor(props, context) {
+        super(props, context);
+        if (! this.props.onChange) {
+            this.props.onChange = () => {};
+        }
+    }
+
+    render() {
+        return dom['div']({
+            contentEditable: true,
+            onInput: this.handleInput.bind(this),
+            onFocus: (e) => {e.stopPropagation()},
+            dangerouslySetInnerHTML: { __html: this.props.value }
+        })
+    }
+
+    handleInput(e) {
+        this.props.onChange(e.target.innerText);
+    }
+
+    componentDidMount() {
+        var domNode = React.findDOMNode(this);
+        // курсор почему-то в начале строки, перемещаем его в конец
+        var range = document.createRange();
+        range.selectNodeContents(domNode);
+        range.collapse(false);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        domNode.focus();
+    }
+}
+
+
 class NestedTextNodeView extends NestedNodeView.Component<TextData> {
 
     renderData(data, editMode) {
-        return editMode ? dom['input']({ value: data.text, onChange: this.handleChange.bind(this) }) : data.text;
+        return editMode ?
+            React.createElement<TextInputComponentProps>(TextInputComponent, {
+                value: data.text,
+                onChange: this.handleTextChange.bind(this)
+            }) :
+            data.text;
     }
 
-    handleChange(e) {
-        this.context.documentActions.updateNodeData({ text: e.target.value });
+    handleTextChange(value) {
+        this.context.documentActions.updateNodeData({ text: value });
     }
 
 }
