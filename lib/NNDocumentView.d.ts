@@ -4,17 +4,18 @@ declare module NNDocumentView {
     interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
     }
-    interface State {
-        focused: boolean;
-    }
-    class Component<D> extends React.Component<Props<D>, State> {
+    class Component<D> extends React.Component<Props<D>, {}, {}> {
         static childContextTypes: NestedNodeView.Context<{}>;
-        constructor(props: Props<D>);
         getChildContext(): NestedNodeView.Context<D>;
         render(): React.ReactElement;
+        handleKeyPress(e: any): void;
         handleKeyDown(e: any): void;
-        handleFocus(e: any): void;
-        handleBlur(e: any): void;
+        private documentFocused;
+        componentDidMount(): void;
+        componentDidUpdate(props: any, state: any, context: any): void;
+        handleFocus(): void;
+        handleBlur(): void;
+        private restoreFocus();
     }
     function Element<D>(props: Props<D>): React.ReactElement;
 }

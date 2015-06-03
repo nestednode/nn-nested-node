@@ -190,13 +190,16 @@ class NNDocument<D>
 
     private nodeDataSnapshot: D;
 
-    enterEditMode(emitModeChange = true): void {
+    enterEditMode(clearCurrentValue = false, emitModeChange = true): void {
         if (this._editMode) {
             console.warn('already in edit mode');
             return;
         }
         this._editMode = true;
         this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
+        if (clearCurrentValue) {
+            this.focusedNode.data = this.getBlankNodeData();
+        }
         emitModeChange && this.emit('change', this);
     }
 
@@ -205,8 +208,8 @@ class NNDocument<D>
             this.focusedNode.data = newData;
             this.emit('change', this);
         } else {
-            var emitModeChange;
-            this.enterEditMode(emitModeChange=false);
+            var emitModeChange, clearCurrentValue;
+            this.enterEditMode(clearCurrentValue=false, emitModeChange=false);
             this.focusedNode.data = newData;
             this.exitEditMode(emitModeChange=false)
         }

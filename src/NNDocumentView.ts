@@ -1,6 +1,8 @@
 import NestedNodeView = require('./NestedNodeView');
 import NNDocumentProps = require('./NNDocumentProps');
 import SelectionMode = require('./SelectionMode');
+import KeyboardUtil = require('./KeyboardUtil');
+import KeyCode = KeyboardUtil.KeyCode;
 import React = require('pkg/React/React');
 import dom = React.DOM;
 
@@ -27,6 +29,7 @@ module NNDocumentView {
                     {
                         tabIndex: 1,
                         className: 'nn_ctx',
+                        onKeyPress: this.handleKeyPress.bind(this),
                         onKeyDown: this.handleKeyDown.bind(this),
                         onFocus: this.handleFocus.bind(this),
                         onBlur: this.handleBlur.bind(this)
@@ -39,25 +42,24 @@ module NNDocumentView {
             )
         }
 
+        handleKeyPress(e) {
+            if (! this.props.documentProps.editMode) {
+                var clearCurrentValue;
+                this.props.documentActions.enterEditMode(clearCurrentValue=true);
+            }
+        }
+
         handleKeyDown(e) {
             var actions = this.props.documentActions;
-
-            var keyCode = { //todo something
-                LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40,
-                TAB: 9, RETURN: 13, DELETE: 46,
-                X: 88, C: 67, V: 86,
-                Z: 90, Y: 89,
-                F2: 113, ESCAPE: 27
-            };
-            var code = e.keyCode;
             var editMode = this.props.documentProps.editMode;
+            var shortcut = new KeyboardUtil.Shortcut(e);
 
             var eventHandled = (() => { switch (true) {
 
                 // * Edit Mode
 
-                case editMode && code == keyCode.RETURN:
-                case editMode && code == keyCode.ESCAPE:
+                case editMode && shortcut.eq(KeyCode.RETURN):
+                case editMode && shortcut.eq(KeyCode.ESCAPE):
                     actions.exitEditMode();
                     return true;
 
@@ -66,85 +68,92 @@ module NNDocumentView {
 
                 // * Normal Mode
 
-                case code == keyCode.F2:
+                case shortcut.eq(KeyCode.F2):
                     actions.enterEditMode();
                     return true;
 
-                // todo нужна функция, которая бы проверяла, что нажат исключительно указанный модификатор
-                // а то это лажа какая-то
-                case code == keyCode.LEFT && e.altKey:
-                case code == keyCode.LEFT && e.shiftKey:
-                    return false;
-                case code == keyCode.LEFT:
+
+                case shortcut.eq(KeyCode.LEFT):
                     actions.focusParentNode();
                     return true;
 
-                case code == keyCode.RIGHT && e.altKey:
-                case code == keyCode.RIGHT && e.shiftKey:
-                    return false;
-                case code == keyCode.RIGHT:
+                case shortcut.eq(KeyCode.RIGHT):
                     actions.focusNestedNode();
                     return true;
 
-                case code == keyCode.UP && e.altKey:
-                    actions.moveNodeBackward();
-                    return true;
-                case code == keyCode.UP && e.shiftKey:
-                    actions.focusPrevNode(SelectionMode.Shift);
-                    return true;
-                case code == keyCode.UP:
+                case shortcut.eq(KeyCode.UP):
                     actions.focusPrevNode(SelectionMode.Reset);
                     return true;
 
-                case code == keyCode.DOWN && e.altKey:
-                    actions.moveNodeForward();
+                case shortcut.eq(KeyCode.UP, 'shiftKey'):
+                    actions.focusPrevNode(SelectionMode.Shift);
                     return true;
-                case code == keyCode.DOWN && e.shiftKey:
-                    actions.focusNextNode(SelectionMode.Shift);
-                    return true;
-                case code == keyCode.DOWN:
+
+                case shortcut.eq(KeyCode.DOWN):
                     actions.focusNextNode(SelectionMode.Reset);
                     return true;
 
-                case code == keyCode.TAB && e.shiftKey:
-                    actions.envelopeNode();
+                case shortcut.eq(KeyCode.DOWN, 'shiftKey'):
+                    actions.focusNextNode(SelectionMode.Shift);
                     return true;
-                case code == keyCode.TAB:
+
+
+                case shortcut.eq(KeyCode.TAB):
                     actions.insertNewNode();
                     return true;
 
-                case code == keyCode.RETURN && e.shiftKey:
-                    actions.appendNewNodeBefore();
+                case shortcut.eq(KeyCode.TAB, 'shiftKey'):
+                    actions.envelopeNode();
                     return true;
 
-                case code == keyCode.RETURN:
+                case shortcut.eq(KeyCode.RETURN):
                     actions.appendNewNodeAfter();
                     return true;
 
-                case code == keyCode.DELETE:
+                case shortcut.eq(KeyCode.RETURN, 'shiftKey'):
+                    actions.appendNewNodeBefore();
+                    return true;
+
+
+                case shortcut.eq(KeyCode.UP, 'altKey'):
+                    actions.moveNodeBackward();
+                    return true;
+
+                case shortcut.eq(KeyCode.DOWN, 'altKey'):
+                    actions.moveNodeForward();
+                    return true;
+
+
+                case shortcut.eq(KeyCode.DELETE):
                     actions.removeNode();
                     return true;
 
-                case code == keyCode.C && e.metaKey:
+
+                case shortcut.eq(KeyCode.C, 'metaKey'):
                     actions.copyToClipboard();
                     return true;
 
-                case code == keyCode.X && e.metaKey:
+                case shortcut.eq(KeyCode.X, 'metaKey'):
                     actions.cutToClipboard();
                     return true;
 
-                case code == keyCode.V && e.metaKey:
+                case shortcut.eq(KeyCode.V, 'metaKey'):
                     actions.pasteFromClipboard();
                     return true;
 
-                case code == keyCode.Z && e.metaKey && e.shiftKey:
-                case code == keyCode.Y && e.metaKey:
+
+                case shortcut.eq(KeyCode.Z, 'metaKey'):
+                    actions.undo();
+                    return true;
+
+                case shortcut.eq(KeyCode.Z, 'metaKey', 'shiftKey'):
+                case shortcut.eq(KeyCode.Y, 'metaKey'):
                     actions.redo();
                     return true;
 
-                case code == keyCode.Z && e.metaKey:
-                    actions.undo();
-                    return true;
+
+                default:
+                    return false;
 
             }})();
 
