@@ -11,7 +11,7 @@ interface NNDocumentActions<D> {
 
     enterEditMode(clearCurrentValue?: boolean): void;
     updateNodeData(newData: D): void;
-    exitEditMode(): void;
+    exitEditMode(undoChanges?: boolean): void;
 
     // не совсем точны названия, многие действия могут манипулировать и множеством узлов
     // можно заменить node на selected, или вообще убрать node, но тогда

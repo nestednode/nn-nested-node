@@ -37,7 +37,7 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     private nodeDataSnapshot;
     enterEditMode(clearCurrentValue?: boolean, emitModeChange?: boolean): void;
     updateNodeData(newData: D): void;
-    exitEditMode(emitModeChange?: boolean): void;
+    exitEditMode(undoChanges?: boolean, emitModeChange?: boolean): void;
     insertNewNode(): void;
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
@@ -52,7 +52,7 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     cutToClipboard(): void;
     pasteFromClipboard(): void;
     private history;
-    private executeCommand(cmd);
+    private executeCommand(cmd, emitChange?);
     undo(): void;
     redo(): void;
     private stepHistory(direction);

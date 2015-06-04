@@ -8,14 +8,9 @@ declare module NNDocumentView {
         static childContextTypes: NestedNodeView.Context<{}>;
         getChildContext(): NestedNodeView.Context<D>;
         render(): React.ReactElement;
-        handleKeyPress(e: any): void;
         handleKeyDown(e: any): void;
-        private documentFocused;
-        componentDidMount(): void;
-        componentDidUpdate(props: any, state: any, context: any): void;
         handleFocus(): void;
         handleBlur(): void;
-        private restoreFocus();
     }
     function Element<D>(props: Props<D>): React.ReactElement;
 }

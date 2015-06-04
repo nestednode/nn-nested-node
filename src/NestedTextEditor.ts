@@ -1,6 +1,7 @@
 import NNDocument = require('./NNDocument');
 import NNDocumentView = require('./NNDocumentView');
 import NestedNodeView = require('./NestedNodeView');
+import KeyboardUtil = require('./KeyboardUtil');
 import React = require('pkg/React/React');
 import dom = React.DOM;
 
@@ -25,7 +26,7 @@ class NestedTextDocument extends NNDocument<TextData> {
     }
 
     nodeDataEqualityChecker(data1: TextData, data2: TextData): boolean {
-        return data1.text === data2.text;
+        return data1.text == data2.text.trim();
     }
 
 }
@@ -85,6 +86,14 @@ class NestedTextNodeView extends NestedNodeView.Component<TextData> {
 
     handleTextChange(value) {
         this.context.documentActions.updateNodeData({ text: value });
+    }
+
+    handleKeyPress(e: KeyboardEvent) {
+        if (this.props.editing) {
+            return;
+        }
+        var clearCurrentValue = e.charCode != KeyboardUtil.KeyCode.SPACE;
+        this.context.documentActions.enterEditMode(clearCurrentValue);
     }
 
 }

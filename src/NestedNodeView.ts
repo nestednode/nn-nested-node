@@ -13,6 +13,8 @@ module NestedNodeView {
 
     export interface Props<D> {
         node: NestedNodeProps<D>;
+        editing: boolean;
+        focused: boolean;
     }
 
 
@@ -35,6 +37,9 @@ module NestedNodeView {
         // без явного определения конструктора, вывод типов сглючит (см. generic_constructor_type__bug в лабах)
         constructor(props: Props<D>, context: Context<D>) {
             super(props, context);
+            this.handleClick = this.handleClick.bind(this);
+            this.handleDoubleClick = this.handleDoubleClick.bind(this);
+            this.handleKeyPress = this.handleKeyPress.bind(this);
         }
 
         render() {
@@ -43,11 +48,14 @@ module NestedNodeView {
                 dom['div']({ className: 'nn_node' },
                     dom['div'](
                         {
-                            className: 'nn_text' + (node.selected ? ' selected' : ''),
-                            onClick: this.handleClick.bind(this)
-                            //todo onDblClick -> enterEditMode
+                            tabIndex: 0,
+                            ref: 'data',
+                            className: 'nn_data' + (node.selected ? ' selected' : ''),
+                            onClick: this.handleClick,
+                            onDoubleClick: this.handleDoubleClick,
+                            onKeyPress: this.handleKeyPress
                         },
-                        this.renderData(node.data, this.context.documentProps.editMode && node.focused)
+                        this.renderData(node.data, this.props.editing)
                     ),
                     dom['div'](
                         {className: 'nn_nested'},
@@ -59,9 +67,28 @@ module NestedNodeView {
             )
         }
 
+        componentDidMount() {
+            this.checkFocus(false, false);
+        }
+
+        componentDidUpdate(prevProps: Props<D>, prevState, prevContext) {
+            this.checkFocus(prevProps.focused, prevProps.editing);
+        }
+
+        private checkFocus(prevFocused, prevEditing) {
+            if (this.props.focused && (!prevFocused || !this.props.editing && prevEditing)) {
+                React.findDOMNode(this.refs['data']).focus();
+            }
+        }
+
         protected renderNestedElement(node: NestedNodeProps<D>): React.ReactElement {
-            var props = { node: node, key: node.id };
-            return React.createElement(<ComponentClass<D>> this['constructor'], props);
+            var props = {
+                node: node,
+                focused: node.focused, //чтобы можно было сравнивать изменения при update
+                editing: this.context.documentProps.editMode && node.focused,
+                key: node.id
+            };
+            return React.createElement<Props<D>>(<ComponentClass<D>> this['constructor'], props);
         }
 
         protected renderData(data: D, editMode: boolean): /*React.ReactFragment*/ any {
@@ -69,12 +96,21 @@ module NestedNodeView {
         }
 
         protected handleClick(e) {
-            var actions = this.context.documentActions;
             var selectionMode =
                 e.metaKey ? SelectionMode.Toggle :
                     e.shiftKey ? SelectionMode.Shift : SelectionMode.Reset;
-            actions && actions.focusNodeById(this.props.node.id, selectionMode);
+            this.context.documentActions.focusNodeById(this.props.node.id, selectionMode);
         }
+
+        protected handleDoubleClick(e) {
+            if (! this.props.editing) {
+                this.context.documentActions.focusNodeById(this.props.node.id, SelectionMode.Reset);
+                this.context.documentActions.enterEditMode();
+            }
+        }
+
+        protected handleKeyPress(e) { }
+
     }
 
 }

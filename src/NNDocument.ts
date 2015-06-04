@@ -60,7 +60,7 @@ class NNDocument<D>
         if (node.nestedCount != 0) {
             return false;
         }
-        return this.nodeDataEqualityChecker(node.data, this.getBlankNodeData());
+        return this.nodeDataEqualityChecker(this.getBlankNodeData(), node.data);
     }
 
 
@@ -196,6 +196,7 @@ class NNDocument<D>
             return;
         }
         this._editMode = true;
+        SelectionHelper.resetSelectionToNode(this.focusedNode);
         this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
         if (clearCurrentValue) {
             this.focusedNode.data = this.getBlankNodeData();
@@ -208,14 +209,14 @@ class NNDocument<D>
             this.focusedNode.data = newData;
             this.emit('change', this);
         } else {
-            var emitModeChange, clearCurrentValue;
+            var emitModeChange, clearCurrentValue, undoChanges;
             this.enterEditMode(clearCurrentValue=false, emitModeChange=false);
             this.focusedNode.data = newData;
-            this.exitEditMode(emitModeChange=false)
+            this.exitEditMode(undoChanges=false, emitModeChange=false)
         }
     }
 
-    exitEditMode(emitModeChange = true): void {
+    exitEditMode(undoChanges = false, emitModeChange = true): void {
         if (! this._editMode) {
             console.warn('already in normal mode');
             return;
@@ -223,11 +224,20 @@ class NNDocument<D>
         this._editMode = false;
         var dataEqual = this.nodeDataEqualityChecker(this.nodeDataSnapshot, this.focusedNode.data);
         if (dataEqual) {
+            // все равно возвращаем узлу исходные данные
+            // т.к. equalityChecker может не учитывать whitespace при сравнении
+            this.focusedNode.data = this.nodeDataSnapshot;
             emitModeChange && this.emit('change', this);
             return;
         }
-        this.executeCommand(new UpdateDataCommand(this.focusedNode, this.nodeDataSnapshot, this.focusedNode.data));
-        this.nodeDataSnapshot = null;
+        var command = new UpdateDataCommand(this.focusedNode, this.nodeDataSnapshot, this.focusedNode.data);
+        if (undoChanges) {
+            var emitChange;
+            this.executeCommand(command, emitChange=false);
+            this.undo();
+        } else {
+            this.executeCommand(command);
+        }
     }
 
 
@@ -349,12 +359,12 @@ class NNDocument<D>
 
     private history: CommandHistory;
 
-    private executeCommand(cmd: Command) {
+    private executeCommand(cmd: Command, emitChange = true) {
         this.root.unselectDeep();
         var nextFocusedNode = cmd.execute();
         this.history.push(cmd);
         this.setFocusedNode(nextFocusedNode);
-        this.emit('change', this);
+        emitChange && this.emit('change', this);
     }
 
     undo(): void {

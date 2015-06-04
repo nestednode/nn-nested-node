@@ -5,6 +5,8 @@ import React = require('pkg/React/React');
 declare module NestedNodeView {
     interface Props<D> {
         node: NestedNodeProps<D>;
+        editing: boolean;
+        focused: boolean;
     }
     class Context<D> {
         documentActions: NNDocumentActions<D>;
@@ -18,9 +20,14 @@ declare module NestedNodeView {
         static contextTypes: Context<{}>;
         constructor(props: Props<D>, context: Context<D>);
         render(): React.ReactElement;
+        componentDidMount(): void;
+        componentDidUpdate(prevProps: Props<D>, prevState: any, prevContext: any): void;
+        private checkFocus(prevFocused, prevEditing);
         protected renderNestedElement(node: NestedNodeProps<D>): React.ReactElement;
         protected renderData(data: D, editMode: boolean): any;
         protected handleClick(e: any): void;
+        protected handleDoubleClick(e: any): void;
+        protected handleKeyPress(e: any): void;
     }
 }
 export = NestedNodeView;

@@ -24,29 +24,26 @@ module NNDocumentView {
         }
 
         render() {
+            var node = this.props.documentProps.node;
             return (
                 dom['div'](
                     {
-                        tabIndex: 1,
+                        //tabIndex: 0,
                         className: 'nn_ctx',
-                        onKeyPress: this.handleKeyPress.bind(this),
                         onKeyDown: this.handleKeyDown.bind(this),
                         onFocus: this.handleFocus.bind(this),
                         onBlur: this.handleBlur.bind(this)
                     },
                     React.createElement<NestedNodeView.Props<D>>(
                         this.props.nestedNodeViewComponent,
-                        { node: this.props.documentProps.node }
+                        {
+                            node: node,
+                            focused: node.focused,
+                            editing: this.props.documentProps.editMode && node.focused
+                        }
                     )
                 )
             )
-        }
-
-        handleKeyPress(e) {
-            if (! this.props.documentProps.editMode) {
-                var clearCurrentValue;
-                this.props.documentActions.enterEditMode(clearCurrentValue=true);
-            }
         }
 
         handleKeyDown(e) {
@@ -58,8 +55,12 @@ module NNDocumentView {
 
                 // * Edit Mode
 
-                case editMode && shortcut.eq(KeyCode.RETURN):
                 case editMode && shortcut.eq(KeyCode.ESCAPE):
+                    var undoChanges;
+                    actions.exitEditMode(undoChanges=true);
+                    return true;
+
+                case editMode && shortcut.eq(KeyCode.RETURN):
                     actions.exitEditMode();
                     return true;
 
@@ -164,33 +165,14 @@ module NNDocumentView {
         }
 
 
-        private documentFocused = false;
-
-        componentDidMount() {
-            React.findDOMNode(this).focus();
-        }
-
-        componentDidUpdate(props, state, context) {
-            this.restoreFocus();
-        }
-
         handleFocus() {
             var domNode = React.findDOMNode(this);
             domNode.classList.add('focused');
-            this.documentFocused = true;
         }
 
         handleBlur() {
             var domNode = React.findDOMNode(this);
             domNode.classList.remove('focused');
-            this.documentFocused = false;
-        }
-
-        private restoreFocus() {
-            // нужно вернуть фокус документу после выхода из режима редактирования
-            if (! (this.props.documentProps.editMode || this.documentFocused)) {
-                React.findDOMNode(this).focus();
-            }
         }
 
     }
