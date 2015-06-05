@@ -11,6 +11,7 @@ module NNDocumentView {
 
     export interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
+        maxNodeViewBoxWidth?: number;
     }
 
 
@@ -18,6 +19,10 @@ module NNDocumentView {
 
         // без этой декларации getChildContext() бросит исключение
         static childContextTypes = new NestedNodeView.Context();
+
+        static defaultProps = {
+            maxNodeViewBoxWidth: 400
+        };
 
         constructor(props: Props<D>, context) {
             super(props, context);
@@ -34,10 +39,11 @@ module NNDocumentView {
             var node = this.props.documentProps.node;
             return (
                 dom['div']({ className: 'nn_document_scrollbox'},
-                    dom['div']({ className: 'nn_document_container'},
+                    dom['div']({ ref: 'wrapper', className: 'nn_document_wrapper'},
                         dom['div'](
                             {
                                 //tabIndex: 0,
+                                ref: 'content',
                                 className: 'nn_document',
                                 onKeyDown: this.handleKeyDown,
                                 onFocus: this.handleFocus,
@@ -186,8 +192,64 @@ module NNDocumentView {
             domNode.classList.remove('focused');
         }
 
+        private prevContentSize: Size;
+
+        componentDidMount() {
+            this.prevContentSize = Size.ofElem(this.getElemByRef('content'));
+        }
+
+        componentDidUpdate() {
+            var contentElem = this.getElemByRef('content');
+            var contentSize = Size.ofElem(contentElem);
+            if (! contentSize.eq(this.prevContentSize)) {
+                var wrapperElem = this.getElemByRef('wrapper');
+                this.adjustWidth(wrapperElem, contentElem);
+            }
+        }
+
+        protected getElemByRef(ref: string): HTMLElement {
+            return React.findDOMNode(this.refs[ref]);
+        }
+
+        private adjustWidth(wrapperElem: HTMLElement, contentElem: HTMLElement): void {
+            var contentSize = Size.ofElem(contentElem);
+            // ширина любого float не может превышать maxNodeViewBoxWidth;
+            // если есть перенесенные на новую строку float-элементы,
+            // после расширения wrapper на maxNodeViewBoxWidth, по карайней мере один float точно
+            // вернется на исходную строку, что приведет к изменению высоты контейнера;
+            // предполагаем, что обратное тоже верно:
+            // т.е. изменение высоты после расширения свидетельствует, что был перенесенный float-элемент,
+            // а adjustWidth должен работать до тех пор, пока переносы не исчезнут
+            wrapperElem.style.width = (contentSize.width + this.props.maxNodeViewBoxWidth) + 'px';
+            setTimeout(() => {
+                var adjustedContentSize = Size.ofElem(contentElem);
+                if (adjustedContentSize.height != contentSize.height) {
+                    this.adjustWidth(wrapperElem, contentElem);
+                } else {
+                    wrapperElem.style.width = adjustedContentSize.width + 'px';
+                    this.prevContentSize = adjustedContentSize;
+                }
+            }, 0);
+        }
+
     }
 
+    class Size {
+
+        constructor(
+            public width: number,
+            public height: number
+        ) {}
+
+        eq(size: Size): boolean {
+            return this.width == size.width && this.height == size.height;
+        }
+
+        static ofElem(elem: HTMLElement): Size {
+            var rect = elem.getBoundingClientRect();
+            return new Size(rect.width, rect.height);
+        }
+    }
 
     export function Element<D>(props: Props<D>): React.ReactElement {
         return React.createElement(Component, props);

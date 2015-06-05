@@ -6,21 +6,22 @@
 }
 .nn_document_scrollbox:before {
     /* вспомогательный элемент для вертикального выравнивания последующего контейнера по центру */
-    content: '';
     display: inline-block;
+    content: '';
     height: 100%;
     vertical-align: middle;
 }
-.nn_document_container {
-    white-space: normal;
+.nn_document_wrapper {
     display: inline-block;
+    white-space: normal;
     vertical-align: middle;
 }
 .nn_document {
+    display: inline-block;
     font-size: 16px;
     line-height: 7px;
     font-family: 'Lucida Grande', sans-serif;
-    margin: 1px;
+    /*margin: 1px;*/
     outline: none;
     background: #fff;
 
