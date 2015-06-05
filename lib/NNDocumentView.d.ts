@@ -6,6 +6,7 @@ declare module NNDocumentView {
     }
     class Component<D> extends React.Component<Props<D>, {}, {}> {
         static childContextTypes: NestedNodeView.Context<{}>;
+        constructor(props: Props<D>, context: any);
         getChildContext(): NestedNodeView.Context<D>;
         render(): React.ReactElement;
         handleKeyDown(e: any): void;

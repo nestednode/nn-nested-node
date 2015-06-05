@@ -1,9 +1,28 @@
-.nn_ctx {
+.nn_document_scrollbox {
+    height: 100%;
+    outline: none;
+    overflow: scroll;
+    white-space: nowrap;
+}
+.nn_document_scrollbox:before {
+    /* вспомогательный элемент для вертикального выравнивания последующего контейнера по центру */
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.nn_document_container {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: middle;
+}
+.nn_document {
     font-size: 16px;
     line-height: 7px;
     font-family: 'Lucida Grande', sans-serif;
     margin: 1px;
     outline: none;
+    background: #fff;
 
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
@@ -11,8 +30,10 @@
     user-select: none;
 }
 
-.nn_node {
-}
+
+.nn_node {}
+
+
 .nn_data {
     display: inline-block;
     font-size: 12px;
@@ -29,6 +50,7 @@
 .focused .nn_data.selected {
     border-color: #4178d2;
 }
+
 
 .nn_nested {
     display: inline-block;

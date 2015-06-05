@@ -19,6 +19,13 @@ module NNDocumentView {
         // без этой декларации getChildContext() бросит исключение
         static childContextTypes = new NestedNodeView.Context();
 
+        constructor(props: Props<D>, context) {
+            super(props, context);
+            this.handleKeyDown = this.handleKeyDown.bind(this);
+            this.handleFocus = this.handleFocus.bind(this);
+            this.handleBlur = this.handleBlur.bind(this);
+        }
+
         getChildContext() {
             return new NestedNodeView.Context<D>(this.props.documentActions, this.props.documentProps);
         }
@@ -26,21 +33,25 @@ module NNDocumentView {
         render() {
             var node = this.props.documentProps.node;
             return (
-                dom['div'](
-                    {
-                        //tabIndex: 0,
-                        className: 'nn_ctx',
-                        onKeyDown: this.handleKeyDown.bind(this),
-                        onFocus: this.handleFocus.bind(this),
-                        onBlur: this.handleBlur.bind(this)
-                    },
-                    React.createElement<NestedNodeView.Props<D>>(
-                        this.props.nestedNodeViewComponent,
-                        {
-                            node: node,
-                            focused: node.focused,
-                            editing: this.props.documentProps.editMode && node.focused
-                        }
+                dom['div']({ className: 'nn_document_scrollbox'},
+                    dom['div']({ className: 'nn_document_container'},
+                        dom['div'](
+                            {
+                                //tabIndex: 0,
+                                className: 'nn_document',
+                                onKeyDown: this.handleKeyDown,
+                                onFocus: this.handleFocus,
+                                onBlur: this.handleBlur
+                            },
+                            React.createElement<NestedNodeView.Props<D>>(
+                                this.props.nestedNodeViewComponent,
+                                {
+                                    node: node,
+                                    focused: node.focused,
+                                    editing: this.props.documentProps.editMode && node.focused
+                                }
+                            )
+                        )
                     )
                 )
             )
