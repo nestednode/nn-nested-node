@@ -1,24 +1,22 @@
 {
-  "name": "NestedNodeDocument",
-  "version": "0.0.1",
-  "main": "NestedNodeDocument.js",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules/",
-    "bower_components/",
-    "pkg/",
-    "labs/",
-    "labs.labman",
-    "src/",
-    "gruntfile.js",
-    "package.json"
-  ],
-  "dependencies": {
-    "Collection": "../Collection",
-    "React": "../React",
-    "EventEmitter": "../EventEmitter",
-    "require-css": "~0.1.8"
-  },
-  "devDependencies": {}
+    "name": "NestedNode",
+    "version": "0.0.1",
+    "main": "lib/NNDocument.js",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules/",
+        "bower_components/",
+        "pkg/",
+        "labs/",
+        "labs.labman",
+        "src/",
+        "gruntfile.js",
+        "package.json"
+    ],
+    "dependencies": {
+        "Collection": "../Collection",
+        "EventEmitter": "../EventEmitter"
+    },
+    "devDependencies": {}
 }
