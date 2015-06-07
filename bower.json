@@ -16,7 +16,8 @@
     ],
     "dependencies": {
         "Collection": "../Collection",
-        "EventEmitter": "../EventEmitter"
+        "EventEmitter": "../EventEmitter",
+        "NestedNodeProps": "../NestedNodeProps"
     },
     "devDependencies": {}
 }

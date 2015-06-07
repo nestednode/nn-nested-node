@@ -1,10 +1,10 @@
 import EventEmitter = require('pkg/EventEmitter/EventEmitter');
+import NestedNodeProps = require('pkg/NestedNodeProps/lib/NestedNodeProps');
+import NNDocumentProps = require('pkg/NestedNodeProps/lib/NNDocumentProps');
+import NNDocumentActions = require('pkg/NestedNodeProps/lib/NNDocumentActions');
+import SelectionMode = require('pkg/NestedNodeProps/lib/SelectionMode');
 import NestedNode = require('./NestedNode');
-import NestedNodeProps = require('./NestedNodeProps');
 import ObjectRegistry = require('./ObjectRegistry');
-import NNDocumentProps = require('./NNDocumentProps');
-import NNDocumentActions = require('./NNDocumentActions');
-import SelectionMode = require('./SelectionMode');
 import ClipboardProvider = require('./ClipboardProvider');
 declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
     protected root: NestedNode<any>;

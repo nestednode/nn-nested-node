@@ -1,6 +1,6 @@
+import NestedNodeProps = require('pkg/NestedNodeProps/lib/NestedNodeProps');
 import Direction = require('./Direction');
 import ObjectRegistry = require('./ObjectRegistry');
-import NestedNodeProps = require('./NestedNodeProps');
 declare class NestedNode<D> implements NestedNodeProps<D> {
     private _id;
     id: string;
