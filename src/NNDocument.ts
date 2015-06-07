@@ -20,7 +20,7 @@ import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
 
 
-class NNDocument<D>
+/*abstract*/ class NNDocument<D>
     extends EventEmitter
     implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
 
@@ -36,15 +36,18 @@ class NNDocument<D>
 
     // * Abstract Node Data methods
 
-    protected /*abstract*/ getBlankNodeData(): D {
+    /*abstract*/
+    protected getBlankNodeData(): D {
         throw new Error('abstract method');
     }
 
-    protected /*abstract*/ nodeDataDuplicator(data: D): D {
+    /*abstract*/
+    protected nodeDataDuplicator(data: D): D {
         throw new Error('abstract method');
     }
 
-    protected /*abstract*/ nodeDataEqualityChecker(data1: D, data2: D): boolean {
+    /*abstract*/
+    protected  nodeDataEqualityChecker(data1: D, data2: D): boolean {
         throw new Error('abstract method');
     }
 

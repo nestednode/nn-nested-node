@@ -241,7 +241,7 @@ class NestedNode<D> implements NestedNodeProps<D> {
     // * Constructing
 
     constructor(registry: ObjectRegistry<any>, props: NestedNodeProps<D>, dataDuplicator: (src: D) => D) {
-        //this._id = registry.registerNode(this, props.id);
+        //this._id = registry.registerItem(this, props.id); // если id будут внешние
         this._id = registry.registerItem(this);
         this._parent = null;
         this._selected = false;

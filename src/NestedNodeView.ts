@@ -29,7 +29,7 @@ module NestedNodeView {
         new (props: Props<D>, context: Context<D>): Component<D>;
     }
 
-    export class Component<D> extends React.Component<Props<D>, {}, Context<D>> {
+    export /*abstract*/ class Component<D> extends React.Component<Props<D>, {}, Context<D>> {
 
         // без этой декларации this.context будет пустым
         static contextTypes = new Context();
@@ -91,6 +91,7 @@ module NestedNodeView {
             return React.createElement<Props<D>>(<ComponentClass<D>> this['constructor'], props);
         }
 
+        /*abstract*/
         protected renderData(data: D, editMode: boolean): /*React.ReactFragment*/ any {
             throw new Error('abstract method');
         }
