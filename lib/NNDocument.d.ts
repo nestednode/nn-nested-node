@@ -43,8 +43,8 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
     private appendNewNode(direction);
-    duplicateNode(): void;
     envelopeNode(): void;
+    duplicateNode(): void;
     removeNode(): void;
     moveNodeForward(): void;
     moveNodeBackward(): void;

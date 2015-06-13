@@ -17,6 +17,7 @@ import Command = require('./Command/Command');
 import UpdateDataCommand = require('./Command/UpdateDataCommand');
 import AppendCommand = require('./Command/AppendCommand');
 import EnvelopeCommand = require('./Command/EnvelopeCommand');
+import DuplicateCommand = require('./Command/DuplicateCommand');
 import RemoveCommand = require('./Command/RemoveCommand');
 import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
@@ -37,6 +38,9 @@ import CompositeCommand = require('./Command/CompositeCommand');
 
 
     // * Abstract Node Data methods
+
+    // эти методы можно было бы перетащить в NestedNode и сделать абстрактным его...
+    // проще будет определиться с решением, когда буду работать над документом с неоднородными узылами
 
     /*abstract*/
     protected getBlankNodeData(): D {
@@ -65,6 +69,7 @@ import CompositeCommand = require('./Command/CompositeCommand');
         if (node.nestedCount != 0) {
             return false;
         }
+        //todo хорошо бы blankData закешировать
         return this.nodeDataEqualityChecker(this.getBlankNodeData(), node.data);
     }
 
@@ -283,13 +288,18 @@ import CompositeCommand = require('./Command/CompositeCommand');
         this.executeCommand(command);
     }
 
-    duplicateNode(): void {
-        //todo
-    }
-
     envelopeNode(): void {
         var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
         this.executeCommand(new EnvelopeCommand(selection, this.createNode()));
+    }
+
+    duplicateNode(): void {
+        if (this.focusedNode.isTopLevel) {
+            return;
+        }
+        var selection = SelectionHelper.getSelectionNearNode(this.focusedNode);
+        var duplicatedNodes = selection.map(node => this.createNode(node));
+        this.executeCommand(new DuplicateCommand(selection, duplicatedNodes));
     }
 
     removeNode(): void {
