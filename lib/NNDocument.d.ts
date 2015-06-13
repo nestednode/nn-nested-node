@@ -29,6 +29,7 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     private getPreviouslyFocusedNested(parentNode);
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
+    selectNodeSiblings(): void;
     private focusSiblingNode(direction, selectionMode);
     private focusNode(node, selectionMode?, updateFocusLevel?);
     private setFocusedNode(node, updateFocusLevel?);
@@ -42,6 +43,7 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     appendNewNodeBefore(): void;
     appendNewNodeAfter(): void;
     private appendNewNode(direction);
+    duplicateNode(): void;
     envelopeNode(): void;
     removeNode(): void;
     moveNodeForward(): void;

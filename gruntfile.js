@@ -21,7 +21,7 @@ module.exports = function(grunt) {
         },
 
         clean: [
-            'lib/'
+            'lib/*'
         ],
 
         watch: {

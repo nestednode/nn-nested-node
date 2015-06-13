@@ -139,6 +139,11 @@ import CompositeCommand = require('./Command/CompositeCommand');
         this.focusSiblingNode(Direction.getForward(), selectionMode);
     }
 
+    selectNodeSiblings(): void {
+        this.setFocusedNode(SelectionHelper.extendSelectionToNodeSiblings(this.focusedNode));
+        this.emit('focusChange', this.focusedNode.id);
+    }
+
     private focusSiblingNode(direction: Direction, selectionMode: SelectionMode): void {
 
         if ([SelectionMode.Reset, SelectionMode.Shift].indexOf(selectionMode) == -1) {
@@ -276,6 +281,10 @@ import CompositeCommand = require('./Command/CompositeCommand');
             command = new AppendCommand(nodesToAppend, parentNode, anchorNode, direction);
         }
         this.executeCommand(command);
+    }
+
+    duplicateNode(): void {
+        //todo
     }
 
     envelopeNode(): void {

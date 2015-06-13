@@ -72,6 +72,13 @@ export function shiftSelectionToNode(focusedNode: NestedNode<any>, targetNode: N
 }
 
 
+export function extendSelectionToNodeSiblings(node: NestedNode<any>): NestedNode<any> {
+    var result;
+    node.parent.nested.forEach(sibling => result = (<NestedNode<any>> sibling).unselectDeep().select());
+    return result;
+}
+
+
 export function getSelectionNearNode(node) {
     var direction = getDirectionToOppositeSelectionBoundary(node);
     var selection = [];
