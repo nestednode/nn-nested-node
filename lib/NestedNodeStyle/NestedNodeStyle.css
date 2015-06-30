@@ -1,0 +1,121 @@
+.nn {
+  height: 100%;
+}
+.nn_compact {
+  height: auto;
+}
+.nn_zoom-100 {
+  font-size: 100%;
+}
+.nn_zoom-200 {
+  font-size: 200%;
+}
+.nn_zoom-300 {
+  font-size: 300%;
+}
+.nn__doc-scrollbox {
+  height: 100%;
+  overflow: scroll;
+  white-space: nowrap;
+}
+.nn__doc-scrollbox:before {
+  display: inline-block;
+  content: '';
+  font-size: 0;
+  height: 100%;
+  vertical-align: middle;
+}
+.nn__doc-wrapper {
+  display: inline-block;
+  white-space: normal;
+  vertical-align: middle;
+}
+.nn__doc-content {
+  display: inline-block;
+  cursor: default;
+  -webkit-user-select: none;
+  font-size: 62.5%;
+  padding: 1.0em;
+  color: #000000;
+  background: #ffffff;
+}
+.nn_theme-dark .nn__doc-content {
+  color: #f5f5f5;
+  background: #464646;
+}
+.nn__node {
+  margin: 0.5em 0 0.5em 0;
+}
+.nn__node:first-child {
+  margin-top: 0;
+}
+.nn__node:last-child {
+  margin-bottom: 0;
+}
+.nn__node-databox {
+  display: inline-block;
+  vertical-align: middle;
+  outline: none;
+  border: solid 0.1em transparent;
+  border-top-left-radius: 0.6em;
+  border-bottom-left-radius: 0.6em;
+  padding: 0.2em 1.4em 0.1em 1em;
+  max-width: 50.0em;
+}
+.nn__node-databox_selected {
+  margin-left: -0.1em;
+  padding-left: 1.1em;
+  border-color: #2d6feb;
+}
+.nn_theme-dark .nn__node-databox_selected {
+  border-color: #4da4f9;
+}
+.nn_inactive .nn__node-databox_selected {
+  border-color: #666666;
+}
+.nn_theme-dark.nn_inactive .nn__node-databox_selected {
+  border-color: #cccccc;
+}
+.nn__node-databox_editing {
+  border-color: #bc54d2;
+  box-shadow: 0 0 1.2em rgba(188, 84, 210, 0.4);
+}
+.nn_theme-dark .nn__node-databox_editing {
+  box-shadow: 0 0 1.2em rgba(232, 125, 255, 0.4);
+  border-color: #e87dff;
+}
+.nn_inactive .nn__node-databox_editing {
+  box-shadow: 0 0 1.2em rgba(102, 102, 102, 0.4);
+}
+.nn_theme-dark.nn_inactive .nn__node-databox_editing {
+  box-shadow: 0 0 1.2em rgba(204, 204, 204, 0.4);
+}
+.nn__node-nested {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: -0.4em;
+  border-left: solid 0.1em #bbbbbb;
+  border-top-left-radius: 0.6em;
+  border-bottom-left-radius: 0.6em;
+  background: #ffffff;
+}
+.nn_theme-dark .nn__node-nested {
+  border-left-color: #888888;
+  background: #464646;
+}
+.nn__node-data {
+  font-size: 1.3em;
+  line-height: 1.4;
+  font-family: 'Arial', sans-serif;
+}
+.nn_zoom-75 .nn__node-data {
+  font-size: 0.975em;
+}
+.nn__node-data_empty:before {
+  content: '\200B';
+  border-left: solid 2px transparent;
+}
+.nn__node-databox_editing .nn__node-data {
+  outline: none;
+  min-width: 2px;
+}

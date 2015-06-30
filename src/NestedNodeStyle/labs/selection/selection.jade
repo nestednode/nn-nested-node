@@ -1,0 +1,44 @@
+extends ../base.jade
+
+
+mixin content()
+    +node('selection', 1)
+        +node('multi')
+            +node('subsub1', 1)
+            +node('sub2', 1)
+                +node('sub2.1')
+            +node('subsub3', 1)
+            +node('data', 1)
+        +node('big bracket')
+            +node('textext', 2)
+                +node('subsub1')
+                +node('sub2')
+                    +node('sub2.1', 1)
+                +node('subsub3')
+        +node('big bracket', 1)
+                +node('subsub1')
+                +node('subsub3')
+        +node('numbers')
+            +node('1', 1)
+            +node('2', 1)
+            +node('3', 1)
+            +node('4', 1)
+            +node('5', 1)
+
+
+block body
+    table
+        tr
+            td
+                +document(['compact'])
+                    +content()
+            td
+                +document(['compact', 'theme-dark'])
+                    +content()
+        tr
+            td
+                +document(['compact', 'inactive'])
+                    +content()
+            td
+                +document(['compact', 'inactive', 'theme-dark'])
+                    +content()

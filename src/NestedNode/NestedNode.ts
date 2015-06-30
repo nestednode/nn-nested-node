@@ -1,4 +1,4 @@
-import NestedNodeProps = require('pkg/NestedNodeProps/lib/NestedNodeProps');
+import NestedNodeProps = require('../NestedNodeProps/NestedNodeProps');
 import Direction = require('./Direction');
 import ObjectRegistry = require('./ObjectRegistry');
 

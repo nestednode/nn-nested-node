@@ -1,10 +1,10 @@
 import Collection = require('pkg/Collection/Collection');
 import EventEmitter = require('pkg/EventEmitter/EventEmitter');
 
-import NestedNodeProps = require('pkg/NestedNodeProps/lib/NestedNodeProps');
-import NNDocumentProps = require('pkg/NestedNodeProps/lib/NNDocumentProps');
-import NNDocumentActions = require('pkg/NestedNodeProps/lib/NNDocumentActions');
-import SelectionMode = require('pkg/NestedNodeProps/lib/SelectionMode');
+import NestedNodeProps = require('../NestedNodeProps/NestedNodeProps');
+import NNDocumentProps = require('../NestedNodeProps/NNDocumentProps');
+import NNDocumentActions = require('../NestedNodeProps/NNDocumentActions');
+import SelectionMode = require('../NestedNodeProps/SelectionMode');
 
 import NestedNode = require('./NestedNode');
 import ObjectRegistry = require('./ObjectRegistry');

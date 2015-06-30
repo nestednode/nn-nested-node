@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 
         typescript: {
             default: {
-                src: 'src/NNDocument.ts',
+                src: 'src/lib.ts',
                 dest: 'lib/',
                 options: {
                     module: 'amd',
@@ -20,6 +20,22 @@ module.exports = function(grunt) {
             }
         },
 
+        less: {
+            default: {
+                src: 'src/NestedNodeStyle/NestedNodeStyle.less',
+                expand: true,
+                ext: '.css'
+            }
+        },
+
+        copy: {
+            default: {
+                src: 'src/NestedNodeStyle/NestedNodeStyle.css',
+                dest: 'lib/NestedNodeStyle/NestedNodeStyle.css',
+                nonull: true
+            }
+        },
+
         clean: [
             'lib/*'
         ],
@@ -27,13 +43,18 @@ module.exports = function(grunt) {
         watch: {
             ts: {
                 files: 'src/**/*.ts',
-                tasks: ['compile']
+                tasks: ['typescript']
+            },
+            less: {
+                files: 'src/NestedNodeStyle/*.less',
+                tasks: ['style']
             }
         }
 
     });
 
-    grunt.registerTask('compile', ['clean', 'typescript']);
-    grunt.registerTask('default', ['compile', 'watch']);
+    grunt.registerTask('style', ['less', 'copy']);
+    grunt.registerTask('compile', ['typescript', 'style']);
+    grunt.registerTask('default', ['clean', 'compile', 'watch']);
 
 };

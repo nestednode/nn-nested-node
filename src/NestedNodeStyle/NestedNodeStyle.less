@@ -1,0 +1,195 @@
+.nn {
+
+    height: 100%;
+
+    &_compact {
+        height: auto;
+    }
+
+    &_inactive {}
+
+
+    &_zoom-75 {}
+    &_zoom-100 {
+        font-size: 100%;
+    }
+    &_zoom-200 {
+        font-size: 200%;
+    }
+    &_zoom-300 {
+        font-size: 300%;
+    }
+
+    &_theme-light {} //default
+    @background-color: #fff;
+    @text-color: #000;
+    @bracket-color: #bbb;
+    @selection-color: #2d6feb;
+    @selection-color-editmode: #bc54d2;
+    @selection-color-inactive: #666;
+
+    &_theme-dark {}
+    @background-dark-color: #464646;
+    @text-dark-color: #f5f5f5;
+    @bracket-dark-color: #888;
+    @selection-dark-color: #4da4f9;
+    @selection-dark-color-editmode: #e87dff;
+    @selection-dark-color-inactive: #ccc;
+    //todo: сделать mixin чтобы разом патчить блок новыми темами, bro
+
+
+    &__doc-scrollbox {
+        height: 100%;
+        overflow: scroll;
+
+        // вспомогательный псевдо-элемент, относительно которого wrapper будет выровнен вертикально по центру
+        // white-space также необходим, иначе мерцает при reflow
+        white-space: nowrap;
+        &:before {
+            display: inline-block;
+            content: '';
+            font-size: 0;
+            height: 100%;
+            vertical-align: middle;
+        }
+    }
+
+    &__doc-wrapper {
+        display: inline-block;
+        white-space: normal;
+        vertical-align: middle;
+    }
+
+    &__doc-content {
+        display: inline-block;
+        cursor: default;
+        -webkit-user-select: none; //todo autoprefix
+
+        font-size: 62.5%;
+        padding: 1.0em;
+        color: @text-color;
+        background: @background-color;
+
+        .nn_theme-dark & {
+            color: @text-dark-color;
+            background: @background-dark-color;
+        }
+    }
+
+    &__node {
+
+        @margin-v: 0.5em;
+        margin: @margin-v 0 @margin-v 0;
+
+        &:first-child {
+            margin-top: 0; // имеенно 0, а не -@bracket-thickness
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+    }
+
+    @bracket-thickness: 0.1em;
+    @bracket-radius: 0.6em;
+    @_gap: @bracket-thickness + @bracket-radius / 2;
+
+    &__node-databox {
+        display: inline-block;
+        vertical-align: middle;
+        outline: none;
+
+        border: solid @bracket-thickness transparent;
+        border-top-left-radius: @bracket-radius;
+        border-bottom-left-radius: @bracket-radius;
+
+        @padding-h: 1.0em;
+        padding: 0.2em (@padding-h + @_gap) 0.1em @padding-h;
+
+        max-width: 50.0em; //todo вычислить с учетом фактического приращения
+
+        &_selected {
+            margin-left: -@bracket-thickness;
+            padding-left: @padding-h + @bracket-thickness;
+            border-color: @selection-color;
+
+            .nn_theme-dark & {
+                border-color: @selection-dark-color;
+            }
+
+            .nn_inactive & {
+                border-color: @selection-color-inactive;
+
+                .nn_theme-dark& {
+                    border-color: @selection-dark-color-inactive;
+                }
+            }
+        }
+
+        .shadow(@color) { box-shadow: 0 0 1.2em mix(@color, transparent, 40%); }
+
+        &_editing {
+            border-color: @selection-color-editmode;
+            .shadow(@selection-color-editmode);
+
+            .nn_theme-dark & {
+                .shadow(@selection-dark-color-editmode);
+                border-color: @selection-dark-color-editmode;
+            }
+
+            .nn_inactive & {
+                .shadow(@selection-color-inactive);
+
+                .nn_theme-dark& {
+                    .shadow(@selection-dark-color-inactive)
+                }
+            }
+        }
+
+    }
+
+    &__node-nested {
+        display: inline-block;
+        vertical-align: middle;
+
+        margin-left: -@_gap;
+
+        border-left: solid @bracket-thickness @bracket-color;
+        border-top-left-radius: @bracket-radius;
+        border-bottom-left-radius: @bracket-radius;
+
+        background: @background-color;
+
+        .nn_theme-dark & {
+            border-left-color: @bracket-dark-color;
+            background: @background-dark-color;
+        }
+
+    }
+
+    // этот элемент может потребовать доопределения в частных реализациях, здесь значения просто по-умолчанию
+    &__node-data {
+        font-size: 1.3em;
+        line-height: 1.4;
+        font-family: 'Arial', sans-serif;
+
+        .nn_zoom-75 & {
+            font-size: 0.975em;
+        }
+
+        @empty-width: 2px;
+
+        &_empty:before {
+            content: '\200B'; // zero width space
+            border-left: solid @empty-width transparent;
+
+        }
+
+        .nn__node-databox_editing & {
+            outline: none;
+            min-width: @empty-width;
+        }
+    }
+
+}

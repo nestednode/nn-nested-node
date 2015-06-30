@@ -1,0 +1,15 @@
+extends ../base.jade
+
+
+block content
+    +node('brackets')
+        +node('sub1')
+            +node('sub1.1')
+        +node('sub2')
+            +node('sub2.1')
+
+        +node('sub1')
+            +node('sub1')
+            +node('sub1.1')
+            +node('sub2')
+            +node('sub2.1')

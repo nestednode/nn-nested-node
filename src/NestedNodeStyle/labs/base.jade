@@ -1,0 +1,60 @@
+mixin document(attrs)
+    .nn(class=(attrs ? attrs.map(function(a) {return 'nn_' + a}) : ''))
+        .nn__doc-scrollbox
+            .nn__doc-wrapper
+                .nn__doc-content
+                    if block
+                        block
+                    else
+                        +default-content()
+
+
+mixin node(data, flag)
+    .nn__node
+        .nn__node-databox(tabindex=0 class={
+            'nn__node-databox_selected': flag >= 1,
+            'nn__node-databox_editing':  flag == 2
+        })
+            .nn__node-data(class={ 'nn__node-data_empty': !data && flag != 2 })!= data
+        if block
+            .nn__node-nested
+                block
+
+
+mixin default-content()
+    +node('Macintosh HD')
+        +node('Mac OS')
+            +node('System', 1)
+            +node('Finder')
+        +node('Applications', 2)
+            +node('Plain Text')
+            +node('Stuffit Expander')
+            +node('Graphic Converter')
+        +node('Read Me First')
+
+
+
+doctype
+html
+    head
+        meta(charset='utf-8')
+        link(rel='stylesheet' href='../../NestedNodeStyle.css')
+        style.
+            html {
+                margin: 0;
+                height: 100%;
+            }
+            body {
+                margin: 0;
+                height: 100%;
+                background: #999;
+            }
+    body
+        block body
+            +document()
+                block content
+        script.
+            var selected = document.querySelectorAll('.nn__node-databox_selected');
+            selected.length && selected[selected.length - 1].focus();
+
+

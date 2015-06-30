@@ -1,0 +1,23 @@
+extends ../base.jade
+
+
+block content
+    +node('empty')
+        +node('sub1')
+            +node('sub1')
+            +node('I', 1)
+            +node('', 1)
+            +node('sub2')
+            +node('')
+            +node('sub2.1')
+        +node('borders')
+            +node('sub1')
+                +node('')
+                    +node('sub1')
+            +node('sub1')
+                +node('', 1)
+                    +node('sub1')
+        +node('editing')
+            +node('&#8203;', 2)
+            +node('', 1)
+

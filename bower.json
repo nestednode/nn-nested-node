@@ -1,7 +1,7 @@
 {
     "name": "NestedNode",
     "version": "0.0.1",
-    "main": "lib/NNDocument.js",
+    "main": "lib/lib.js",
     "private": true,
     "ignore": [
         "**/.*",
@@ -17,7 +17,7 @@
     "dependencies": {
         "Collection": "../Collection",
         "EventEmitter": "../EventEmitter",
-        "NestedNodeProps": "../NestedNodeProps"
+        "React": "../React"
     },
     "devDependencies": {}
 }

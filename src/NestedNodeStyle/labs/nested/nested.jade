@@ -1,0 +1,21 @@
+extends ../base.jade
+
+
+block content
+    +node('nested')
+        +node('subsub1')
+        +node('sub2')
+            +node('sub2.1')
+                +node('textext')
+                    +node('subsub1')
+                    +node('sub2')
+                        +node('sub2.1')
+                    +node('subsub3')
+        +node('sub3')
+        +node('deep nested')
+            +node('oijj')
+                +node('3noiji')
+                    +node('@xxx')
+                        +node('jioi:')
+                            +node('niohh')
+                                +node('234')
