@@ -4,14 +4,13 @@ import NNDocumentProps = require('../NestedNodeProps/NNDocumentProps');
 import NNDocumentActions = require('../NestedNodeProps/NNDocumentActions');
 import SelectionMode = require('../NestedNodeProps/SelectionMode');
 import NestedNode = require('./NestedNode');
+import DataFunctions = require('./DataFunctions');
 import ObjectRegistry = require('./ObjectRegistry');
 import ClipboardProvider = require('./ClipboardProvider');
 declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
     protected root: NestedNode<any>;
     node: NestedNodeProps<D>;
-    protected getBlankNodeData(): D;
-    protected nodeDataDuplicator(data: D): D;
-    protected nodeDataEqualityChecker(data1: D, data2: D): boolean;
+    protected dataFunctions: DataFunctions<D>;
     private createNode(props?);
     private isBlankNode(node);
     private id;
@@ -58,6 +57,6 @@ declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<Neste
     undo(): void;
     redo(): void;
     private stepHistory(direction);
-    constructor(content: NestedNodeProps<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>);
+    constructor(content: NestedNodeProps<D>, dataFunctions: DataFunctions<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>);
 }
 export = NNDocument;

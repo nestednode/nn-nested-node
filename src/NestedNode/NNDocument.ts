@@ -7,6 +7,7 @@ import NNDocumentActions = require('../NestedNodeProps/NNDocumentActions');
 import SelectionMode = require('../NestedNodeProps/SelectionMode');
 
 import NestedNode = require('./NestedNode');
+import DataFunctions = require('./DataFunctions');
 import ObjectRegistry = require('./ObjectRegistry');
 import Direction = require('./Direction');
 import SelectionHelper = require('./SelectionHelper');
@@ -23,7 +24,7 @@ import RearrangeCommand = require('./Command/RearrangeCommand');
 import CompositeCommand = require('./Command/CompositeCommand');
 
 
-/*abstract*/ class NNDocument<D>
+class NNDocument<D>
     extends EventEmitter
     implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
 
@@ -37,40 +38,20 @@ import CompositeCommand = require('./Command/CompositeCommand');
     }
 
 
-    // * Abstract Node Data methods
+    // * Node Data functions
+    protected dataFunctions: DataFunctions<D>;
 
-    // эти методы можно было бы перетащить в NestedNode и сделать абстрактным его...
-    // проще будет определиться с решением, когда буду работать над документом с неоднородными узылами
-
-    /*abstract*/
-    protected getBlankNodeData(): D {
-        throw new Error('abstract method');
-    }
-
-    /*abstract*/
-    protected nodeDataDuplicator(data: D): D {
-        throw new Error('abstract method');
-    }
-
-    /*abstract*/
-    protected  nodeDataEqualityChecker(data1: D, data2: D): boolean {
-        throw new Error('abstract method');
-    }
-
-
-    // *
 
     private createNode(props?: NestedNodeProps<D>): NestedNode<D> {
-        props = props || { data: this.getBlankNodeData() };
-        return new NestedNode<D>(this, props, this.nodeDataDuplicator);
+        props = props || { data: this.dataFunctions.getBlank() };
+        return new NestedNode<D>(this, props, this.dataFunctions.duplicate);
     }
 
     private isBlankNode(node: NestedNode<D>): boolean {
         if (node.nestedCount != 0) {
             return false;
         }
-        //todo хорошо бы blankData закешировать
-        return this.nodeDataEqualityChecker(this.getBlankNodeData(), node.data);
+        return this.dataFunctions.isBlank(node.data);
     }
 
 
@@ -212,9 +193,9 @@ import CompositeCommand = require('./Command/CompositeCommand');
         }
         this._editMode = true;
         SelectionHelper.resetSelectionToNode(this.focusedNode);
-        this.nodeDataSnapshot = this.nodeDataDuplicator(this.focusedNode.data);
+        this.nodeDataSnapshot = this.dataFunctions.duplicate(this.focusedNode.data);
         if (clearCurrentValue) {
-            this.focusedNode.data = this.getBlankNodeData();
+            this.focusedNode.data = this.dataFunctions.getBlank();
         }
         emitModeChange && this.emit('change', this);
     }
@@ -237,7 +218,7 @@ import CompositeCommand = require('./Command/CompositeCommand');
             return;
         }
         this._editMode = false;
-        var dataEqual = this.nodeDataEqualityChecker(this.nodeDataSnapshot, this.focusedNode.data);
+        var dataEqual = this.dataFunctions.isEqual(this.nodeDataSnapshot, this.focusedNode.data);
         if (dataEqual) {
             // все равно возвращаем узлу исходные данные
             // т.к. equalityChecker может не учитывать whitespace при сравнении
@@ -345,7 +326,7 @@ import CompositeCommand = require('./Command/CompositeCommand');
     private clipboard: ClipboardProvider<NestedNodeProps<any>[]>;
 
     copyToClipboard(): void {
-        var nodesProps = this.root.getSelection().map(node => node.cloneProps(this.nodeDataDuplicator));
+        var nodesProps = this.root.getSelection().map(node => node.cloneProps(this.dataFunctions.duplicate));
         this.clipboard.set(nodesProps);
     }
 
@@ -412,10 +393,15 @@ import CompositeCommand = require('./Command/CompositeCommand');
 
     // * Constructing
 
-    constructor(content: NestedNodeProps<D>, clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>) {
+    constructor(
+        content: NestedNodeProps<D>,
+        dataFunctions: DataFunctions<D>,
+        clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>
+    ) {
         super();
 
         this.id = 'doc'; //todo something
+        this.dataFunctions = dataFunctions;
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.history = new CommandHistory();
         this.previouslyFocusedMap = new Collection.Map<NestedNode<D>, NestedNode<D>>();
