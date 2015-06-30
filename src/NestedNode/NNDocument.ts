@@ -30,7 +30,7 @@ class NNDocument<D>
 
     // root - это прокси-узел, удобен для того,
     // чтобы исключить передачу в команды parentless-узлов
-    protected root: NestedNode<any>;
+    private root: NestedNode<any>;
 
     // фактический узел документа, таким образом, не root, а его первый (и единственный) nested
     get node(): NestedNodeProps<D> {
@@ -39,7 +39,7 @@ class NNDocument<D>
 
 
     // * Node Data functions
-    protected dataFunctions: DataFunctions<D>;
+    private dataFunctions: DataFunctions<D>;
 
 
     private createNode(props?: NestedNodeProps<D>): NestedNode<D> {
@@ -57,13 +57,12 @@ class NNDocument<D>
 
     // * Node Registry
 
-    private id: string;
     private nodeRegistry: Collection.Map<string, NestedNode<D>>;
     private nodeRegistryCounter = 0;
 
     registerItem(node: NestedNode<D>): string {
         //todo check if node not already registred
-        var nodeId = this.id + '-' + this.nodeRegistryCounter++;
+        var nodeId = (this.nodeRegistryCounter++).toString();
         this.nodeRegistry.set(nodeId, node);
         return nodeId;
     }
@@ -82,7 +81,7 @@ class NNDocument<D>
 
     // ** Actions With Focused Node
 
-    protected focusedNode: NestedNode<D>;
+    private focusedNode: NestedNode<D>;
     private previouslyFocusedMap: Collection.Map<NestedNode<D>, NestedNode<D>>;
     private currentFocusLevel: number;
 
@@ -400,7 +399,6 @@ class NNDocument<D>
     ) {
         super();
 
-        this.id = 'doc'; //todo something
         this.dataFunctions = dataFunctions;
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.history = new CommandHistory();

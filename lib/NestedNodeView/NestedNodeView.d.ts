@@ -19,9 +19,9 @@ declare module NestedNodeView {
     class Component<D> extends React.Component<Props<D>, {}, Context<D>> {
         static contextTypes: Context<{}>;
         constructor(props: Props<D>, context: Context<D>);
-        render(): React.ReactElement;
-        componentDidMount(): void;
-        componentDidUpdate(prevProps: Props<D>, prevState: any, prevContext: any): void;
+        protected render(): React.ReactElement;
+        protected componentDidMount(): void;
+        protected componentDidUpdate(prevProps: Props<D>, prevState: any, prevContext: any): void;
         private checkFocus(prevFocused, prevEditing);
         protected renderNestedElement(node: NestedNodeProps<D>): React.ReactElement;
         protected renderData(data: D, editMode: boolean): any;

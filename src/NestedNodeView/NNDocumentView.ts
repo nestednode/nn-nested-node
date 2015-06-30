@@ -35,11 +35,11 @@ module NNDocumentView {
             this.handleClick = this.handleClick.bind(this);
         }
 
-        getChildContext() {
+        protected getChildContext() {
             return new NestedNodeView.Context<D>(this.props.documentActions, this.props.documentProps);
         }
 
-        render() {
+        protected render() {
             var node = this.props.documentProps.node;
             return (
                 dom['div']({ className: 'nn'},
@@ -71,7 +71,7 @@ module NNDocumentView {
             )
         }
 
-        handleKeyDown(e) {
+        private handleKeyDown(e) {
             var actions = this.props.documentActions;
             var editMode = this.props.documentProps.editMode;
             var shortcut = new KeyboardUtil.Shortcut(e);
@@ -200,7 +200,7 @@ module NNDocumentView {
 
         private prevFocusedElem: HTMLElement;
 
-        handleClick() {
+        private handleClick() {
             // click по редактируемой части узла до сюда не всплывет,
             // сюда событие доходит, только если щелчек был на пустом месте,
             // а в таком случае фокус не должен сбиваться,
@@ -213,13 +213,13 @@ module NNDocumentView {
         }
 
         // react, в отличие от стандарта, делает focus- и blur-события всплываемыми, чем мы и пользуемся
-        handleFocus(e) {
+        private handleFocus(e) {
             this.prevFocusedElem = e.target;
             var domNode = React.findDOMNode(this);
             domNode.classList.remove('nn_inactive');
         }
 
-        handleBlur() {
+        private handleBlur() {
             var domNode = React.findDOMNode(this);
             domNode.classList.add('nn_inactive');
         }
@@ -227,11 +227,11 @@ module NNDocumentView {
 
         private prevContentElemSize: Size;
 
-        componentDidMount() {
+        protected componentDidMount() {
             this.prevContentElemSize = Size.ofElem(this.getElemByRef('content'));
         }
 
-        componentDidUpdate() {
+        protected componentDidUpdate() {
             var contentElem = this.getElemByRef('content');
             var contentSize = Size.ofElem(contentElem);
             if (! contentSize.eq(this.prevContentElemSize)) {
@@ -240,7 +240,7 @@ module NNDocumentView {
             }
         }
 
-        protected getElemByRef(ref: string): HTMLElement {
+        private getElemByRef(ref: string): HTMLElement {
             return React.findDOMNode(this.refs[ref]);
         }
 

@@ -46,7 +46,7 @@ module NestedNodeView {
             this.handleKeyPress = this.handleKeyPress.bind(this);
         }
 
-        render() {
+        protected render() {
             var node = this.props.node;
 
             var databoxBemBlock = 'nn__node-databox';
@@ -77,11 +77,11 @@ module NestedNodeView {
             )
         }
 
-        componentDidMount() {
+        protected componentDidMount() {
             this.checkFocus(false, false);
         }
 
-        componentDidUpdate(prevProps: Props<D>, prevState, prevContext) {
+        protected componentDidUpdate(prevProps: Props<D>, prevState, prevContext) {
             this.checkFocus(prevProps.focused, prevProps.editing);
         }
 

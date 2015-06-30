@@ -11,17 +11,17 @@ declare module NNDocumentView {
             maxNodeViewBoxWidth: number;
         };
         constructor(props: Props<D>, context: any);
-        getChildContext(): NestedNodeView.Context<D>;
-        render(): React.ReactElement;
-        handleKeyDown(e: any): void;
+        protected getChildContext(): NestedNodeView.Context<D>;
+        protected render(): React.ReactElement;
+        private handleKeyDown(e);
         private prevFocusedElem;
-        handleClick(): void;
-        handleFocus(e: any): void;
-        handleBlur(): void;
+        private handleClick();
+        private handleFocus(e);
+        private handleBlur();
         private prevContentElemSize;
-        componentDidMount(): void;
-        componentDidUpdate(): void;
-        protected getElemByRef(ref: string): HTMLElement;
+        protected componentDidMount(): void;
+        protected componentDidUpdate(): void;
+        private getElemByRef(ref);
         private adjustWidth(wrapperElem, contentElem);
     }
     function Element<D>(props: Props<D>): React.ReactElement;
