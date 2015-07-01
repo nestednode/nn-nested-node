@@ -160,6 +160,7 @@ module NNDocumentView {
 
 
                 case shortcut.eq(KeyCode.DELETE):
+                case shortcut.eq(KeyCode.BACK_SPACE):
                     actions.removeNode();
                     return true;
 
