@@ -15,6 +15,7 @@ module NNDocumentView {
     export interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
         maxNodeViewBoxWidth?: number;
+        styleMods? : {}
     }
 
 
@@ -40,9 +41,9 @@ module NNDocumentView {
         }
 
         protected render() {
-            var node = this.props.documentProps.node;
+            var node = this.props.documentProps.content;
             return (
-                dom['div']({ className: 'nn'},
+                dom['div']({ className: 'nn' + stringifyMods('nn', this.props.styleMods)},
                     dom['div']({ className: 'nn__doc-scrollbox'},
                         dom['div']({ ref: 'wrapper', className: 'nn__doc-wrapper'},
                             dom['div'](
@@ -288,6 +289,24 @@ module NNDocumentView {
             var rect = elem.getBoundingClientRect();
             return new Size(rect.width, rect.height);
         }
+    }
+
+
+    function stringifyMods(blockName: string, mods: {}): string {
+        if (!mods) {
+            return '';
+        }
+        var modNames = [];
+        for (var mod in mods) { mods.hasOwnProperty(mod) && modNames.push(mod); }
+        return modNames.reduce((res, modName) => {
+            var value = mods[modName];
+            return res + (
+                value !== undefined && value !== false ?
+                    ' ' + blockName + '_' + modName + (value !== true ? '-' + value : '') :
+                    ''
+            );
+        }, '');
+
     }
 
 }

@@ -28,12 +28,12 @@ class NNDocument<D>
     extends EventEmitter
     implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
 
-    // root - это прокси-узел, удобен для того,
-    // чтобы исключить передачу в команды parentless-узлов
+    // root - это прокси-узел, чтобы рабочие узлы всегда имели родителя,
+    // избавляет от многочисленных проверок на node.hasParent
     private root: NestedNode<any>;
 
-    // фактический узел документа, таким образом, не root, а его первый (и единственный) nested
-    get node(): NestedNodeProps<D> {
+    // ... фактический узел документа, таким образом, не root, а его первый (и единственный) nested
+    get content(): NestedNodeProps<D> {
         return this.root.firstNested;
     }
 
@@ -398,7 +398,7 @@ class NNDocument<D>
         clipboardProvider?: ClipboardProvider<NestedNodeProps<D>[]>
     ) {
         super();
-
+        this._editMode = false;
         this.dataFunctions = dataFunctions;
         this.nodeRegistry = new Collection.Map<string, NestedNode<D>>();
         this.history = new CommandHistory();
@@ -408,7 +408,6 @@ class NNDocument<D>
         var topNode = this.createNode(content).appendToParent(this.root).select();
         this.setFocusedNode(topNode);
 
-        //this._editMode = false;
 
         this.clipboard = clipboardProvider || new LocalClipboardProvider();
 

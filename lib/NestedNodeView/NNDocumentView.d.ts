@@ -4,6 +4,7 @@ declare module NNDocumentView {
     interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
         maxNodeViewBoxWidth?: number;
+        styleMods?: {};
     }
     class Component<D> extends React.Component<Props<D>, {}, {}> {
         static childContextTypes: NestedNodeView.Context<{}>;

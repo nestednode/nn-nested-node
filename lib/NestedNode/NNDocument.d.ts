@@ -9,7 +9,7 @@ import ObjectRegistry = require('./ObjectRegistry');
 import ClipboardProvider = require('./ClipboardProvider');
 declare class NNDocument<D> extends EventEmitter implements ObjectRegistry<NestedNode<D>>, NNDocumentProps<D>, NNDocumentActions<D> {
     private root;
-    node: NestedNodeProps<D>;
+    content: NestedNodeProps<D>;
     private dataFunctions;
     private createNode(props?);
     private isBlankNode(node);
