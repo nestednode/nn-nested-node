@@ -35,13 +35,19 @@
     @selection-dark-color: #4da4f9;
     @selection-dark-color-editmode: #e87dff;
     @selection-dark-color-inactive: #ccc;
-    //todo: сделать mixin чтобы разом патчить блок новыми темами, bro
 
 
     &__doc-scrollbox {
         height: 100%;
         overflow: scroll;
 
+        color: @text-color;
+        background: @background-color;
+
+        .nn_theme-dark & {
+            color: @text-dark-color;
+            background: @background-dark-color;
+        }
         // вспомогательный псевдо-элемент, относительно которого wrapper будет выровнен вертикально по центру
         // white-space также необходим, иначе мерцает при reflow
         white-space: nowrap;
@@ -67,13 +73,6 @@
 
         font-size: 62.5%;
         padding: 1.0em;
-        color: @text-color;
-        background: @background-color;
-
-        .nn_theme-dark & {
-            color: @text-dark-color;
-            background: @background-dark-color;
-        }
     }
 
     &__node {

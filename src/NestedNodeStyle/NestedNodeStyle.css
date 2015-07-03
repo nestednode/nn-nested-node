@@ -16,7 +16,13 @@
 .nn__doc-scrollbox {
   height: 100%;
   overflow: scroll;
+  color: #000000;
+  background: #ffffff;
   white-space: nowrap;
+}
+.nn_theme-dark .nn__doc-scrollbox {
+  color: #f5f5f5;
+  background: #464646;
 }
 .nn__doc-scrollbox:before {
   display: inline-block;
@@ -36,12 +42,6 @@
   -webkit-user-select: none;
   font-size: 62.5%;
   padding: 1.0em;
-  color: #000000;
-  background: #ffffff;
-}
-.nn_theme-dark .nn__doc-content {
-  color: #f5f5f5;
-  background: #464646;
 }
 .nn__node {
   margin: 0.5em 0 0.5em 0;

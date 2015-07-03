@@ -43,19 +43,21 @@ module NNDocumentView {
         protected render() {
             var node = this.props.documentProps.content;
             return (
-                dom['div']({ className: 'nn' + stringifyMods('nn', this.props.styleMods)},
+                dom['div']({
+                        className: 'nn' + stringifyMods('nn', this.props.styleMods),
+                        //tabIndex: 0, фокус получают конкрентые узлы,
+                        // чтобы, в зависимости от реализации, по-своему реагировать на клавиши
+                        onKeyDown: this.handleKeyDown,
+                        onFocus: this.handleFocus,
+                        onBlur: this.handleBlur,
+                        onClick: this.handleClick
+                    },
                     dom['div']({ className: 'nn__doc-scrollbox'},
                         dom['div']({ ref: 'wrapper', className: 'nn__doc-wrapper'},
                             dom['div'](
                                 {
-                                    //tabIndex: 0, фокус получают конкрентые узлы,
-                                    // чтобы, в зависимости от реализации, по-своему реагировать на клавиши
                                     ref: 'content',
-                                    className: 'nn__doc-content',
-                                    onKeyDown: this.handleKeyDown,
-                                    onFocus: this.handleFocus,
-                                    onBlur: this.handleBlur,
-                                    onClick: this.handleClick
+                                    className: 'nn__doc-content'
                                 },
                                 React.createElement<NestedNodeView.Props<D>>(
                                     this.props.nestedNodeViewComponent,
