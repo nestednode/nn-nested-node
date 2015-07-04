@@ -3,13 +3,13 @@ import NestedNodeView = require('./NestedNodeView');
 declare module NNDocumentView {
     interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
-        maxNodeViewBoxWidth?: number;
+        nodeViewBoxMaxWidth?: number;
         styleMods?: {};
     }
     class Component<D> extends React.Component<Props<D>, {}, {}> {
         static childContextTypes: NestedNodeView.Context<{}>;
         static defaultProps: {
-            maxNodeViewBoxWidth: number;
+            nodeViewBoxMaxWidth: number;
         };
         constructor(props: Props<D>, context: any);
         protected getChildContext(): NestedNodeView.Context<D>;

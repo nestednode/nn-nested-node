@@ -14,7 +14,7 @@ module NNDocumentView {
 
     export interface Props<D> extends NestedNodeView.Context<D> {
         nestedNodeViewComponent: NestedNodeView.ComponentClass<D>;
-        maxNodeViewBoxWidth?: number;
+        nodeViewBoxMaxWidth?: number;
         styleMods? : {}
     }
 
@@ -25,7 +25,7 @@ module NNDocumentView {
         static childContextTypes = new NestedNodeView.Context();
 
         static defaultProps = {
-            maxNodeViewBoxWidth: 400
+            nodeViewBoxMaxWidth: 400
         };
 
         constructor(props: Props<D>, context) {
@@ -232,13 +232,15 @@ module NNDocumentView {
         private prevContentElemSize: Size;
 
         protected componentDidMount() {
-            this.prevContentElemSize = Size.ofElem(this.getElemByRef('content'));
+            var contentElem = this.getElemByRef('content');
+            var wrapperElem = this.getElemByRef('wrapper');
+            setTimeout(() => this.adjustWidth(wrapperElem, contentElem), 100);
         }
 
         protected componentDidUpdate() {
             var contentElem = this.getElemByRef('content');
             var contentSize = Size.ofElem(contentElem);
-            if (! contentSize.eq(this.prevContentElemSize)) {
+            if (!this.prevContentElemSize || !contentSize.eq(this.prevContentElemSize)) {
                 var wrapperElem = this.getElemByRef('wrapper');
                 this.adjustWidth(wrapperElem, contentElem);
             }
@@ -250,14 +252,14 @@ module NNDocumentView {
 
         private adjustWidth(wrapperElem: HTMLElement, contentElem: HTMLElement): void {
             var contentSize = Size.ofElem(contentElem);
-            // ширина любого float не может превышать maxNodeViewBoxWidth;
+            // ширина любого float не может превышать nodeViewBoxMaxWidth;
             // если есть перенесенные на новую строку float-элементы,
-            // после расширения wrapper на maxNodeViewBoxWidth, по карайней мере один float точно
+            // после расширения wrapper на nodeViewBoxMaxWidth, по карайней мере один float точно
             // вернется на исходную строку, что приведет к изменению высоты контейнера;
             // предполагаем, что обратное тоже верно:
             // т.е. изменение высоты после расширения свидетельствует, что был перенесенный float-элемент,
             // а adjustWidth должен работать до тех пор, пока переносы не исчезнут
-            wrapperElem.style.width = (contentSize.width + this.props.maxNodeViewBoxWidth) + 'px';
+            wrapperElem.style.width = (contentSize.width + this.props.nodeViewBoxMaxWidth) + 'px';
             setTimeout(() => {
                 var adjustedContentSize = Size.ofElem(contentElem);
                 if (adjustedContentSize.height != contentSize.height) {
