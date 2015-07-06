@@ -1,23 +1,19 @@
 {
-    "name": "NestedNode",
-    "version": "0.0.1",
-    "main": "lib/lib.js",
-    "private": true,
-    "ignore": [
-        "**/.*",
-        "node_modules/",
-        "bower_components/",
-        "pkg/",
-        "labs/",
-        "labs.labman",
-        "src/",
-        "gruntfile.js",
-        "package.json"
-    ],
-    "dependencies": {
-        "Collection": "../Collection",
-        "EventEmitter": "../EventEmitter",
-        "React": "../React"
-    },
-    "devDependencies": {}
+  "name": "NestedNode",
+  "version": "0.0.1",
+  "main": "lib/**/*.js",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules/",
+    "src/",
+    "gulpfile.js",
+    "package.json"
+  ],
+  "dependencies": {
+    "nn-collection": "../nn-collection",
+    "nn-emitter": "../nn-emitter",
+    "nn-react": "../nn-react"
+  },
+  "devDependencies": {}
 }

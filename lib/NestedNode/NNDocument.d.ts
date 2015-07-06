@@ -1,4 +1,4 @@
-import EventEmitter = require('pkg/EventEmitter/EventEmitter');
+import EventEmitter = require('bower_components/nn-emitter/EventEmitter');
 import NestedNodeProps = require('../NestedNodeProps/NestedNodeProps');
 import NNDocumentProps = require('../NestedNodeProps/NNDocumentProps');
 import NNDocumentActions = require('../NestedNodeProps/NNDocumentActions');

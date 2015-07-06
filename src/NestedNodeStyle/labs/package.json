@@ -1,9 +1,7 @@
 {
-    "devDependencies": {
-        "grunt": "0.4.5",
-        "grunt-contrib-jade": "0.14.1",
-        "grunt-contrib-watch-chokidar": "1.0.0",
-        "loadup-grunt-tasks": "0.1.0"
-    },
-    "dependencies": {}
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-jade": "^1.0.1"
+  },
+  "dependencies": {}
 }

@@ -1,4 +1,4 @@
-import React = require('pkg/React/React');
+import React = require('bower_components/nn-react/React');
 import dom = React.DOM;
 
 import NNDocumentProps = require('../NestedNodeProps/NNDocumentProps');

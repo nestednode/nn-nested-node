@@ -1,4 +1,4 @@
-import React = require('pkg/React/React');
+import React = require('bower_components/nn-react/React');
 import NestedNodeView = require('./NestedNodeView');
 declare module NNDocumentView {
     interface Props<D> extends NestedNodeView.Context<D> {

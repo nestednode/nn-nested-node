@@ -1,5 +1,5 @@
-import Collection = require('pkg/Collection/Collection');
-import EventEmitter = require('pkg/EventEmitter/EventEmitter');
+import Collection = require('bower_components/nn-collection/Collection');
+import EventEmitter = require('bower_components/nn-emitter/EventEmitter');
 
 import NestedNodeProps = require('../NestedNodeProps/NestedNodeProps');
 import NNDocumentProps = require('../NestedNodeProps/NNDocumentProps');
