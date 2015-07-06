@@ -1,11 +1,11 @@
 {
-  "name": "NestedNode",
+  "name": "nn-nested-node",
   "version": "0.0.1",
-  "main": "lib/**/*.js",
-  "private": true,
+  "main": "lib/*",
   "ignore": [
     "**/.*",
     "node_modules/",
+    "bower_components/",
     "src/",
     "gulpfile.js",
     "package.json"
