@@ -11,9 +11,9 @@
     "package.json"
   ],
   "dependencies": {
-    "nn-collection": "../nn-collection",
-    "nn-emitter": "../nn-emitter",
-    "nn-react": "../nn-react"
+    "nn-emitter": "~1.0.1",
+    "nn-collection": "~0.5.1",
+    "nn-react": "~0.13.3"
   },
   "devDependencies": {}
 }
