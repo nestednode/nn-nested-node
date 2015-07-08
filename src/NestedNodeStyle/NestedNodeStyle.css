@@ -40,6 +40,7 @@
   display: inline-block;
   cursor: default;
   -webkit-user-select: none;
+  -moz-user-select: none;
   font-size: 62.5%;
   padding: 1.0em;
 }
@@ -111,11 +112,11 @@
 .nn_zoom-75 .nn__node-data {
   font-size: 0.975em;
 }
-.nn__node-data_empty:before {
+.nn__node-data:before {
   content: '\200B';
-  border-left: solid 2px transparent;
 }
 .nn__node-databox_editing .nn__node-data {
   outline: none;
-  min-width: 2px;
+  -webkit-user-select: auto;
+  -moz-user-select: text;
 }

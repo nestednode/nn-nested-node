@@ -68,7 +68,7 @@ module NestedNodeView {
                         this.renderData(node.data, this.props.editing)
                     ),
                     dom['div'](
-                        {className: 'nn__node-nested'},
+                        { className: 'nn__node-nested' },
                         node.nested ?
                             node.nested.map(nestedNode => this.renderNestedElement(nestedNode)) :
                             false
@@ -107,11 +107,13 @@ module NestedNodeView {
         }
 
         protected handleClick(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // важно прекратить всплытие, обработчик в documentView на это рассчитывает
             if (this.props.editing) {
                 return;
             }
             if (this.context.documentProps.editMode) {
+                // какой-то другой узел в режиме редактирования, автоматически из него выходим
+                //todo это поведение правильнее вынести в логику документа
                 this.context.documentActions.exitEditMode();
             }
             var selectionMode =
@@ -121,7 +123,6 @@ module NestedNodeView {
         }
 
         protected handleDoubleClick(e) {
-            e.stopPropagation();
             if (this.props.editing) {
                 return;
             }

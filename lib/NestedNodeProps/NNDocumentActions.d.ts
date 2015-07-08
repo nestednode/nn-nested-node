@@ -6,7 +6,7 @@ interface NNDocumentActions<D> {
     focusPrevNode(selectionMode: SelectionMode): void;
     focusNextNode(selectionMode: SelectionMode): void;
     selectNodeSiblings(): void;
-    enterEditMode(clearCurrentValue?: boolean): void;
+    enterEditMode(newData?: D): void;
     updateNodeData(newData: D): void;
     exitEditMode(undoChanges?: boolean): void;
     insertNewNode(): void;
