@@ -41,6 +41,8 @@
   cursor: default;
   -webkit-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   font-size: 62.5%;
   padding: 1.0em;
 }
@@ -117,6 +119,8 @@
 }
 .nn__node-databox_editing .nn__node-data {
   outline: none;
-  -webkit-user-select: auto;
+  -webkit-user-select: text;
   -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }

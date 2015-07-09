@@ -45,24 +45,23 @@ class NestedNode<D> implements NestedNodeProps<D> {
 
     // ** Nested
 
-    private _nested: NestedNode<D>[];
+    nested: NestedNode<D>[];
 
-    nested: NestedNodeProps.Nested<D>;
 
     get firstNested(): NestedNode<D> {
-        return this._nested[0];
+        return this.nested[0];
     }
 
     get lastNested(): NestedNode<D> {
-        return this._nested[this._nested.length - 1];
+        return this.nested[this.nested.length - 1];
     }
 
     get nestedCount(): number {
-        return this._nested.length;
+        return this.nested.length;
     }
 
     forEachNestedDeep(cb: (node: NestedNode<D>) => void): void {
-        this._nested.forEach(node => {
+        this.nested.forEach(node => {
             cb(node);
             node.forEachNestedDeep(cb);
         })
@@ -91,8 +90,8 @@ class NestedNode<D> implements NestedNodeProps<D> {
         if (!this._parent || this._parent !== node._parent) {
             throw new Error('passed node must have the same parent');
         }
-        var selfIndex = this._parent._nested.indexOf(this);
-        var targetIndex = this._parent._nested.indexOf(node);
+        var selfIndex = this._parent.nested.indexOf(this);
+        var targetIndex = this._parent.nested.indexOf(node);
         return targetIndex > selfIndex ? Direction.getForward() : Direction.getBackward();
     }
 
@@ -100,9 +99,9 @@ class NestedNode<D> implements NestedNodeProps<D> {
         if (! this.hasParent) {
             return null;
         }
-        var selfIndex = this._parent._nested.indexOf(this);
+        var selfIndex = this._parent.nested.indexOf(this);
         var targetIndex = selfIndex + (direction.isForward ? 1 : -1);
-        return this._parent._nested[targetIndex];
+        return this._parent.nested[targetIndex];
     }
 
     private getCrossSibling(direction: Direction, preferredLevel: number): NestedNode<D> {
@@ -134,24 +133,24 @@ class NestedNode<D> implements NestedNodeProps<D> {
         if (node.hasParent) {
             throw new Error('cannot append node attached to another parent')
         }
-        var index = this._nested.length;
+        var index = this.nested.length;
         if (aheadNode) {
-            index = this._nested.indexOf(aheadNode);
+            index = this.nested.indexOf(aheadNode);
             if (index == -1) {
                 throw new Error('anchor node not exists in nested');
             }
         }
-        this._nested.splice(index, 0, node);
+        this.nested.splice(index, 0, node);
         node._parent = this;
         return node;
     }
 
     removeNested(node: NestedNode<D>): NestedNode<D> {
-        var index = this._nested.indexOf(node);
+        var index = this.nested.indexOf(node);
         if (index == -1) {
             throw new Error('no such node in nested');
         }
-        this._nested.splice(index, 1);
+        this.nested.splice(index, 1);
         node._parent = null;
         return node;
     }
@@ -234,7 +233,7 @@ class NestedNode<D> implements NestedNodeProps<D> {
     cloneProps(dataDuplicator: (src: D) => D): NestedNodeProps<D> {
         return {
             data: dataDuplicator(this.data),
-            nested: this._nested.map(node => node.cloneProps(dataDuplicator))
+            nested: this.nested.map(node => node.cloneProps(dataDuplicator))
         }
     }
 
@@ -246,15 +245,11 @@ class NestedNode<D> implements NestedNodeProps<D> {
         this._parent = null;
         this._selected = false;
         this._focused = false;
-        this._nested = props.nested ? props.nested.map(nestedProps => {
+        this.nested = props.nested ? props.nested.map(nestedProps => {
             var nested = new NestedNode<D>(registry, nestedProps, dataDuplicator);
             nested._parent = this;
             return nested;
         }) : [];
-        this.nested = {
-            map: this._nested.map.bind(this._nested),
-            forEach: this._nested.forEach.bind(this._nested)
-        };
         this.data = dataDuplicator(props.data);
     }
 

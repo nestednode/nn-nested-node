@@ -240,10 +240,11 @@ module NNDocumentView {
         protected componentDidUpdate() {
             var contentElem = this.getElemByRef('content');
             var contentSize = Size.ofElem(contentElem);
-            if (!this.prevContentElemSize || !contentSize.eq(this.prevContentElemSize)) {
-                var wrapperElem = this.getElemByRef('wrapper');
-                this.adjustWidth(wrapperElem, contentElem);
+            if (this.prevContentElemSize && contentSize.eq(this.prevContentElemSize)) {
+                return;
             }
+            var wrapperElem = this.getElemByRef('wrapper');
+            this.adjustWidth(wrapperElem, contentElem);
         }
 
         private getElemByRef(ref: string): HTMLElement {
@@ -291,7 +292,7 @@ module NNDocumentView {
 
         static ofElem(elem: HTMLElement): Size {
             var rect = elem.getBoundingClientRect();
-            return new Size(rect.width, rect.height);
+            return new Size(Math.ceil(rect.width), Math.ceil(rect.height));
         }
     }
 

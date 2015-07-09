@@ -67,12 +67,12 @@ module NestedNodeView {
                         },
                         this.renderData(node.data, this.props.editing)
                     ),
-                    dom['div'](
-                        { className: 'nn__node-nested' },
-                        node.nested ?
-                            node.nested.map(nestedNode => this.renderNestedElement(nestedNode)) :
-                            false
-                    )
+                    node.nested && node.nested.length ?
+                        dom['div'](
+                            { className: 'nn__node-nested' },
+                            node.nested.map(nestedNode => this.renderNestedElement(nestedNode))
+                        ) :
+                        null
                 )
             )
         }

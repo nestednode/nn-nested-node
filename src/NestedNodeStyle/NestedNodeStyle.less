@@ -69,8 +69,10 @@
     &__doc-content {
         display: inline-block;
         cursor: default;
-        -webkit-user-select: none; // в safari блокирует ввод в contenteditable (а в хроме ок, даже выделяет)
-        -moz-user-select: none; // не позволяет выделить даже в contenteditable
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
         font-size: 62.5%;
         padding: 1.0em;
@@ -184,8 +186,10 @@
 
         .nn__node-databox_editing & {
             outline: none;
-            -webkit-user-select: auto;
-            -moz-user-select: text; // именно text, auto не срабатывает
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
     }
 

@@ -10,8 +10,7 @@ declare class NestedNode<D> implements NestedNodeProps<D> {
     root: NestedNode<D>;
     level: number;
     isTopLevel: boolean;
-    private _nested;
-    nested: NestedNodeProps.Nested<D>;
+    nested: NestedNode<D>[];
     firstNested: NestedNode<D>;
     lastNested: NestedNode<D>;
     nestedCount: number;
