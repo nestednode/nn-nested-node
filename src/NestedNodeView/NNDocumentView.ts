@@ -98,6 +98,7 @@ module NNDocumentView {
                 // * Normal Mode
 
                 case shortcut.eq(KeyCode.F2):
+                case shortcut.eq(KeyCode.SPACE):
                     actions.enterEditMode();
                     return true;
 
