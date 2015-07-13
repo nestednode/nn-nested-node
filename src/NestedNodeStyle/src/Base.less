@@ -1,0 +1,81 @@
+.nn {
+
+    height: 100%;
+
+    &_compact {
+        height: auto;
+    }
+
+    &__doc-scrollbox {
+        height: 100%;
+        overflow: scroll;
+        // вспомогательный псевдо-элемент, относительно которого wrapper будет выровнен вертикально по центру
+        // white-space также необходим, иначе мерцает при reflow
+        white-space: nowrap;
+        &:before {
+            display: inline-block;
+            content: '';
+            font-size: 0;
+            height: 100%;
+            vertical-align: middle;
+        }
+    }
+
+    &__doc-wrapper {
+        display: inline-block;
+        white-space: normal;
+        vertical-align: middle;
+    }
+
+    &__doc-content {
+        display: inline-block;
+        cursor: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+
+    &__node {
+        &:first-child {
+            margin-top: 0 !important;
+        }
+        &:last-child {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    &__node-databox {
+        display: inline-block;
+        vertical-align: middle;
+        outline: none;
+        border-style: solid;
+        border-color: transparent;
+        max-width: 27em;
+        font-family: 'Roboto Condensed', 'Arial', sans-serif;
+        font-weight: 300;
+        line-height: 1.4;
+    }
+
+    &__node-data {
+        min-width: 0.2em;
+        &:before {
+            content: '\200B'; // zero width space
+        }
+        .nn__node-databox_editing & {
+            outline: none;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+    }
+
+    &__node-nested {
+        display: inline-block;
+        vertical-align: middle;
+        border-left-style: solid;
+    }
+
+}

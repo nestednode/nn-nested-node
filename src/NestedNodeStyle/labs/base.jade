@@ -1,5 +1,5 @@
 mixin document(attrs)
-    .nn(class=(attrs ? attrs.map(function(a) {return 'nn_' + a}) : ''))
+    .nn(class=(attrs ? attrs.map(function(a) {return a ? 'nn_' + a : ''}) : ''))
         .nn__doc-scrollbox
             .nn__doc-wrapper
                 .nn__doc-content
@@ -26,11 +26,16 @@ mixin default-content()
         +node('Mac OS')
             +node('System', 1)
             +node('Finder')
+        //-+node('One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin. He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections. The bedding was hardly able to cover it and seemed ready to slide off any moment. His many legs, pitifully thin compared with the size of the rest of him, waved about helplessly as he looked.', 2)
+        //-todo width test
+        //-+node('0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 : : ; ; < < = = > > ? ? @ @ A A B B C C D D E E F F G G H H I I J J K K L L M M N N O O P P Q Q R R S S T T U U V V W W X X Y Y Z Z [ [ ] ] ^ ^ _ _ ` ` a a b b c c d d e e f f g g h h i i j j k k l l m m n n o o p p q q r r s s t t u u v v w w x x y y z z { { | | } } ~ ~ ¡ ¡ ¢ ¢ £ £ ¤ ¤ ¥ ¥ ¦ ¦ § § ¨ ¨ © © ª ª « « ¬ ¬ ® ® ¯ ¯ ° ° ± ± ² ² ³ ³ ´ ´ µ µ ¶ ¶ · · ¸ ¸ ¹ ¹ º º » » ¼ ¼ ½ ½ ¾ ¾ ¿ ¿', 2)
         +node('Applications', 2)
             +node('Plain Text')
-            +node('Stuffit Expander')
+            +node('Stuffit Expander', 1)
+            +node('temp file', 1)
             +node('Graphic Converter')
         +node('Read Me First')
+        +node('422', 1)
 
 
 
@@ -38,7 +43,8 @@ doctype
 html
     head
         meta(charset='utf-8')
-        link(rel='stylesheet' href='../../NestedNodeStyle.css')
+        link(rel='stylesheet' href='../NestedNodeStyle.css')
+        <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
         style.
             html {
                 margin: 0;

@@ -1,0 +1,17 @@
+extends ../base.jade
+
+mixin loop(strong, dark)
+    - var n = 9
+    while n <= 14
+        +document(['compact', 'size-' + n++ + (strong ? '-strong' : ''), dark ? 'theme-dark' : ''])
+        br
+
+
+block body
+    +loop()
+    hr
+    +loop(1)
+    hr
+    +loop(0, 1)
+    hr
+    +loop(1, 1)

@@ -30,13 +30,13 @@ gulp.task('less', function() {
     return gulp
         .src('src/NestedNodeStyle/NestedNodeStyle.less')
         .pipe(act.less())
-        .pipe(gulp.dest('src/NestedNodeStyle/'))
+        .pipe(gulp.dest('src/NestedNodeStyle/labs/'))
         .pipe(gulp.dest('lib/NestedNodeStyle/'))
 });
 
 gulp.task('watch', function() {
      gulp.watch(['src/**/*.ts', 'bower_components/**/*.d.ts'], ['ts']);
-     gulp.watch('src/NestedNodeStyle/*.less', ['less']);
+     gulp.watch('src/NestedNodeStyle/**/*.less', ['less']);
 });
 
 
