@@ -10,11 +10,11 @@ mixin document(attrs)
 
 
 mixin node(data, flag)
-    .nn__node
-        .nn__node-databox(tabindex=0 class={
-            'nn__node-databox_selected': flag >= 1,
-            'nn__node-databox_editing':  flag == 2
-        })
+    .nn__node(class={
+        'nn__node_selected': flag >= 1,
+        'nn__node_editing':  flag == 2
+    })
+        .nn__node-databox
             .nn__node-data(class={ 'nn__node-data_empty': !data && flag != 2 })!= data
         if block
             .nn__node-nested

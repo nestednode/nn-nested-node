@@ -3,33 +3,35 @@
     @background-color;
     @bracket-color;
     @selection-color;
-    @selection-color-editmode;
     @selection-color-inactive;
 ) {
 
-    .nn__doc-scrollbox {
+    .nn__doc-content {
         color: @text-color;
         background: @background-color;
     }
 
 
-    .nn__node-databox_selected {
+    .nn__node_selected >
+    .nn__node-databox {
         border-color: @selection-color;
     }
-    &.nn_inactive {
-        .nn__node-databox_selected {
-            border-color: @selection-color-inactive;
-        }
+
+    &.nn_inactive
+    .nn__node_selected >
+    .nn__node-databox {
+        border-color: @selection-color-inactive;
     }
-    .nn__node-databox_editing {
-        box-shadow: 0 0 0.8em mix(@selection-color-editmode, transparent, 40%);
-        border-color: @selection-color-editmode;
+
+    .nn__node_editing >
+    .nn__node-databox {
+        box-shadow: 0 0 0.8em mix(@selection-color, transparent, 40%);
     }
 
 
     .nn__node-nested {
         border-left-color: @bracket-color;
-        background: @background-color;
+        background-color: @background-color;
     }
 
 }
@@ -38,10 +40,9 @@
 .theme(
     /*@text-color:*/ #000;
     /*@background-color:*/ #fff;
-    /*@bracket-color:*/ #bbb;
-    /*@selection-color:*/ #2d6feb;
-    /*@selection-color-editmode:*/ #bc54d2;
-    /*@selection-color-inactive:*/ #666;
+    /*@bracket-color:*/ #4c4c4c;
+    /*@selection-color:*/ #0055ff;
+    /*@selection-color-inactive:*/ #A1A1A1;
 );
 
 
@@ -49,9 +50,9 @@
     .theme(
         /*@text-color:*/ #f5f5f5;
         /*@background-color:*/ #464646;
-        /*@bracket-color:*/ #888;
-        /*@selection-color:*/ #4da4f9;
-        /*@selection-color-editmode:*/ #e87dff;
-        /*@selection-color-inactive:*/ #ccc;
+        /*@bracket-color:*/ #d5d5d5;
+        ///*@selection-color:*/ #4fcdfa;
+        /*@selection-color:*/ #fd6060;
+        /*@selection-color-inactive:*/ #8f8f8f;
     );
 }

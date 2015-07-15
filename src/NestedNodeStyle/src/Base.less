@@ -1,31 +1,13 @@
 .nn {
 
-    height: 100%;
+    overflow: hidden;
+    outline: none;
 
-    &_compact {
-        height: auto;
+
+    &__doc-contentbox {
+        width: 10000px;
     }
 
-    &__doc-scrollbox {
-        height: 100%;
-        overflow: scroll;
-        // вспомогательный псевдо-элемент, относительно которого wrapper будет выровнен вертикально по центру
-        // white-space также необходим, иначе мерцает при reflow
-        white-space: nowrap;
-        &:before {
-            display: inline-block;
-            content: '';
-            font-size: 0;
-            height: 100%;
-            vertical-align: middle;
-        }
-    }
-
-    &__doc-wrapper {
-        display: inline-block;
-        white-space: normal;
-        vertical-align: middle;
-    }
 
     &__doc-content {
         display: inline-block;
@@ -46,6 +28,7 @@
         }
     }
 
+
     &__node-databox {
         display: inline-block;
         vertical-align: middle;
@@ -58,19 +41,24 @@
         line-height: 1.4;
     }
 
+
     &__node-data {
         min-width: 0.2em;
         &:before {
             content: '\200B'; // zero width space
         }
-        .nn__node-databox_editing & {
-            outline: none;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
     }
+
+    .nn__node_editing >
+    .nn__node-databox >
+    &__node-data {
+        outline: none;
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+
 
     &__node-nested {
         display: inline-block;

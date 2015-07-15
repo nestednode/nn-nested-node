@@ -16,14 +16,13 @@ declare module NNDocumentView {
         protected render(): React.ReactElement;
         private handleKeyDown(e);
         private prevFocusedElem;
-        private handleClick();
+        private handleClick(e);
         private handleFocus(e);
         private handleBlur();
-        private prevContentElemSize;
         protected componentDidMount(): void;
         protected componentDidUpdate(): void;
+        private adjustWidthAndScroll();
         private getElemByRef(ref);
-        private adjustWidth(wrapperElem, contentElem);
     }
     function Element<D>(props: Props<D>): React.ReactElement;
 }

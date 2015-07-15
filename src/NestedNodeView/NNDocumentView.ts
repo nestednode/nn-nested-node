@@ -45,28 +45,21 @@ module NNDocumentView {
             return (
                 dom['div']({
                         className: 'nn' + stringifyMods('nn', this.props.styleMods),
-                        //tabIndex: 0, фокус получают конкрентые узлы,
-                        // чтобы, в зависимости от реализации, по-своему реагировать на клавиши
+                        tabIndex: 0,
                         onKeyDown: this.handleKeyDown,
                         onFocus: this.handleFocus,
                         onBlur: this.handleBlur,
                         onClick: this.handleClick
                     },
-                    dom['div']({ className: 'nn__doc-scrollbox'},
-                        dom['div']({ ref: 'wrapper', className: 'nn__doc-wrapper'},
-                            dom['div'](
+                    dom['div']({ className: 'nn__doc-contentbox'},
+                        dom['div']({ ref: 'content', className: 'nn__doc-content' },
+                            React.createElement<NestedNodeView.Props<D>>(
+                                this.props.nestedNodeViewComponent,
                                 {
-                                    ref: 'content',
-                                    className: 'nn__doc-content'
-                                },
-                                React.createElement<NestedNodeView.Props<D>>(
-                                    this.props.nestedNodeViewComponent,
-                                    {
-                                        node: node,
-                                        focused: node.focused,
-                                        editing: this.props.documentProps.editMode && node.focused
-                                    }
-                                )
+                                    node: node,
+                                    focused: node.focused,
+                                    editing: this.props.documentProps.editMode && node.focused
+                                }
                             )
                         )
                     )
@@ -205,8 +198,8 @@ module NNDocumentView {
 
         private prevFocusedElem: HTMLElement;
 
-        private handleClick() {
-            // click по редактируемой части узла до сюда не всплывет,
+        private handleClick(e) {
+            // click по редактируемой части узла досюда не всплывет,
             // сюда событие доходит, только если щелчек был на пустом месте,
             // а в таком случае фокус не должен сбиваться,
             // но т.к. пердотвратить сброс фокуса нельзя (preventDefault не поможет),
@@ -229,48 +222,24 @@ module NNDocumentView {
             domNode.classList.add('nn_inactive');
         }
 
-
-        private prevContentElemSize: Size;
-
         protected componentDidMount() {
-            var contentElem = this.getElemByRef('content');
-            var wrapperElem = this.getElemByRef('wrapper');
-            setTimeout(() => this.adjustWidth(wrapperElem, contentElem), 100);
+            setTimeout(this.adjustWidthAndScroll.bind(this), 100);
         }
 
         protected componentDidUpdate() {
-            var contentElem = this.getElemByRef('content');
-            var contentSize = Size.ofElem(contentElem);
-            if (this.prevContentElemSize && contentSize.eq(this.prevContentElemSize)) {
-                return;
-            }
-            var wrapperElem = this.getElemByRef('wrapper');
-            this.adjustWidth(wrapperElem, contentElem);
+            this.adjustWidthAndScroll();
+        }
+
+        private adjustWidthAndScroll(): void {
+            var contentElem = React.findDOMNode(this.refs['content']);
+            var wrapperElem = contentElem.parentElement.parentElement;
+            var contentElemWidth = Math.ceil(contentElem.getBoundingClientRect().width);
+            wrapperElem.style.width = contentElemWidth + 'px';
+            wrapperElem.scrollLeft = 0; // хотя блок не прокручиваемый, scroll может сбиваться при фокусе
         }
 
         private getElemByRef(ref: string): HTMLElement {
             return React.findDOMNode(this.refs[ref]);
-        }
-
-        private adjustWidth(wrapperElem: HTMLElement, contentElem: HTMLElement): void {
-            var contentSize = Size.ofElem(contentElem);
-            // ширина любого float не может превышать nodeViewBoxMaxWidth;
-            // если есть перенесенные на новую строку float-элементы,
-            // после расширения wrapper на nodeViewBoxMaxWidth, по карайней мере один float точно
-            // вернется на исходную строку, что приведет к изменению высоты контейнера;
-            // предполагаем, что обратное тоже верно:
-            // т.е. изменение высоты после расширения свидетельствует, что был перенесенный float-элемент,
-            // а adjustWidth должен работать до тех пор, пока переносы не исчезнут
-            wrapperElem.style.width = (contentSize.width + this.props.nodeViewBoxMaxWidth) + 'px';
-            setTimeout(() => {
-                var adjustedContentSize = Size.ofElem(contentElem);
-                if (adjustedContentSize.height != contentSize.height) {
-                    this.adjustWidth(wrapperElem, contentElem);
-                } else {
-                    wrapperElem.style.width = adjustedContentSize.width + 'px';
-                    this.prevContentElemSize = adjustedContentSize;
-                }
-            }, 0);
         }
 
     }
@@ -278,25 +247,6 @@ module NNDocumentView {
     export function Element<D>(props: Props<D>): React.ReactElement {
         return React.createElement(Component, props);
     }
-
-
-    class Size {
-
-        constructor(
-            public width: number,
-            public height: number
-        ) {}
-
-        eq(size: Size): boolean {
-            return this.width == size.width && this.height == size.height;
-        }
-
-        static ofElem(elem: HTMLElement): Size {
-            var rect = elem.getBoundingClientRect();
-            return new Size(Math.ceil(rect.width), Math.ceil(rect.height));
-        }
-    }
-
 
     function stringifyMods(blockName: string, mods: {}): string {
         if (!mods) {

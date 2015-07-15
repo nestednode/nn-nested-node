@@ -2,18 +2,23 @@
 
     @scale: @size / 13;
 
+
     .nn__doc-content {
         padding: round(15px * @scale) round(10px * @scale);
     }
+
 
     .nn__node {
         @margin-v: round(5px * @scale);
         margin: @margin-v 0 @margin-v 0;
     }
 
+
     @bracket-thickness: @thickness * 1px;
     @bracket-radius: round(6px * @scale);
+    @padding-h: floor(10px * @scale);
     @_gap: ceil(@bracket-thickness + @bracket-radius / 2);
+
 
     .nn__node-databox {
 
@@ -25,20 +30,22 @@
         border-top-left-radius: @bracket-radius;
         border-bottom-left-radius: @bracket-radius;
 
-        @padding-h: floor(10px * @scale);
-        @padding-top: ceil(1.5px * @scale);
+        @padding-top: round(1.5px * @scale);
         @padding-bottom: floor(1.5px * @scale);
 
         padding: @padding-top (@padding-h + @_gap) @padding-bottom @padding-h;
-
-        &_selected {
-            margin-left: -@bracket-thickness;
-            padding-left: @padding-h + @bracket-thickness;
-        }
     }
 
+    .nn__node_selected >
+    .nn__node-databox {
+        margin-left: -@bracket-thickness;
+        padding-left: @padding-h + @bracket-thickness;
+    }
+
+
     .nn__node-nested {
-        margin-left: -@_gap;
+        @margin-v: round(3px * @scale);
+        margin: @margin-v 0 @margin-v -@_gap;
 
         border-left-width: @bracket-thickness;
         border-top-left-radius: @bracket-radius;

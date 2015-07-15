@@ -49,18 +49,18 @@ module NestedNodeView {
         protected render() {
             var node = this.props.node;
 
-            var databoxBemBlock = 'nn__node-databox';
-            var databoxCls = [databoxBemBlock];
-            node.selected       && databoxCls.push(databoxBemBlock +'_selected');
-            this.props.editing  && databoxCls.push(databoxBemBlock + '_editing');
+            var nodeBemBlock = 'nn__node';
+            var nodeCls = [nodeBemBlock];
+            node.selected       && nodeCls.push(nodeBemBlock +'_selected');
+            this.props.editing  && nodeCls.push(nodeBemBlock + '_editing');
 
             return (
-                dom['div']({ className: 'nn__node' },
+                dom['div']({ className: nodeCls.join(' ') },
                     dom['div'](
                         {
                             tabIndex: 0,
                             ref: 'databox',
-                            className: databoxCls.join(' '),
+                            className: 'nn__node-databox',
                             onClick: this.handleClick,
                             onDoubleClick: this.handleDoubleClick,
                             onKeyPress: this.handleKeyPress

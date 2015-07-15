@@ -1,25 +1,9 @@
 .nn {
-  height: 100%;
+  overflow: hidden;
+  outline: none;
 }
-.nn_compact {
-  height: auto;
-}
-.nn__doc-scrollbox {
-  height: 100%;
-  overflow: scroll;
-  white-space: nowrap;
-}
-.nn__doc-scrollbox:before {
-  display: inline-block;
-  content: '';
-  font-size: 0;
-  height: 100%;
-  vertical-align: middle;
-}
-.nn__doc-wrapper {
-  display: inline-block;
-  white-space: normal;
-  vertical-align: middle;
+.nn__doc-contentbox {
+  width: 10000px;
 }
 .nn__doc-content {
   display: inline-block;
@@ -52,7 +36,7 @@
 .nn__node-data:before {
   content: '\200B';
 }
-.nn__node-databox_editing .nn__node-data {
+.nn__node_editing > .nn__node-databox > .nn__node-data {
   outline: none;
   -webkit-user-select: text;
   -moz-user-select: text;
@@ -75,14 +59,14 @@
   border-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  padding: 2px 12px 1px 8px;
+  padding: 1px 12px 1px 8px;
 }
-.nn__node-databox_selected {
+.nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 9px;
 }
 .nn__node-nested {
-  margin-left: -4px;
+  margin: 3px 0 3px -4px;
   border-left-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -98,14 +82,14 @@
   border-width: 1px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  padding: 2px 9px 1px 6px;
+  padding: 1px 9px 1px 6px;
 }
-.nn_size-9 .nn__node-databox_selected {
+.nn_size-9 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 7px;
 }
 .nn_size-9 .nn__node-nested {
-  margin-left: -3px;
+  margin: 2px 0 2px -3px;
   border-left-width: 1px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -122,14 +106,14 @@
   border-width: 2px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  padding: 2px 10px 1px 6px;
+  padding: 1px 10px 1px 6px;
 }
-.nn_size-9-strong .nn__node-databox_selected {
+.nn_size-9-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 8px;
 }
 .nn_size-9-strong .nn__node-nested {
-  margin-left: -4px;
+  margin: 2px 0 2px -4px;
   border-left-width: 2px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -145,14 +129,14 @@
   border-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  padding: 2px 11px 1px 7px;
+  padding: 1px 11px 1px 7px;
 }
-.nn_size-10 .nn__node-databox_selected {
+.nn_size-10 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 8px;
 }
 .nn_size-10 .nn__node-nested {
-  margin-left: -4px;
+  margin: 2px 0 2px -4px;
   border-left-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -169,14 +153,14 @@
   border-width: 2px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  padding: 2px 12px 1px 7px;
+  padding: 1px 12px 1px 7px;
 }
-.nn_size-10-strong .nn__node-databox_selected {
+.nn_size-10-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 9px;
 }
 .nn_size-10-strong .nn__node-nested {
-  margin-left: -5px;
+  margin: 2px 0 2px -5px;
   border-left-width: 2px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -192,14 +176,14 @@
   border-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  padding: 2px 12px 1px 8px;
+  padding: 1px 12px 1px 8px;
 }
-.nn_size-11 .nn__node-databox_selected {
+.nn_size-11 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 9px;
 }
 .nn_size-11 .nn__node-nested {
-  margin-left: -4px;
+  margin: 3px 0 3px -4px;
   border-left-width: 1px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -216,14 +200,14 @@
   border-width: 2px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  padding: 2px 13px 1px 8px;
+  padding: 1px 13px 1px 8px;
 }
-.nn_size-11-strong .nn__node-databox_selected {
+.nn_size-11-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 10px;
 }
 .nn_size-11-strong .nn__node-nested {
-  margin-left: -5px;
+  margin: 3px 0 3px -5px;
   border-left-width: 2px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -239,14 +223,14 @@
   border-width: 1px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
-  padding: 2px 13px 1px 9px;
+  padding: 1px 13px 1px 9px;
 }
-.nn_size-12 .nn__node-databox_selected {
+.nn_size-12 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 10px;
 }
 .nn_size-12 .nn__node-nested {
-  margin-left: -4px;
+  margin: 3px 0 3px -4px;
   border-left-width: 1px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
@@ -263,14 +247,14 @@
   border-width: 2px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
-  padding: 2px 14px 1px 9px;
+  padding: 1px 14px 1px 9px;
 }
-.nn_size-12-strong .nn__node-databox_selected {
+.nn_size-12-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 11px;
 }
 .nn_size-12-strong .nn__node-nested {
-  margin-left: -5px;
+  margin: 3px 0 3px -5px;
   border-left-width: 2px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
@@ -288,12 +272,12 @@
   border-bottom-left-radius: 6px;
   padding: 2px 14px 1px 10px;
 }
-.nn_size-13 .nn__node-databox_selected {
+.nn_size-13 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 11px;
 }
 .nn_size-13 .nn__node-nested {
-  margin-left: -4px;
+  margin: 3px 0 3px -4px;
   border-left-width: 1px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
@@ -312,12 +296,12 @@
   border-bottom-left-radius: 6px;
   padding: 2px 15px 1px 10px;
 }
-.nn_size-13-strong .nn__node-databox_selected {
+.nn_size-13-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 12px;
 }
 .nn_size-13-strong .nn__node-nested {
-  margin-left: -5px;
+  margin: 3px 0 3px -5px;
   border-left-width: 2px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
@@ -335,12 +319,12 @@
   border-bottom-left-radius: 6px;
   padding: 2px 14px 1px 10px;
 }
-.nn_size-14 .nn__node-databox_selected {
+.nn_size-14 .nn__node_selected > .nn__node-databox {
   margin-left: -1px;
   padding-left: 11px;
 }
 .nn_size-14 .nn__node-nested {
-  margin-left: -4px;
+  margin: 3px 0 3px -4px;
   border-left-width: 1px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
@@ -359,49 +343,47 @@
   border-bottom-left-radius: 6px;
   padding: 2px 15px 1px 10px;
 }
-.nn_size-14-strong .nn__node-databox_selected {
+.nn_size-14-strong .nn__node_selected > .nn__node-databox {
   margin-left: -2px;
   padding-left: 12px;
 }
 .nn_size-14-strong .nn__node-nested {
-  margin-left: -5px;
+  margin: 3px 0 3px -5px;
   border-left-width: 2px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 }
-.nn__doc-scrollbox {
+.nn__doc-content {
   color: #000000;
   background: #ffffff;
 }
-.nn__node-databox_selected {
-  border-color: #2d6feb;
+.nn__node_selected > .nn__node-databox {
+  border-color: #0055ff;
 }
-.nn_inactive .nn__node-databox_selected {
-  border-color: #666666;
+.nn_inactive .nn__node_selected > .nn__node-databox {
+  border-color: #a1a1a1;
 }
-.nn__node-databox_editing {
-  box-shadow: 0 0 0.8em rgba(188, 84, 210, 0.4);
-  border-color: #bc54d2;
+.nn__node_editing > .nn__node-databox {
+  box-shadow: 0 0 0.8em rgba(0, 85, 255, 0.4);
 }
 .nn__node-nested {
-  border-left-color: #bbbbbb;
-  background: #ffffff;
+  border-left-color: #4c4c4c;
+  background-color: #ffffff;
 }
-.nn_theme-dark .nn__doc-scrollbox {
+.nn_theme-dark .nn__doc-content {
   color: #f5f5f5;
   background: #464646;
 }
-.nn_theme-dark .nn__node-databox_selected {
-  border-color: #4da4f9;
+.nn_theme-dark .nn__node_selected > .nn__node-databox {
+  border-color: #fd6060;
 }
-.nn_theme-dark.nn_inactive .nn__node-databox_selected {
-  border-color: #cccccc;
+.nn_theme-dark.nn_inactive .nn__node_selected > .nn__node-databox {
+  border-color: #8f8f8f;
 }
-.nn_theme-dark .nn__node-databox_editing {
-  box-shadow: 0 0 0.8em rgba(232, 125, 255, 0.4);
-  border-color: #e87dff;
+.nn_theme-dark .nn__node_editing > .nn__node-databox {
+  box-shadow: 0 0 0.8em rgba(253, 96, 96, 0.4);
 }
 .nn_theme-dark .nn__node-nested {
-  border-left-color: #888888;
-  background: #464646;
+  border-left-color: #d5d5d5;
+  background-color: #464646;
 }

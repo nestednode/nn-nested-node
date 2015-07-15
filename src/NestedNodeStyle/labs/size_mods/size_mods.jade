@@ -3,7 +3,7 @@ extends ../base.jade
 mixin loop(strong, dark)
     - var n = 9
     while n <= 14
-        +document(['compact', 'size-' + n++ + (strong ? '-strong' : ''), dark ? 'theme-dark' : ''])
+        +document(['size-' + n++ + (strong ? '-strong' : ''), dark ? 'theme-dark' : ''])
         br
 
 
