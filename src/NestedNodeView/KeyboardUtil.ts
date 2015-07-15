@@ -4,11 +4,10 @@ export var KeyMod = {
     SHIFT: 'shiftKey'
 };
 
-var _KeyMods = [];
-for (var mod in KeyMod) { KeyMod.hasOwnProperty(mod) && _KeyMods.push(KeyMod[mod]); }
-
 
 export class Shortcut {
+
+    private static keyMods = ['metaKey', 'ctrlKey', 'altKey', 'shiftKey'];
 
     constructor(private keyEvent: KeyboardEvent) {}
 
@@ -18,7 +17,7 @@ export class Shortcut {
             return false;
         }
 
-        return _KeyMods.reduce((res, mod) => {
+        return Shortcut.keyMods.reduce((res, mod) => {
             var modRequired = mods.indexOf(mod) != -1;
             return res && (modRequired ? this.keyEvent[mod] : !this.keyEvent[mod])
         }, true);

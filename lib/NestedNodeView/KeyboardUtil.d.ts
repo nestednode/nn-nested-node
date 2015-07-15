@@ -5,6 +5,7 @@ export declare var KeyMod: {
 };
 export declare class Shortcut {
     private keyEvent;
+    private static keyMods;
     constructor(keyEvent: KeyboardEvent);
     eq(keyCode: number, ...mods: string[]): boolean;
 }
