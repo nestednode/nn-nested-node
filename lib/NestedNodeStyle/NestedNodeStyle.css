@@ -375,13 +375,13 @@
   background: #464646;
 }
 .nn_theme-dark .nn__node_selected > .nn__node-databox {
-  border-color: #fd6060;
+  border-color: #4da4f9;
 }
 .nn_theme-dark.nn_inactive .nn__node_selected > .nn__node-databox {
   border-color: #8f8f8f;
 }
 .nn_theme-dark .nn__node_editing > .nn__node-databox {
-  box-shadow: 0 0 0.8em rgba(253, 96, 96, 0.4);
+  box-shadow: 0 0 0.8em rgba(77, 164, 249, 0.4);
 }
 .nn_theme-dark .nn__node-nested {
   border-left-color: #d5d5d5;
